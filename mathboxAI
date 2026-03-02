@@ -10,18 +10,13 @@ if [ ! -d "$VENV" ]; then
     "$VENV/bin/pip" install -r "$DIR/requirements.txt"
 fi
 
-JS_URL="https://raw.githubusercontent.com/ibenian/gemini-live-tools/main/js/voice-character-selector.js"
+JS_SRC=$("$VENV/bin/python3" -c "import gemini_live_tools, pathlib; print(pathlib.Path(gemini_live_tools.__file__).parent / 'static' / 'voice-character-selector.js')" 2>/dev/null)
 JS_DEST="$DIR/static/voice-character-selector.js"
-if curl -fsSL --max-time 5 -o "$JS_DEST.tmp" "$JS_URL" 2>/dev/null; then
-    mv "$JS_DEST.tmp" "$JS_DEST"
-    echo "✓ voice-character-selector.js synced from gemini-live-tools"
+if [ -f "$JS_SRC" ]; then
+    cp "$JS_SRC" "$JS_DEST"
+    echo "✓ voice-character-selector.js copied from installed gemini-live-tools"
 else
-    rm -f "$JS_DEST.tmp"
-    if [ -f "$JS_DEST" ]; then
-        echo "⚠ Could not reach gemini-live-tools, using cached voice-character-selector.js"
-    else
-        echo "⚠ Could not download voice-character-selector.js and no cached version found"
-    fi
+    echo "⚠ Could not locate voice-character-selector.js in gemini-live-tools package"
 fi
 
 exec "$VENV/bin/python3" "$DIR/server.py" "$@"
