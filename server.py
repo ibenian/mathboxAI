@@ -129,7 +129,7 @@ def resolve_scene_path(scene_arg):
     candidate = Path(raw).expanduser()
     candidates = [candidate]
     if not candidate.is_absolute():
-        candidates = [Path.cwd() / candidate, script_dir / candidate]
+        candidates = [Path.cwd() / candidate, script_dir / candidate, scenes_dir / candidate]
     for path in candidates:
         if path.exists() and path.is_file():
             return path.resolve()
