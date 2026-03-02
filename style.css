@@ -820,7 +820,7 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
     color: #b0b0d0;
 }
 .tree-step.visited::before {
-    content: '\\2713 ';
+    content: '\2713 ';
     color: rgba(100, 200, 100, 0.6);
     font-size: 0.85em;
 }
