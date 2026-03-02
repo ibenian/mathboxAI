@@ -3795,7 +3795,7 @@ function buildSliderOverlay() {
         const labelSpan = document.createElement('span');
         labelSpan.className = 'slider-label';
         labelSpan.innerHTML = renderKaTeX(s.label || id, false);
-        labelSpan.title = s.label || id;
+        labelSpan.title = (s.label || id).replace(/\$([^$]*)\$/g, '$1');
         row.appendChild(labelSpan);
 
         const input = document.createElement('input');
