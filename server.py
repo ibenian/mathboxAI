@@ -761,8 +761,8 @@ def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False
                 self.end_headers()
                 self.wfile.write(js.encode('utf-8'))
 
-            elif path == '/shared/voice-character-selector.js':
-                shared_js_path = static_dir / "voice-character-selector.js"
+            elif path == '/gemini-live-tools/js/voice-character-selector.js':
+                shared_js_path = static_dir / "gemini-live-tools" / "js" / "voice-character-selector.js"
                 with open(shared_js_path, 'r') as f:
                     js = f.read()
                 self.send_response(200)

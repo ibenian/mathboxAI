@@ -6,4 +6,4 @@ venv/
 .env
 *.wav
 *.m4a
-static/voice-character-selector.js
+static/gemini-live-tools/
