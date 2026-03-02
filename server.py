@@ -35,16 +35,17 @@ try:
     TTS_AVAILABLE = True
 except ImportError:
     TTS_AVAILABLE = False
-app_js_path = script_dir / "app.js"
-chat_js_path = script_dir / "chat.js"
+static_dir   = script_dir / "static"
+app_js_path  = static_dir / "app.js"
+chat_js_path = static_dir / "chat.js"
 
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 GEMINI_MODEL   = os.environ.get('GEMINI_MODEL', 'gemini-3-flash-preview')
 
 DEFAULT_PORT = 8785
 
-index_html_path = script_dir / "index.html"
-style_css_path  = script_dir / "style.css"
+index_html_path = static_dir / "index.html"
+style_css_path  = static_dir / "style.css"
 
 # ---------------------------------------------------------------------------
 # Agent session memory — persists across turns within one server session.
@@ -761,7 +762,7 @@ def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False
                 self.wfile.write(js.encode('utf-8'))
 
             elif path == '/shared/voice-character-selector.js':
-                shared_js_path = script_dir / "static" / "voice-character-selector.js"
+                shared_js_path = static_dir / "voice-character-selector.js"
                 with open(shared_js_path, 'r') as f:
                     js = f.read()
                 self.send_response(200)
