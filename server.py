@@ -763,13 +763,18 @@ def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False
 
             elif path == '/gemini-live-tools/js/voice-character-selector.js':
                 shared_js_path = static_dir / "gemini-live-tools" / "js" / "voice-character-selector.js"
-                with open(shared_js_path, 'r') as f:
-                    js = f.read()
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/javascript')
-                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-                self.end_headers()
-                self.wfile.write(js.encode('utf-8'))
+                if not shared_js_path.exists():
+                    print("⚠ voice-character-selector.js not found — run ./mathboxAI --update")
+                    self.send_response(404)
+                    self.end_headers()
+                else:
+                    with open(shared_js_path, 'r') as f:
+                        js = f.read()
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/javascript')
+                    self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                    self.end_headers()
+                    self.wfile.write(js.encode('utf-8'))
 
             elif path == '/style.css':
                 self.send_response(200)
