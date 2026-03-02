@@ -1,5 +1,5 @@
 // ============================================================
-// MathBox3D AI Chat Agent (Gemini-powered)
+// MathBoxAI AI Chat Agent (Gemini-powered)
 // Integrated as a tab in the explanation panel
 // ============================================================
 
@@ -313,7 +313,7 @@ function initChatTtsControls() {
 
     selectedTtsVoice = lib.setupVoiceSelect(voiceSelect, {
         includeSystem: false,
-        storageKey: 'mathbox3dTtsVoice',
+        storageKey: 'mathboxaiTtsVoice',
         defaultValue: 'Charon'
     });
 
@@ -326,8 +326,8 @@ function initChatTtsControls() {
         options: lib.CHARACTER_OPTIONS,
         groupMap: lib.CHARACTER_GROUPS,
         groupOrder: lib.CHARACTER_GROUP_ORDER,
-        storageKey: 'mathbox3dTtsCharacter',
-        recentsKey: 'mathbox3dTtsCharacterRecents',
+        storageKey: 'mathboxaiTtsCharacter',
+        recentsKey: 'mathboxaiTtsCharacterRecents',
         defaultId: 'joker',
         hotkey: 'k',
         onChange: (characterId) => {
@@ -336,7 +336,7 @@ function initChatTtsControls() {
             if (opt && opt.defaultVoice && voiceSelect) {
                 voiceSelect.value = opt.defaultVoice;
                 selectedTtsVoice = opt.defaultVoice;
-                localStorage.setItem('mathbox3dTtsVoice', opt.defaultVoice);
+                localStorage.setItem('mathboxaiTtsVoice', opt.defaultVoice);
             }
         }
     });
@@ -348,11 +348,11 @@ function initChatTtsControls() {
 
     const ttsModeSelect = document.getElementById('chatTtsModeSelect');
     if (ttsModeSelect) {
-        selectedTtsMode = localStorage.getItem('mathbox3dTtsMode') || 'read';
+        selectedTtsMode = localStorage.getItem('mathboxaiTtsMode') || 'read';
         ttsModeSelect.value = selectedTtsMode;
         ttsModeSelect.addEventListener('change', () => {
             selectedTtsMode = ttsModeSelect.value;
-            localStorage.setItem('mathbox3dTtsMode', selectedTtsMode);
+            localStorage.setItem('mathboxaiTtsMode', selectedTtsMode);
         });
     }
 }
@@ -655,7 +655,7 @@ function addChatMessage(role, content, toolCalls) {
 
         const stopOtherBtn = () => {
             if (activeSpeakBtn && activeSpeakBtn !== speakBtn) {
-                if (typeof window.mathbox3dStopTTS === 'function') window.mathbox3dStopTTS();
+                if (typeof window.mathboxaiStopTTS === 'function') window.mathboxaiStopTTS();
                 if (activeSpeakBtn._ttsLoadPoll) { clearInterval(activeSpeakBtn._ttsLoadPoll); activeSpeakBtn._ttsLoadPoll = null; }
                 if (activeSpeakBtn._ttsStatePoll) { clearInterval(activeSpeakBtn._ttsStatePoll); activeSpeakBtn._ttsStatePoll = null; }
                 if (typeof activeSpeakBtn._setBtnState === 'function') activeSpeakBtn._setBtnState(null);
@@ -665,12 +665,12 @@ function addChatMessage(role, content, toolCalls) {
 
         const startPlay = () => {
             stopOtherBtn();
-            if (typeof window.mathbox3dSpeakText !== 'function') return;
+            if (typeof window.mathboxaiSpeakText !== 'function') return;
             if (speakBtn._ttsLoadPoll) { clearInterval(speakBtn._ttsLoadPoll); speakBtn._ttsLoadPoll = null; }
             if (speakBtn._ttsStatePoll) { clearInterval(speakBtn._ttsStatePoll); speakBtn._ttsStatePoll = null; }
             setBtnState('loading');
             activeSpeakBtn = speakBtn;
-            window.mathbox3dSpeakText(body.dataset.markdown || content, () => {
+            window.mathboxaiSpeakText(body.dataset.markdown || content, () => {
                 if (speakBtn._ttsLoadPoll) { clearInterval(speakBtn._ttsLoadPoll); speakBtn._ttsLoadPoll = null; }
                 if (speakBtn._ttsStatePoll) { clearInterval(speakBtn._ttsStatePoll); speakBtn._ttsStatePoll = null; }
                 setBtnState(null);
@@ -681,7 +681,7 @@ function addChatMessage(role, content, toolCalls) {
                 if (!speakBtn.classList.contains('loading') || activeSpeakBtn !== speakBtn) {
                     clearInterval(speakBtn._ttsLoadPoll); speakBtn._ttsLoadPoll = null; return;
                 }
-                if (window.mathbox3dIsTTSLoading && !window.mathbox3dIsTTSLoading()) {
+                if (window.mathboxaiIsTTSLoading && !window.mathboxaiIsTTSLoading()) {
                     setBtnState('active');
                     clearInterval(speakBtn._ttsLoadPoll); speakBtn._ttsLoadPoll = null;
                 }
@@ -691,15 +691,15 @@ function addChatMessage(role, content, toolCalls) {
                 if (activeSpeakBtn !== speakBtn) {
                     clearInterval(speakBtn._ttsStatePoll); speakBtn._ttsStatePoll = null; return;
                 }
-                if (window.mathbox3dIsTTSLoading && window.mathbox3dIsTTSLoading()) {
+                if (window.mathboxaiIsTTSLoading && window.mathboxaiIsTTSLoading()) {
                     if (!speakBtn.classList.contains('loading')) setBtnState('loading');
                     return;
                 }
-                if (window.mathbox3dIsTTSSpeaking && window.mathbox3dIsTTSSpeaking()) {
+                if (window.mathboxaiIsTTSSpeaking && window.mathboxaiIsTTSSpeaking()) {
                     if (!speakBtn.classList.contains('active')) setBtnState('active');
                     return;
                 }
-                if (window.mathbox3dIsTTSPaused && window.mathbox3dIsTTSPaused()) {
+                if (window.mathboxaiIsTTSPaused && window.mathboxaiIsTTSPaused()) {
                     if (!speakBtn.classList.contains('paused')) setBtnState('paused');
                     return;
                 }
@@ -715,20 +715,20 @@ function addChatMessage(role, content, toolCalls) {
                 return;
             }
             if (speakBtn.classList.contains('loading')) {
-                if (typeof window.mathbox3dStopTTS === 'function') window.mathbox3dStopTTS();
+                if (typeof window.mathboxaiStopTTS === 'function') window.mathboxaiStopTTS();
                 if (speakBtn._ttsLoadPoll) { clearInterval(speakBtn._ttsLoadPoll); speakBtn._ttsLoadPoll = null; }
                 if (speakBtn._ttsStatePoll) { clearInterval(speakBtn._ttsStatePoll); speakBtn._ttsStatePoll = null; }
                 setBtnState(null);
                 if (activeSpeakBtn === speakBtn) activeSpeakBtn = null;
                 return;
             }
-            if (activeSpeakBtn === speakBtn && ((window.mathbox3dIsTTSSpeaking && window.mathbox3dIsTTSSpeaking()) || speakBtn.classList.contains('active'))) {
-                if (typeof window.mathbox3dPauseTTS === 'function') window.mathbox3dPauseTTS();
+            if (activeSpeakBtn === speakBtn && ((window.mathboxaiIsTTSSpeaking && window.mathboxaiIsTTSSpeaking()) || speakBtn.classList.contains('active'))) {
+                if (typeof window.mathboxaiPauseTTS === 'function') window.mathboxaiPauseTTS();
                 setBtnState('paused');
                 return;
             }
-            if (activeSpeakBtn === speakBtn && ((window.mathbox3dIsTTSPaused && window.mathbox3dIsTTSPaused()) || speakBtn.classList.contains('paused'))) {
-                if (typeof window.mathbox3dResumeTTS === 'function') window.mathbox3dResumeTTS();
+            if (activeSpeakBtn === speakBtn && ((window.mathboxaiIsTTSPaused && window.mathboxaiIsTTSPaused()) || speakBtn.classList.contains('paused'))) {
+                if (typeof window.mathboxaiResumeTTS === 'function') window.mathboxaiResumeTTS();
                 setBtnState('active');
                 return;
             }
@@ -739,7 +739,7 @@ function addChatMessage(role, content, toolCalls) {
         speakBtn.addEventListener('dblclick', (e) => {
             e.preventDefault();
             speakBtn._ignoreNextClick = true;
-            if (typeof window.mathbox3dStopTTS === 'function') window.mathbox3dStopTTS();
+            if (typeof window.mathboxaiStopTTS === 'function') window.mathboxaiStopTTS();
             if (speakBtn._ttsLoadPoll) { clearInterval(speakBtn._ttsLoadPoll); speakBtn._ttsLoadPoll = null; }
             if (speakBtn._ttsStatePoll) { clearInterval(speakBtn._ttsStatePoll); speakBtn._ttsStatePoll = null; }
             setBtnState(null);
@@ -990,47 +990,47 @@ function connectTTSForRecording(audioEl) {
     }
 }
 
-window.mathbox3dGetTTSAudioStream = function() {
+window.mathboxaiGetTTSAudioStream = function() {
     const bus = ensureTTSRecordingBus();
     if (!bus) return null;
     if (bus.ctx.state === 'suspended') bus.ctx.resume().catch(() => {});
     return bus.dest.stream;
 };
 
-window.mathbox3dIsTTSSpeaking = function() {
+window.mathboxaiIsTTSSpeaking = function() {
     return ttsAudio !== null && !ttsLoading && !ttsPausedByUser && !ttsAudio.paused;
 };
 
-window.mathbox3dIsTTSPaused = function() {
+window.mathboxaiIsTTSPaused = function() {
     // Only true when the user explicitly paused — not during the brief gap where
     // ttsAudio.paused is true before play() starts, or when AudioContext is suspended.
     return ttsAudio !== null && ttsPausedByUser;
 };
 
-window.mathbox3dPauseTTS = function() {
+window.mathboxaiPauseTTS = function() {
     if (ttsAudio) {
         ttsPausedByUser = true;
         ttsAudio.pause();
     }
 };
 
-window.mathbox3dResumeTTS = function() {
+window.mathboxaiResumeTTS = function() {
     if (ttsAudio) {
         ttsPausedByUser = false;
         ttsAudio.play().catch(() => {});
     }
 };
 
-window.mathbox3dIsTTSLoading = function() { return ttsLoading; };
+window.mathboxaiIsTTSLoading = function() { return ttsLoading; };
 
-window.mathbox3dStopTTS = function() {
+window.mathboxaiStopTTS = function() {
     if (ttsAudio) { ttsAudio.pause(); ttsAudio = null; }
     ttsLoading = false;
     ttsPausedByUser = false;
     ++ttsRequestId;  // invalidate any in-flight fetch
 };
 
-window.mathbox3dSpeakText = function(text, onEnd) {
+window.mathboxaiSpeakText = function(text, onEnd) {
     // speakText does ++ttsRequestId synchronously; capture expected ID before calling it
     const expectedId = ttsRequestId + 1;
     speakText(text, { explicit: true });  // sets ttsAudio=null initially, then non-null once fetch resolves
@@ -1137,7 +1137,7 @@ function logContextIfChanged() {
     if (json === _lastContextJson) return;
     _lastContextJson = json;
 
-    localStorage.setItem('mathbox3d-chat-context', json);
+    localStorage.setItem('mathboxai-chat-context', json);
 
     const scene = context.currentScene || {};
     const rt = context.runtime || {};

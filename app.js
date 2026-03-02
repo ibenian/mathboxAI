@@ -1,5 +1,5 @@
 // ============================================================
-// MathBox3D Client Application
+// MathBoxAI Client Application
 // ============================================================
 
 // ----- State -----
@@ -962,7 +962,7 @@ function updateExplanationPanel(spec) {
     toggle.classList.add('active');
 
     // Restore saved width
-    const savedWidth = localStorage.getItem('mathbox3d-panel-width');
+    const savedWidth = localStorage.getItem('mathboxai-panel-width');
     if (savedWidth) {
         const w = parseInt(savedWidth);
         if (w >= 250 && w <= 600) panel.style.width = w + 'px';
@@ -1003,7 +1003,7 @@ function setupPanelResize() {
         handle.classList.remove('dragging');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
-        localStorage.setItem('mathbox3d-panel-width', panel.offsetWidth);
+        localStorage.setItem('mathboxai-panel-width', panel.offsetWidth);
     });
 }
 
@@ -1072,7 +1072,7 @@ function setupDocSpeakButtons() {
     // --- Speak: read the doc content aloud ---
     speakBtn.addEventListener('click', () => {
         if (speakBtn.classList.contains('active')) {
-            if (typeof window.mathbox3dStopTTS === 'function') window.mathbox3dStopTTS();
+            if (typeof window.mathboxaiStopTTS === 'function') window.mathboxaiStopTTS();
             resetSpeakBtn();
             return;
         }
@@ -1084,10 +1084,10 @@ function setupDocSpeakButtons() {
 
         if (!text || !text.trim()) return;
 
-        if (typeof window.mathbox3dSpeakText === 'function') {
+        if (typeof window.mathboxaiSpeakText === 'function') {
             speakBtn.textContent = '⏹ Stop';
             speakBtn.classList.add('active');
-            window.mathbox3dSpeakText(text, resetSpeakBtn);
+            window.mathboxaiSpeakText(text, resetSpeakBtn);
         }
     });
 
@@ -1097,7 +1097,7 @@ function setupDocSpeakButtons() {
 
         // Stop any doc speak in progress
         if (speakBtn.classList.contains('active')) {
-            if (typeof window.mathbox3dStopTTS === 'function') window.mathbox3dStopTTS();
+            if (typeof window.mathboxaiStopTTS === 'function') window.mathboxaiStopTTS();
             resetSpeakBtn();
         }
 
@@ -1126,7 +1126,7 @@ function updateTitle(spec) {
     if (spec && spec.title) {
         titleEl.innerHTML = renderKaTeX(spec.title, false);
     } else {
-        titleEl.innerHTML = 'MathBox3D';
+        titleEl.innerHTML = 'MathBoxAI';
     }
     if (spec && spec.description) {
         descEl.innerHTML = renderKaTeX(spec.description, false);
@@ -4920,7 +4920,7 @@ function syncSliderState() {
     for (const [id, s] of Object.entries(sceneSliders)) {
         state[id] = s.value;
     }
-    try { localStorage.setItem('mathbox3d-sliders', JSON.stringify(state)); } catch(e) {}
+    try { localStorage.setItem('mathboxai-sliders', JSON.stringify(state)); } catch(e) {}
     // Update status bar pill
     updateStatusBar();
 }
@@ -5172,7 +5172,7 @@ function setupSceneDock() {
     const nextBtn = document.getElementById('nav-next');
 
     // Restore saved state
-    const savedOpen = localStorage.getItem('mathbox3d-dock-open');
+    const savedOpen = localStorage.getItem('mathboxai-dock-open');
     if (savedOpen === 'true') {
         panel.classList.add('open');
         toggle.classList.add('active');
@@ -5181,7 +5181,7 @@ function setupSceneDock() {
     toggle.addEventListener('click', () => {
         const isOpen = panel.classList.toggle('open');
         toggle.classList.toggle('active', isOpen);
-        localStorage.setItem('mathbox3d-dock-open', isOpen);
+        localStorage.setItem('mathboxai-dock-open', isOpen);
         setTimeout(() => window.dispatchEvent(new Event('resize')), 250);
     });
 
@@ -5222,7 +5222,7 @@ function setupSettingsPanel() {
     // Momentum slider
     const momentumSlider = document.getElementById('momentum-slider');
     const valMomentum    = document.getElementById('val-momentum');
-    const MOMENTUM_KEY   = 'mathbox3d-momentum';
+    const MOMENTUM_KEY   = 'mathboxai-momentum';
     const savedMomentum  = parseFloat(localStorage.getItem(MOMENTUM_KEY));
     if (!isNaN(savedMomentum)) arcballMomentum = Math.max(0, Math.min(1, savedMomentum));
     if (momentumSlider) {
@@ -5602,16 +5602,16 @@ function pickVideoRecorderFormat() {
 }
 
 function sanitizeFilename(name) {
-    return (name || 'mathbox3d')
+    return (name || 'mathboxai')
         .replace(/[^a-zA-Z0-9._-]+/g, '_')
         .replace(/^_+|_+$/g, '')
-        .slice(0, 80) || 'mathbox3d';
+        .slice(0, 80) || 'mathboxai';
 }
 
 function getExportBaseName() {
     const title = (lessonSpec && lessonSpec.title)
         || (currentSpec && currentSpec.title)
-        || 'mathbox3d-export';
+        || 'mathboxai-export';
     return sanitizeFilename(title);
 }
 
@@ -5648,7 +5648,7 @@ function setupVideoExport() {
             });
 
             const tracks = [...displayStream.getVideoTracks()];
-            const getTTSStream = window.mathbox3dGetTTSAudioStream;
+            const getTTSStream = window.mathboxaiGetTTSAudioStream;
             if (typeof getTTSStream === 'function') {
                 const ttsStream = getTTSStream();
                 if (ttsStream) tracks.push(...ttsStream.getAudioTracks());

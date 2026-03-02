@@ -155,7 +155,7 @@ def generate_html(debug=False):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MathBox3D</title>
+<title>MathBoxAI</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.ico">
 <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.137.0/examples/js/controls/OrbitControls.js"></script>
@@ -172,7 +172,7 @@ def generate_html(debug=False):
     <div id="title-bar">
         <div id="title-content">
             <div id="scene-title-row">
-                <div id="scene-title">MathBox3D</div>
+                <div id="scene-title">MathBoxAI</div>
                 <span id="scene-source-file" title="">- no file</span>
             </div>
         </div>
@@ -234,7 +234,7 @@ def generate_html(debug=False):
             <div id="controls-hint">Drag: rotate &middot; Shift+drag: pan &middot; Zoom: pinch/wheel &middot; &#8997;+drag: roll</div>
             <div id="drop-overlay">Drop JSON file here</div>
             <div id="empty-state">
-                <h2>MathBox3D</h2>
+                <h2>MathBoxAI</h2>
                 <p>Drag &amp; drop a scene JSON, or use the toolbar above</p>
             </div>
             <div id="step-caption" class="hidden"></div>
@@ -3056,7 +3056,7 @@ def call_gemini_chat(message, history, context):
 DEBUG_MODE = False
 
 def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False, debug=False):
-    """Serve the MathBox3D viewer and optionally open in browser."""
+    """Serve the MathBoxAI viewer and optionally open in browser."""
     global DEBUG_MODE
     DEBUG_MODE = debug
 
@@ -3382,7 +3382,7 @@ def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False
         sys.stdout.flush()
     else:
         webbrowser.open(url)
-        print(f"Opened MathBox3D in browser")
+        print(f"Opened MathBoxAI in browser")
         print(f"\nDrag & drop JSON files onto the viewport to load scenes")
         print(f"\nPress 'q' or Ctrl+C to stop the server")
 
@@ -3428,14 +3428,14 @@ def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False
 
 def main():
     parser = argparse.ArgumentParser(
-        description='MathBox3D - Interactive 3D Linear Algebra Visualizer',
+        description='MathBoxAI - Interactive 3D Linear Algebra Visualizer',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
-  mathbox3d                              Launch empty viewer
-  mathbox3d scene.json                   Launch with scene
-  mathbox3d scenes/vector-addition.json  Load built-in scene
-  mathbox3d --port 9000                  Use custom port
+  mathboxAI                              Launch empty viewer
+  mathboxAI scene.json                   Launch with scene
+  mathboxAI scenes/vector-addition.json  Load built-in scene
+  mathboxAI --port 9000                  Use custom port
         '''
     )
     parser.add_argument('scene', nargs='?', help='Path to scene JSON file')
