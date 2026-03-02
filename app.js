@@ -5031,7 +5031,7 @@ function updateStepCaption(scene, stepIdx) {
         text = scene.description;
     }
     if (text) {
-        el.innerHTML = renderKaTeX(text, false);
+        el.innerHTML = renderMarkdown(text);
         el.dataset.markdown = text;
         const btn = makeAiAskButton('ai-ask-btn caption-ai-btn', 'Ask AI to explain this', () => `Can you explain the step description: "${text}"`);
         el.appendChild(btn);
