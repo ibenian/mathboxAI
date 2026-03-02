@@ -30,6 +30,12 @@ To launch directly into a scene:
 ./mathboxAI scenes/eigenvalues.json
 ```
 
+To update dependencies and voice characters to the latest version:
+
+```bash
+./mathboxAI --update
+```
+
 ---
 
 ## Contributing
@@ -118,16 +124,18 @@ Voice characters are defined in [`gemini-live-tools`](https://github.com/ibenian
 
 ```
 mathboxAI/
-├── mathboxAI          Python server (run this)
-├── app.js             3D scene rendering, sliders, camera
-├── chat.js            AI chat panel, TTS, voice picker
+├── mathboxAI          Launcher (run this)
+├── server.py          Python server
 ├── scenes/            Lesson JSON files (contribute here!)
 │   ├── eigenvalues.json
 │   ├── matrix-transformations.json
 │   ├── vector-operations.json
 │   └── ...
 └── static/
-    └── voice-character-selector.js   Voice/character picker UI widget
+    ├── app.js         3D scene rendering, sliders, camera
+    ├── chat.js        AI chat panel, TTS, voice picker
+    ├── index.html
+    └── style.css
 ```
 
 ---
