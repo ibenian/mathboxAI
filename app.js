@@ -838,6 +838,12 @@ function escapeHtml(s) {
     return d.innerHTML;
 }
 
+// Strip LaTeX delimiters for plain-text contexts (tooltips, aria labels, etc.)
+function stripLatex(text) {
+    if (!text) return '';
+    return text.replace(/\$\$([^$]*)\$\$/g, '$1').replace(/\$([^$]*)\$/g, '$1');
+}
+
 // ----- Markdown Rendering (LaTeX-safe two-pass) -----
 function renderMarkdown(md) {
     if (!md) return '';
@@ -3795,7 +3801,7 @@ function buildSliderOverlay() {
         const labelSpan = document.createElement('span');
         labelSpan.className = 'slider-label';
         labelSpan.innerHTML = renderKaTeX(s.label || id, false);
-        labelSpan.title = (s.label || id).replace(/\$([^$]*)\$/g, '$1');
+        labelSpan.title = stripLatex(s.label || id);
         row.appendChild(labelSpan);
 
         const input = document.createElement('input');
