@@ -1,4 +1,4 @@
-# Contributing to mathboxAI
+# Contributing to MathBoxAI
 
 **Most contributions don't require touching any Python or JavaScript.**
 The two most impactful things you can contribute are new scenes and new voice characters.

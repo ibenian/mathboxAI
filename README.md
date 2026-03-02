@@ -1,4 +1,4 @@
-# mathboxAI
+# MathBoxAI
 
 Interactive 3D math visualizer built on [MathBox](https://github.com/unconed/mathbox), with AI chat and narrated lessons — powered by Gemini.
 
@@ -6,7 +6,7 @@ Interactive 3D math visualizer built on [MathBox](https://github.com/unconed/mat
 mathboxAI eigenvalues.json
 ```
 
-![mathboxAI screenshot placeholder]
+![MathBoxAI screenshot placeholder]
 
 ---
 
