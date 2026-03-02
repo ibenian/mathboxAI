@@ -30,11 +30,13 @@ To launch directly into a scene:
 ./mathboxAI scenes/eigenvalues.json
 ```
 
-To update dependencies and voice characters to the latest version:
+To update to the latest version of [`gemini-live-tools`](https://github.com/ibenian/gemini-live-tools) (which includes new voice characters and the voice picker UI):
 
 ```bash
 ./mathboxAI --update
 ```
+
+This reinstalls `gemini-live-tools` from GitHub and copies the updated `voice-character-selector.js` into the app.
 
 ---
 
