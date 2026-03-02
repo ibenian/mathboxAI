@@ -142,6 +142,10 @@ mathboxAI/
 
 ---
 
+## Contributing
+
+By submitting a contribution (including pull requests), you agree that your contribution will be licensed under the same MIT License that covers this project.
+
 ## License
 
 [MIT](LICENSE)
