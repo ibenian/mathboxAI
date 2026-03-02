@@ -110,48 +110,7 @@ Use the built-in scenes in `scenes/` as reference — `eigenvalues.json` and `ma
 
 ### Adding a Voice Character
 
-Voice characters are defined in [`gemini-live-tools`](https://github.com/ibenian/gemini-live-tools) — open a PR there.
-
-**Two things to add in `python/gemini_live_tools/gemini_live_api.py`:**
-
-**1. The character description** in the `CHARACTERS` dict:
-
-```python
-CHARACTERS: Dict[str, str] = {
-    # ... existing characters ...
-    "my_character": "My character: brief style description for Gemini to follow.",
-}
-```
-
-Keep it one sentence. Be specific about cadence, tone, and any accent. Examples from existing characters:
-- `"feynman"`: *"Feynman explainer: radically simple, builds intuition from first principles, uses everyday analogies, zero jargon unless earned."*
-- `"rubber_duck"`: *"Rubber duck debugger: talks through the problem slowly out loud, restates assumptions, catches obvious mistakes."*
-- `"oxford"`: *"Oxford professor: formal British cadence, precise diction, scholarly and composed."*
-
-**2. The default voice** in the `CHARACTER_DEFAULT_VOICES` dict:
-
-```python
-CHARACTER_DEFAULT_VOICES: Dict[str, str] = {
-    # ... existing entries ...
-    "my_character": "Kore",   # pick a Gemini voice that fits
-}
-```
-
-Available Gemini voices: `Kore`, `Charon`, `Fenrir`, `Aoede`, `Puck`, `Leda`, `Orus`, `Zephyr`,
-`Iapetus`, `Gacrux`, `Rasalgethi`, `Achird`, `Alnilam`, `Algenib`, `Erinome`, `Achernar`,
-`Sadaltager`, `Autonoe`, `Callirrhoe`, `Laomedeia`, `Sadachbia`, `Sulafat`, `Schedar`,
-`Despina`, `Umbriel`, `Pulcherrima`.
-
-**3. The UI group** in `static/voice-character-selector.js`:
-
-```js
-const CHARACTER_GROUPS = {
-    // ...
-    my_character: 'Core',  // groups: Core, Academic, Accents, Character, Dramatic, Musical, Fiction
-};
-```
-
-That's it — open a PR and the character will appear in the voice picker immediately.
+Voice characters are defined in [`gemini-live-tools`](https://github.com/ibenian/gemini-live-tools) — see the contributing guide there and open a PR.
 
 ---
 
