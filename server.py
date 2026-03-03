@@ -739,6 +739,8 @@ def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/html')
                 self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.send_header('Content-Security-Policy',
+                    "script-src 'self' https://cdn.jsdelivr.net 'unsafe-eval' 'unsafe-inline'")
                 self.end_headers()
                 self.wfile.write(html_content.encode('utf-8'))
 
