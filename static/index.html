@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@13.0.0/lib/browser/math.js"></script>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -138,7 +139,23 @@
         </div>
     </div>
     <div id="chatCharacterBackdrop" class="style-backdrop" hidden></div>
+
+    <!-- Trust Dialog Overlay -->
+    <div id="trust-dialog-overlay" class="hidden">
+        <div id="trust-dialog">
+            <div id="trust-dialog-title">⚠ Untrusted JavaScript Detected</div>
+            <div id="trust-dialog-body"></div>
+            <div id="trust-dialog-buttons">
+                <button id="trust-btn-deny" class="trust-btn trust-btn-deny">Run Safely (math.js only)</button>
+                <button id="trust-btn-allow" class="trust-btn trust-btn-allow">Trust &amp; Enable JS</button>
+            </div>
+        </div>
+    </div>
+
     <div id="status-bar">
+        <span id="js-trust-pill" class="hidden">
+            <span id="js-trust-pill-icon"></span><span id="js-trust-pill-label"></span>
+        </span>
         <span id="slider-status" class="hidden">
             <span class="slider-status-icon">🎚️</span><span class="slider-status-count"></span>
             <div class="slider-status-tooltip"></div>

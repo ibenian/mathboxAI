@@ -1558,7 +1558,7 @@
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x.toFixed(2)}\\\\ {y.toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
             }
           ]
         },
@@ -1639,12 +1639,12 @@
             {
               "id": "mat-A",
               "position": "top-left",
-              "content": "$$ A = \\begin{pmatrix}{a.toFixed(1)} & {b.toFixed(1)}\\\\ {c.toFixed(1)} & {d.toFixed(1)} \\end{pmatrix} $$"
+              "content": "$$ A = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d} \\end{pmatrix} $$"
             },
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x.toFixed(2)}\\\\ {y.toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
             }
           ]
         },
@@ -1682,17 +1682,17 @@
             {
               "id": "mat-A",
               "position": "top-left",
-              "content": "$$ A = \\begin{pmatrix}{a.toFixed(1)} & {b.toFixed(1)}\\\\ {c.toFixed(1)} & {d.toFixed(1)} \\end{pmatrix} $$"
+              "content": "$$ A = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d} \\end{pmatrix} $$"
             },
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x.toFixed(2)}\\\\ {y.toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
             },
             {
               "id": "vec-av",
               "position": "bottom-right",
-              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{(a*x+b*y).toFixed(2)}\\\\ {(c*x+d*y).toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{(a*x+b*y)}\\\\ {(c*x+d*y)} \\end{pmatrix} $$"
             }
           ]
         },
@@ -1779,17 +1779,17 @@
             {
               "id": "decomp",
               "position": "top-left",
-              "content": "$$ A\\mathbf{v} = {x.toFixed(1)}\\!\\begin{pmatrix}{a.toFixed(1)}\\\\ {c.toFixed(1)}\\end{pmatrix} + {y.toFixed(1)}\\!\\begin{pmatrix}{b.toFixed(1)}\\\\ {d.toFixed(1)}\\end{pmatrix} $$"
+              "content": "$$ A\\mathbf{v} = {x}\\!\\begin{pmatrix}{a}\\\\ {c}\\end{pmatrix} + {y}\\!\\begin{pmatrix}{b}\\\\ {d}\\end{pmatrix} $$"
             },
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x.toFixed(2)}\\\\ {y.toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
             },
             {
               "id": "vec-av",
               "position": "bottom-right",
-              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{(a*x+b*y).toFixed(2)}\\\\ {(c*x+d*y).toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{(a*x+b*y)}\\\\ {(c*x+d*y)} \\end{pmatrix} $$"
             }
           ]
         }
@@ -1933,8 +1933,8 @@
             {
               "id": "unit-circle",
               "type": "parametric_curve",
-              "x": "Math.cos(t)",
-              "y": "Math.sin(t)",
+              "x": "cos(t)",
+              "y": "sin(t)",
               "z": "0",
               "range": [
                 0,
@@ -2017,8 +2017,8 @@
                 0
               ],
               "expr": [
-                "Math.cos(theta)",
-                "Math.sin(theta)",
+                "cos(theta)",
+                "sin(theta)",
                 "0"
               ],
               "color": "#ff6644",
@@ -2034,8 +2034,8 @@
                 0
               ],
               "expr": [
-                "-Math.sin(theta)",
-                "Math.cos(theta)",
+                "-sin(theta)",
+                "cos(theta)",
                 "0"
               ],
               "color": "#44cc88",
@@ -2056,7 +2056,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$R(\\theta) = \\begin{pmatrix}{Math.cos(theta).toFixed(2)} & {-Math.sin(theta).toFixed(2)}\\\\ {Math.sin(theta).toFixed(2)} & {Math.cos(theta).toFixed(2)}\\end{pmatrix}$$"
+              "content": "$$R(\\theta) = \\begin{pmatrix}{cos(theta)} & {-sin(theta)}\\\\ {sin(theta)} & {cos(theta)}\\end{pmatrix}$$"
             }
           ]
         }
@@ -2498,7 +2498,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}, \\quad \\det(M) = {(a*d - b*c).toFixed(2)}$$"
+              "content": "$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}, \\quad \\det(M) = {(a*d - b*c)}$$"
             }
           ]
         }
@@ -2702,7 +2702,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}$$\n\nParallelogram area $= |ad - bc| = {Math.abs(a*d - b*c).toFixed(2)}$"
+              "content": "$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}$$\n\nParallelogram area $= |ad - bc| = {abs(a*d - b*c)}$"
             }
           ]
         },
@@ -2747,7 +2747,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Bounding box $= (a+b)(c+d)$\n\n$= ({a}+{b})({c}+{d}) = {((a+b)*(c+d)).toFixed(2)}$\n\nParallelogram $= {Math.abs(a*d - b*c).toFixed(2)}$"
+              "content": "Bounding box $= (a+b)(c+d)$\n\n$= ({a}+{b})({c}+{d}) = {((a+b)*(c+d))}$\n\nParallelogram $= {abs(a*d - b*c)}$"
             }
           ]
         },
@@ -2832,7 +2832,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Subtract **2 rectangles** of $b \\times c$:\n\n$2bc = 2({b})({c}) = {(2*b*c).toFixed(2)}$\n\nRunning total removed: ${(2*b*c).toFixed(2)}$"
+              "content": "Subtract **2 rectangles** of $b \\times c$:\n\n$2bc = 2({b})({c}) = {(2*b*c)}$\n\nRunning total removed: ${(2*b*c)}$"
             }
           ]
         },
@@ -2965,7 +2965,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Subtract **2 ac-triangles** of $\\frac{1}{2}ac$:\n\n$\\frac{1}{2}({a})({c}) = {(a*c/2).toFixed(2)}$ each\n\nTotal $ac = {(a*c).toFixed(2)}$\n\nRunning total removed: ${(2*b*c + a*c).toFixed(2)}$"
+              "content": "Subtract **2 ac-triangles** of $\\frac{1}{2}ac$:\n\n$\\frac{1}{2}({a})({c}) = {(a*c/2)}$ each\n\nTotal $ac = {(a*c)}$\n\nRunning total removed: ${(2*b*c + a*c)}$"
             }
           ]
         },
@@ -3100,7 +3100,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Subtract **2 bd-triangles** of $\\frac{1}{2}bd$:\n\n$\\frac{1}{2}({b})({d}) = {(b*d/2).toFixed(2)}$ each\n\nTotal $bd = {(b*d).toFixed(2)}$\n\nRunning total removed: ${(2*b*c + a*c + b*d).toFixed(2)}$"
+              "content": "Subtract **2 bd-triangles** of $\\frac{1}{2}bd$:\n\n$\\frac{1}{2}({b})({d}) = {(b*d/2)}$ each\n\nTotal $bd = {(b*d)}$\n\nRunning total removed: ${(2*b*c + a*c + b*d)}$"
             }
           ]
         },
@@ -3134,7 +3134,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "$(a+b)(c+d) - ac - bd - 2bc = ad - bc$\n\n$= ({a})({d}) - ({b})({c}) = {(a*d-b*c).toFixed(2)}$"
+              "content": "$(a+b)(c+d) - ac - bd - 2bc = ad - bc$\n\n$= ({a})({d}) - ({b})({c}) = {(a*d-b*c)}$"
             }
           ]
         }
@@ -3362,8 +3362,8 @@
                 0
               ],
               "expr": [
-                "0.577*Math.cos(theta) - 0.577*Math.sin(theta)",
-                "0.577*Math.sin(theta) + 0.577*Math.cos(theta)",
+                "0.577*cos(theta) - 0.577*sin(theta)",
+                "0.577*sin(theta) + 0.577*cos(theta)",
                 "0.577"
               ],
               "color": "#ff6644",
@@ -3401,7 +3401,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$R_z(\\theta) = \\begin{pmatrix}{Math.cos(theta).toFixed(2)} & {-Math.sin(theta).toFixed(2)} & 0\\\\ {Math.sin(theta).toFixed(2)} & {Math.cos(theta).toFixed(2)} & 0\\\\ 0 & 0 & 1\\end{pmatrix}$$"
+              "content": "$$R_z(\\theta) = \\begin{pmatrix}{cos(theta)} & {-sin(theta)} & 0\\\\ {sin(theta)} & {cos(theta)} & 0\\\\ 0 & 0 & 1\\end{pmatrix}$$"
             }
           ]
         }

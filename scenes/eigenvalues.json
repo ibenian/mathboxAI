@@ -1105,7 +1105,7 @@
           "info": [
             {
               "id": "det-live",
-              "content": "$$M(\\lambda)=A-\\lambda I=\\begin{pmatrix}3-\\lambda&1\\\\1&3-\\lambda\\end{pmatrix},\\quad \\det M={( (3-lam)*(3-lam)-1 ).toFixed(3)}$$",
+              "content": "$$M(\\lambda)=A-\\lambda I=\\begin{pmatrix}3-\\lambda&1\\\\1&3-\\lambda\\end{pmatrix},\\quad \\det M={( (3-lam)*(3-lam)-1 )}$$",
               "position": "top-left"
             },
             {
@@ -1360,8 +1360,8 @@
                 0
               ],
               "expr": [
-                "0.6*Math.cos(theta) - 0.5*Math.sin(theta)",
-                "0.6*Math.sin(theta) + 0.5*Math.cos(theta)",
+                "0.6*cos(theta) - 0.5*sin(theta)",
+                "0.6*sin(theta) + 0.5*cos(theta)",
                 "0.8"
               ],
               "color": "#ff6644",
@@ -1382,7 +1382,7 @@
           "info": [
             {
               "id": "rz-live",
-              "content": "$$\\theta={theta.toFixed(2)}\\;\\text{rad},\\quad R_z(\\theta)\\mathbf{w}=\\big({(0.6*Math.cos(theta) - 0.5*Math.sin(theta)).toFixed(3)},\\;{(0.6*Math.sin(theta) + 0.5*Math.cos(theta)).toFixed(3)},\\;0.800\\big)$$",
+              "content": "$$\\theta={theta}\\;\\text{rad},\\quad R_z(\\theta)\\mathbf{w}=\\big({(0.6*cos(theta) - 0.5*sin(theta))},\\;{(0.6*sin(theta) + 0.5*cos(theta))},\\;0.800\\big)$$",
               "position": "top-left"
             },
             {

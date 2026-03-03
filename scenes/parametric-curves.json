@@ -149,8 +149,8 @@
             {
               "id": "circle",
               "type": "parametric_curve",
-              "x": "Math.cos(t)",
-              "y": "Math.sin(t)",
+              "x": "cos(t)",
+              "y": "sin(t)",
               "z": "0",
               "range": [
                 0,
@@ -182,9 +182,9 @@
             {
               "id": "helix",
               "type": "parametric_curve",
-              "x": "Math.cos(t)",
-              "y": "Math.sin(t)",
-              "z": "t/(2*Math.PI)",
+              "x": "cos(t)",
+              "y": "sin(t)",
+              "z": "t/(2*pi)",
               "range": [
                 0,
                 12.5664
@@ -226,9 +226,9 @@
             {
               "id": "helix-interactive",
               "type": "parametric_curve",
-              "x": "Math.cos(t)",
-              "y": "Math.sin(t)",
-              "z": "h*t/(2*Math.PI)",
+              "x": "cos(t)",
+              "y": "sin(t)",
+              "z": "h*t/(2*pi)",
               "range": [
                 0,
                 12.5664
@@ -390,8 +390,8 @@
             {
               "id": "lissa-1-1",
               "type": "parametric_curve",
-              "x": "Math.sin(1*t + Math.PI/2)",
-              "y": "Math.sin(1*t)",
+              "x": "sin(1*t + pi/2)",
+              "y": "sin(1*t)",
               "z": "0",
               "range": [
                 0,
@@ -411,8 +411,8 @@
             {
               "id": "lissa-2-1",
               "type": "parametric_curve",
-              "x": "Math.sin(2*t + Math.PI/2)",
-              "y": "Math.sin(1*t)",
+              "x": "sin(2*t + pi/2)",
+              "y": "sin(1*t)",
               "z": "0",
               "range": [
                 0,
@@ -432,8 +432,8 @@
             {
               "id": "lissa-3-2",
               "type": "parametric_curve",
-              "x": "Math.sin(3*t + Math.PI/4)",
-              "y": "Math.sin(2*t)",
+              "x": "sin(3*t + pi/4)",
+              "y": "sin(2*t)",
               "z": "0",
               "range": [
                 0,
@@ -458,8 +458,8 @@
             {
               "id": "lissa-interactive",
               "type": "parametric_curve",
-              "x": "Math.sin(a*t + phi)",
-              "y": "Math.sin(b*t)",
+              "x": "sin(a*t + phi)",
+              "y": "sin(b*t)",
               "z": "0",
               "range": [
                 0,
@@ -633,8 +633,8 @@
             {
               "id": "spine-circle",
               "type": "parametric_curve",
-              "x": "2*Math.cos(t)",
-              "y": "2*Math.sin(t)",
+              "x": "2*cos(t)",
+              "y": "2*sin(t)",
               "z": "0",
               "range": [
                 0,
@@ -681,9 +681,9 @@
             {
               "id": "minor-circle-static",
               "type": "parametric_curve",
-              "x": "2 + 0.6*Math.cos(t)",
+              "x": "2 + 0.6*cos(t)",
               "y": "0",
-              "z": "0.6*Math.sin(t)",
+              "z": "0.6*sin(t)",
               "range": [
                 0,
                 6.2832
@@ -719,9 +719,9 @@
             {
               "id": "half-torus",
               "type": "parametric_surface",
-              "x": "(2 + 0.6*Math.cos(v))*Math.cos(u)",
-              "y": "(2 + 0.6*Math.cos(v))*Math.sin(u)",
-              "z": "0.6*Math.sin(v)",
+              "x": "(2 + 0.6*cos(v))*cos(u)",
+              "y": "(2 + 0.6*cos(v))*sin(u)",
+              "z": "0.6*sin(v)",
               "uRange": [
                 0,
                 3.1416
@@ -755,9 +755,9 @@
             {
               "id": "full-torus",
               "type": "parametric_surface",
-              "x": "(2 + 0.6*Math.cos(v))*Math.cos(u)",
-              "y": "(2 + 0.6*Math.cos(v))*Math.sin(u)",
-              "z": "0.6*Math.sin(v)",
+              "x": "(2 + 0.6*cos(v))*cos(u)",
+              "y": "(2 + 0.6*cos(v))*sin(u)",
+              "z": "0.6*sin(v)",
               "uRange": [
                 0,
                 6.2832
@@ -791,9 +791,9 @@
             {
               "id": "torus-interactive-bg",
               "type": "parametric_surface",
-              "x": "(2 + 0.6*Math.cos(v))*Math.cos(u)",
-              "y": "(2 + 0.6*Math.cos(v))*Math.sin(u)",
-              "z": "0.6*Math.sin(v)",
+              "x": "(2 + 0.6*cos(v))*cos(u)",
+              "y": "(2 + 0.6*cos(v))*sin(u)",
+              "z": "0.6*sin(v)",
               "uRange": [
                 0,
                 6.2832
@@ -810,9 +810,9 @@
             {
               "id": "cross-section-ring",
               "type": "parametric_curve",
-              "x": "(2 + 0.6*Math.cos(t))*Math.cos(phi)",
-              "y": "(2 + 0.6*Math.cos(t))*Math.sin(phi)",
-              "z": "0.6*Math.sin(t)",
+              "x": "(2 + 0.6*cos(t))*cos(phi)",
+              "y": "(2 + 0.6*cos(t))*sin(phi)",
+              "z": "0.6*sin(t)",
               "range": [
                 0,
                 6.2832
@@ -830,8 +830,8 @@
                 "0"
               ],
               "toExpr": [
-                "2*Math.cos(phi)",
-                "2*Math.sin(phi)",
+                "2*cos(phi)",
+                "2*sin(phi)",
                 "0"
               ],
               "color": "#ff4422",
@@ -842,14 +842,14 @@
               "id": "r-interactive",
               "type": "animated_vector",
               "fromExpr": [
-                "2*Math.cos(phi)",
-                "2*Math.sin(phi)",
+                "2*cos(phi)",
+                "2*sin(phi)",
                 "0"
               ],
               "toExpr": [
-                "(2 + 0.6*Math.cos(theta))*Math.cos(phi)",
-                "(2 + 0.6*Math.cos(theta))*Math.sin(phi)",
-                "0.6*Math.sin(theta)"
+                "(2 + 0.6*cos(theta))*cos(phi)",
+                "(2 + 0.6*cos(theta))*sin(phi)",
+                "0.6*sin(theta)"
               ],
               "color": "#ff8822",
               "width": 4,
@@ -1010,9 +1010,9 @@
             {
               "id": "torus-surface",
               "type": "parametric_surface",
-              "x": "(2 + 0.6*Math.cos(v))*Math.cos(u)",
-              "y": "(2 + 0.6*Math.cos(v))*Math.sin(u)",
-              "z": "0.6*Math.sin(v)",
+              "x": "(2 + 0.6*cos(v))*cos(u)",
+              "y": "(2 + 0.6*cos(v))*sin(u)",
+              "z": "0.6*sin(v)",
               "uRange": [
                 0,
                 6.2832
@@ -1040,9 +1040,9 @@
             {
               "id": "trefoil",
               "type": "parametric_curve",
-              "x": "(2 + Math.cos(3*t))*Math.cos(2*t)",
-              "y": "(2 + Math.cos(3*t))*Math.sin(2*t)",
-              "z": "Math.sin(3*t)",
+              "x": "(2 + cos(3*t))*cos(2*t)",
+              "y": "(2 + cos(3*t))*sin(2*t)",
+              "z": "sin(3*t)",
               "range": [
                 0,
                 6.2832
@@ -1073,9 +1073,9 @@
             {
               "id": "half-knot",
               "type": "parametric_curve",
-              "x": "(2 + Math.cos(3*t))*Math.cos(2*t)",
-              "y": "(2 + Math.cos(3*t))*Math.sin(2*t)",
-              "z": "Math.sin(3*t)",
+              "x": "(2 + cos(3*t))*cos(2*t)",
+              "y": "(2 + cos(3*t))*sin(2*t)",
+              "z": "sin(3*t)",
               "range": [
                 0,
                 3.1416
@@ -1094,9 +1094,9 @@
             {
               "id": "torus-bg-interactive",
               "type": "parametric_surface",
-              "x": "(2 + 0.6*Math.cos(v))*Math.cos(u)",
-              "y": "(2 + 0.6*Math.cos(v))*Math.sin(u)",
-              "z": "0.6*Math.sin(v)",
+              "x": "(2 + 0.6*cos(v))*cos(u)",
+              "y": "(2 + 0.6*cos(v))*sin(u)",
+              "z": "0.6*sin(v)",
               "uRange": [
                 0,
                 6.2832
@@ -1113,9 +1113,9 @@
             {
               "id": "knot-interactive",
               "type": "parametric_curve",
-              "x": "(2 + s*Math.cos(3*t))*Math.cos(2*t)",
-              "y": "(2 + s*Math.cos(3*t))*Math.sin(2*t)",
-              "z": "s*Math.sin(3*t)",
+              "x": "(2 + s*cos(3*t))*cos(2*t)",
+              "y": "(2 + s*cos(3*t))*sin(2*t)",
+              "z": "s*sin(3*t)",
               "range": [
                 0,
                 6.2832
@@ -1144,9 +1144,9 @@
             {
               "id": "torus-pq-bg",
               "type": "parametric_surface",
-              "x": "(2 + 0.6*Math.cos(v))*Math.cos(u)",
-              "y": "(2 + 0.6*Math.cos(v))*Math.sin(u)",
-              "z": "0.6*Math.sin(v)",
+              "x": "(2 + 0.6*cos(v))*cos(u)",
+              "y": "(2 + 0.6*cos(v))*sin(u)",
+              "z": "0.6*sin(v)",
               "uRange": [
                 0,
                 6.2832
@@ -1163,9 +1163,9 @@
             {
               "id": "torus-knot-pq",
               "type": "parametric_curve",
-              "x": "(2 + 0.6*Math.cos(q*t))*Math.cos(p*t)",
-              "y": "(2 + 0.6*Math.cos(q*t))*Math.sin(p*t)",
-              "z": "0.6*Math.sin(q*t)",
+              "x": "(2 + 0.6*cos(q*t))*cos(p*t)",
+              "y": "(2 + 0.6*cos(q*t))*sin(p*t)",
+              "z": "0.6*sin(q*t)",
               "range": [
                 0,
                 6.2832
@@ -1272,9 +1272,9 @@
             {
               "id": "torus-knot-scene-bg",
               "type": "parametric_surface",
-              "x": "(2 + 0.6*Math.cos(v))*Math.cos(u)",
-              "y": "(2 + 0.6*Math.cos(v))*Math.sin(u)",
-              "z": "0.6*Math.sin(v)",
+              "x": "(2 + 0.6*cos(v))*cos(u)",
+              "y": "(2 + 0.6*cos(v))*sin(u)",
+              "z": "0.6*sin(v)",
               "uRange": [
                 0,
                 6.2832
@@ -1297,9 +1297,9 @@
             {
               "id": "trefoil-on-surface",
               "type": "parametric_curve",
-              "x": "(2 + 0.6*Math.cos(3*t))*Math.cos(2*t)",
-              "y": "(2 + 0.6*Math.cos(3*t))*Math.sin(2*t)",
-              "z": "0.6*Math.sin(3*t)",
+              "x": "(2 + 0.6*cos(3*t))*cos(2*t)",
+              "y": "(2 + 0.6*cos(3*t))*sin(2*t)",
+              "z": "0.6*sin(3*t)",
               "range": [
                 0,
                 6.2832
@@ -1323,9 +1323,9 @@
             {
               "id": "trefoil-slider",
               "type": "parametric_curve",
-              "x": "(2 + s*Math.cos(3*t))*Math.cos(2*t)",
-              "y": "(2 + s*Math.cos(3*t))*Math.sin(2*t)",
-              "z": "s*Math.sin(3*t)",
+              "x": "(2 + s*cos(3*t))*cos(2*t)",
+              "y": "(2 + s*cos(3*t))*sin(2*t)",
+              "z": "s*sin(3*t)",
               "range": [
                 0,
                 6.2832

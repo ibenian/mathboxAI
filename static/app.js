@@ -51,6 +51,32 @@ let videoRecordedChunks = [];
 let videoRecordingStream = null;
 let videoRecordingExt = 'webm';
 let videoRecordingMime = 'video/webm';
+
+// ----- Expression Sandbox -----
+// Sandboxed math.js instance — no browser API access from expressions
+const _mathjs = math.create(math.all);
+_mathjs.import({
+    // Safe utility functions available in all expressions without trust
+    toFixed: (val, decimals) => Number(val).toFixed(Number(decimals)),
+    // Disable escape hatches — must come after custom functions
+    import:     function() { throw new Error('import disabled'); },
+    createUnit: function() { throw new Error('createUnit disabled'); },
+}, { override: true });
+// Note: parse/evaluate/simplify/derivative are kept — math.js uses parse internally
+// during compile(). Security comes from the scope object, not from disabling these.
+
+// Detects expressions that require native JS (loops, IIFE, closures, etc.)
+// Detects expressions that require native JS execution.
+// \.[a-zA-Z_]\w*\s*\( catches method calls like .toFixed( .constructor( — prevents
+// prototype-chain escapes (e.g. (0).constructor.constructor('return fetch(...)')()).
+// Decimal numbers (3.14) are safe because digits follow the dot, not letters.
+const _JS_ONLY_RE = /\blet\b|\bconst\b|\bvar\b|\breturn\b|\bfor\s*\(|\bwhile\s*\(|=>|\bfunction\b|\bMath\.|\.([a-zA-Z_]\w*)\s*\(/;
+
+// Trust state for the currently loaded scene
+// null = clean (math.js only, no dialog shown)
+// 'trusted' = user approved JS execution
+// 'untrusted' = user denied JS execution (JS exprs become no-ops)
+let _sceneJsTrustState = null;
 // Prefer OrbitControls so modifier-based pan behavior is consistent.
 const CONTROL_CLASS = (typeof THREE !== 'undefined' && THREE.OrbitControls) ? THREE.OrbitControls : THREE.TrackballControls;
 let sceneUp = [0, 1, 0];           // scene's up vector (set per-scene in buildCameraButtons)
@@ -1640,7 +1666,13 @@ function renderSurface(el, view) {
             const y = rangeY[0] + j * dy;
             let z;
             try {
-                z = new Function('x', 'y', 'return ' + expr)(x, y);
+                if (_JS_ONLY_RE.test(expr) && _sceneJsTrustState === 'trusted') {
+                        z = new Function('x', 'y', 'return ' + expr)(x, y);
+                    } else if (_JS_ONLY_RE.test(expr)) {
+                        z = 0;
+                    } else {
+                        z = _mathjs.evaluate(expr, { x, y });
+                    }
             } catch(e) {
                 z = 0;
             }
@@ -1859,6 +1891,26 @@ function renderVectorField(el, view) {
     const exprY = el.fy || '-x';
     const exprZ = el.fz || '0';
 
+    // Pre-compile each expression once — regex test + Function/mathjs compile happen here,
+    // not on every grid point inside the triple loop.
+    const _compileVF = (e) => {
+        if (_JS_ONLY_RE.test(e)) {
+            if (_sceneJsTrustState === 'trusted') {
+                return new Function('x', 'y', 'z', 'return ' + e);
+            }
+            return null; // untrusted — will return 0
+        }
+        return _mathjs.compile(e);
+    };
+    const _evalVF = (compiled, x, y, z) => {
+        if (!compiled) return 0;
+        if (typeof compiled === 'function') return compiled(x, y, z);
+        return compiled.evaluate({ x, y, z });
+    };
+    const compiledX = _compileVF(exprX);
+    const compiledY = _compileVF(exprY);
+    const compiledZ = _compileVF(exprZ);
+
     const starts = [];
     const ends = [];
     const rangeX = range[0], rangeY = range[1], rangeZ = range[2];
@@ -1873,9 +1925,9 @@ function renderVectorField(el, view) {
                 const y = rangeY[0] + yi * dyStep;
                 const z = rangeZ[0] + zi * dzStep;
                 try {
-                    const vx = new Function('x','y','z', 'return ' + exprX)(x, y, z);
-                    const vy = new Function('x','y','z', 'return ' + exprY)(x, y, z);
-                    const vz = new Function('x','y','z', 'return ' + exprZ)(x, y, z);
+                    const vx = _evalVF(compiledX, x, y, z);
+                    const vy = _evalVF(compiledY, x, y, z);
+                    const vz = _evalVF(compiledZ, x, y, z);
                     starts.push([x, y, z]);
                     ends.push([x + vx*scale, y + vy*scale, z + vz*scale]);
                 } catch(e) {}
@@ -3626,13 +3678,90 @@ function buildCameraButtons(spec) {
     updateFollowAngleLockButtonState();
 }
 
+// ----- Expression Trust System -----
+
+function _scanSpecForUnsafeJs(spec) {
+    // Only scan strings under known expression-bearing keys to avoid false positives
+    // from natural-language text that contains 'let', '=>', 'return', etc.
+    const EXPR_KEYS = new Set(['expr', 'x', 'y', 'z', 'expression', 'fx', 'fy', 'fz']);
+    function walk(obj, parentKey) {
+        if (typeof obj === 'string') {
+            return !!(parentKey && EXPR_KEYS.has(parentKey) && _JS_ONLY_RE.test(obj));
+        }
+        if (Array.isArray(obj)) return obj.some(item => walk(item, parentKey));
+        if (obj && typeof obj === 'object') {
+            return Object.entries(obj).some(([k, v]) => walk(v, k));
+        }
+        return false;
+    }
+    return walk(spec, null);
+}
+
+function _showTrustDialog(explanation) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('trust-dialog-overlay');
+        const body = document.getElementById('trust-dialog-body');
+        const allowBtn = document.getElementById('trust-btn-allow');
+        const denyBtn = document.getElementById('trust-btn-deny');
+        if (!overlay) { resolve(false); return; }
+        body.textContent = explanation;
+        overlay.classList.remove('hidden');
+        function cleanup(result) {
+            overlay.classList.add('hidden');
+            allowBtn.removeEventListener('click', onAllow);
+            denyBtn.removeEventListener('click', onDeny);
+            resolve(result);
+        }
+        function onAllow() { cleanup(true); }
+        function onDeny() { cleanup(false); }
+        allowBtn.addEventListener('click', onAllow);
+        denyBtn.addEventListener('click', onDeny);
+    });
+}
+
+function _updateJsTrustPill() {
+    const pill = document.getElementById('js-trust-pill');
+    const icon = document.getElementById('js-trust-pill-icon');
+    const label = document.getElementById('js-trust-pill-label');
+    if (!pill) return;
+    if (_sceneJsTrustState === 'trusted') {
+        pill.className = 'js-trusted';
+        icon.textContent = '⚡';
+        label.textContent = 'Native JS';
+        pill.classList.remove('hidden');
+    } else if (_sceneJsTrustState === 'untrusted') {
+        pill.className = 'js-untrusted';
+        icon.textContent = '⚠';
+        label.textContent = 'JS disabled';
+        pill.classList.remove('hidden');
+    } else {
+        pill.classList.add('hidden');
+    }
+}
+
 // ----- Lesson Navigation -----
 
 function isLessonFormat(spec) {
     return spec && Array.isArray(spec.scenes) && spec.scenes.length > 0;
 }
 
-function loadLesson(spec) {
+async function loadLesson(spec) {
+    // --- Trust check ---
+    // If "unsafe":true, treat as unsafe immediately (no scan needed).
+    // Otherwise scan expression fields; only ask if JS patterns are found.
+    // The unsafe_explanation is shown in the dialog in either case.
+    _sceneJsTrustState = null;
+    if (spec) {
+        const needsDialog = spec.unsafe === true || _scanSpecForUnsafeJs(spec);
+        if (needsDialog) {
+            const explanation = spec.unsafe_explanation ||
+                'This scene contains native JavaScript expressions that execute in your browser.\nAllow execution only if you trust the source of this file.';
+            const trusted = await _showTrustDialog(explanation);
+            _sceneJsTrustState = trusted ? 'trusted' : 'untrusted';
+        }
+    }
+    _updateJsTrustPill();
+
     // Set starter chips so users have an obvious entry point into chat
     if (typeof setPresetPrompts === 'function') {
         if (spec) {
@@ -3727,41 +3856,86 @@ function getSliderIds() {
     return Object.keys(sceneSliders);
 }
 
+// Legacy MATH_NAMES/VALS kept only for the new Function fallback path
 const _MATH_NAMES = ['sin','cos','tan','asin','acos','atan','atan2','sinh','cosh','tanh',
     'abs','sqrt','cbrt','pow','exp','log','log2','log10','floor','ceil','round','trunc',
     'min','max','sign','hypot','PI','E'];
 const _MATH_VALS = _MATH_NAMES.map(n => Math[n]);
 
-function compileExpr(exprStr) {
-    const ids = getSliderIds();
-    const fn = Function('t', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
-    fn._sliderIds = ids.slice();
-    return fn;
+function _buildScope(extras) {
+    const scope = { ...extras };
+    for (const [id, s] of Object.entries(sceneSliders)) scope[id] = s ? s.value : 0;
+    return scope;
 }
 
-function evalExpr(fn, t) {
-    const ids = Array.isArray(fn && fn._sliderIds) ? fn._sliderIds : getSliderIds();
-    const vals = ids.map(id => {
-        const s = sceneSliders[id];
-        return s ? s.value : 0;
-    });
-    return fn(t, ...vals, ..._MATH_VALS);
+function compileExpr(exprStr) {
+    if (_JS_ONLY_RE.test(exprStr)) {
+        if (_sceneJsTrustState === 'trusted') {
+            const ids = getSliderIds();
+            const fn = Function('t', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            fn._isFallback = true;
+            fn._sliderIds = ids.slice();
+            return fn;
+        }
+        // Untrusted — return no-op compiled constant
+        return _mathjs.compile('0');
+    }
+    try {
+        return _mathjs.compile(exprStr);
+    } catch (_e) {
+        // math.js parse failed (e.g. .toFixed() in content template) — JS fallback
+        if (_sceneJsTrustState === 'trusted') {
+            const ids = getSliderIds();
+            const fn = Function('t', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            fn._isFallback = true;
+            fn._sliderIds = ids.slice();
+            return fn;
+        }
+        return _mathjs.compile('0');
+    }
+}
+
+function evalExpr(compiled, t) {
+    if (compiled && compiled._isFallback) {
+        const ids = Array.isArray(compiled._sliderIds) ? compiled._sliderIds : getSliderIds();
+        const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
+        return compiled(t, ...vals, ..._MATH_VALS);
+    }
+    return compiled.evaluate(_buildScope({ t }));
 }
 
 function compileSurfaceExpr(exprStr) {
-    const ids = getSliderIds();
-    const fn = Function('u', 'v', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
-    fn._sliderIds = ids.slice();
-    return fn;
+    if (_JS_ONLY_RE.test(exprStr)) {
+        if (_sceneJsTrustState === 'trusted') {
+            const ids = getSliderIds();
+            const fn = Function('u', 'v', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            fn._isFallback = true;
+            fn._sliderIds = ids.slice();
+            return fn;
+        }
+        return _mathjs.compile('0');
+    }
+    try {
+        return _mathjs.compile(exprStr);
+    } catch (_e) {
+        if (_sceneJsTrustState === 'trusted') {
+            const ids = getSliderIds();
+            const fn = Function('u', 'v', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            fn._isFallback = true;
+            fn._sliderIds = ids.slice();
+            return fn;
+        }
+        return _mathjs.compile('0');
+    }
 }
 
-function evalSurfaceExpr(fn, u, v) {
-    const ids = Array.isArray(fn && fn._sliderIds) ? fn._sliderIds : getSliderIds();
-    const vals = ids.map(id => {
-        const s = sceneSliders[id];
-        return s ? s.value : 0;
-    });
-    return fn(u, v, ...vals, ..._MATH_VALS);
+function evalSurfaceExpr(compiled, u, v) {
+    if (compiled && compiled._isFallback) {
+        const ids = Array.isArray(compiled._sliderIds) ? compiled._sliderIds : getSliderIds();
+        const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
+        return compiled(u, v, ...vals, ..._MATH_VALS);
+    }
+    return compiled.evaluate(_buildScope({ u, v }));
 }
 
 function buildSliderOverlay() {
@@ -4112,6 +4286,20 @@ function _replaceInlineExprs(template, evaluator) {
             i += 1;
             continue;
         }
+        // Skip LaTeX command arguments: \text{...}, \mathbf{...}, \frac{...}, etc.
+        // Look back past any letters to see if there's a backslash before them.
+        // Require ≥2 letters so single-char sequences like \n (line separator) don't
+        // false-positive as LaTeX commands. Real LaTeX functions are always multi-letter.
+        {
+            let k = i - 1;
+            let letterCount = 0;
+            while (k >= 0 && /[a-zA-Z]/.test(template[k])) { k--; letterCount++; }
+            if (letterCount >= 2 && k >= 0 && template[k] === '\\') {
+                out += ch;
+                i += 1;
+                continue;
+            }
+        }
         let j = i + 1;
         let depth = 1;
         let quote = null;
@@ -4153,9 +4341,22 @@ function _replaceInlineExprs(template, evaluator) {
 
 function resolveInfoContent(template) {
     return _replaceInlineExprs(template, (expr) => {
+        const trimmed = expr.trim();
         try {
-            return _fmtNum(evalExpr(compileExpr(expr.trim()), 0));
-        } catch { return '{' + expr + '}'; }
+            return _fmtNum(evalExpr(compileExpr(trimmed), 0));
+        } catch {
+            // math.js failed (e.g. Math.xxx, .toFixed(), or JS method calls not caught by _JS_ONLY_RE)
+            // Try JS fallback if user has trusted the scene
+            if (_sceneJsTrustState === 'trusted') {
+                try {
+                    const ids = getSliderIds();
+                    const fn = Function('t', ...ids, ..._MATH_NAMES, 'return (' + trimmed + ')');
+                    const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
+                    return _fmtNum(fn(0, ...vals, ..._MATH_VALS));
+                } catch { /* fall through */ }
+            }
+            return '?';
+        }
     });
 }
 
@@ -4935,6 +5136,9 @@ function syncSliderState() {
 function updateStatusBar() {
     const bar = document.getElementById('status-bar');
     if (!bar) return;
+
+    // --- JS trust pill ---
+    _updateJsTrustPill();
 
     // --- Slider pill ---
     const pill = document.getElementById('slider-status');

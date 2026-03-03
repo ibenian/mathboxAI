@@ -521,7 +521,7 @@
             {
               "id": "omega_info",
               "position": "top-left",
-              "content": "### Angular Velocity\\n$\\omega = 2\\pi n / 60$\\n---\\n$n = {rpm}$ RPM\\n$\\omega = {(2*PI*rpm/60).toFixed(4)}$ rad/s\\n$T = {(60/rpm).toFixed(1)}$ s per revolution\\n$v = \\omega R = {((2*PI*rpm/60)*R).toFixed(1)}$ m/s"
+              "content": "### Angular Velocity\\n$\\omega = 2\\pi n / 60$\\n---\\n$n = {rpm}$ RPM\\n$\\omega = {toFixed(2*PI*rpm/60, 4)}$ rad/s\\n$T = {toFixed(60/rpm, 1)}$ s per revolution\\n$v = \\omega R = {toFixed((2*PI*rpm/60)*R, 1)}$ m/s"
             }
           ]
         },
@@ -577,7 +577,7 @@
             {
               "id": "gravity_info",
               "position": "top-left",
-              "content": "### Artificial Gravity\\n$g_a = \\omega^2 R$\\n---\\n$\\omega = {(2*PI*rpm/60).toFixed(3)}$ rad/s\\n$R = {R}$ m\\n$g_a = {(pow(2*PI*rpm/60,2)*R).toFixed(2)}$ m/s\u00b2\\n$g_a = {(pow(2*PI*rpm/60,2)*R/9.81).toFixed(3)}$ g\\n---\\n**Target: 0.9 \u2013 1.0 g**"
+              "content": "### Artificial Gravity\\n$g_a = \\omega^2 R$\\n---\\n$\\omega = {toFixed(2*PI*rpm/60, 3)}$ rad/s\\n$R = {R}$ m\\n$g_a = {toFixed(pow(2*PI*rpm/60,2)*R, 2)}$ m/s\u00b2\\n$g_a = {toFixed(pow(2*PI*rpm/60,2)*R/9.81, 3)}$ g\\n---\\n**Target: 0.9 \u2013 1.0 g**"
             }
           ]
         },
@@ -699,7 +699,7 @@
             {
               "id": "coriolis_info",
               "position": "top-left",
-              "content": "### Coriolis Effect\\n$a_{\\mathrm{Cor}} = 2\\omega v$\\n---\\n$\\omega = {(2*PI*rpm/60).toFixed(3)}$ rad/s\\n$v = {v_walk}$ m/s\\n$a_{\\mathrm{Cor}} = {(2*(2*PI*rpm/60)*abs(v_walk)/9.81).toFixed(4)}$ g\\n{v_walk > 0 ? 'Prograde \u2192 heavier' : v_walk < 0 ? 'Retrograde \u2192 lighter' : 'No walk \u2192 no Coriolis'}\\n---\\n$\\omega_{\\mathrm{eff}} = {(2*PI*rpm/60 + v_walk/R).toFixed(4)}$ rad/s"
+              "content": "### Coriolis Effect\\n$a_{\\mathrm{Cor}} = 2\\omega v$\\n---\\n$\\omega = {toFixed(2*PI*rpm/60, 3)}$ rad/s\\n$v = {v_walk}$ m/s\\n$a_{\\mathrm{Cor}} = {toFixed(2*(2*PI*rpm/60)*abs(v_walk)/9.81, 4)}$ g\\n{v_walk > 0 ? 'Prograde \u2192 heavier' : v_walk < 0 ? 'Retrograde \u2192 lighter' : 'No walk \u2192 no Coriolis'}\\n---\\n$\\omega_{\\mathrm{eff}} = {toFixed(2*PI*rpm/60 + v_walk/R, 4)}$ rad/s"
             }
           ]
         },
@@ -781,7 +781,7 @@
             {
               "id": "gradient_info",
               "position": "top-left",
-              "content": "### Gravity Gradient\\n$\\Delta g / g = 1.8 / R$\\n---\\n$g_{\\mathrm{feet}} = {(pow(2*PI*rpm/60,2)*R/9.81).toFixed(3)}$ g\\n$g_{\\mathrm{head}} = {(pow(2*PI*rpm/60,2)*(R-1.8)/9.81).toFixed(3)}$ g\\n$\\Delta g / g = {(180/R).toFixed(2)}$%\\n---\\n**Gradient tolerance:** {(180/R) < 10 ? 'within tolerance (<10%)' : (180/R) < 50 ? 'warning (<50%)' : 'out of tolerance'}"
+              "content": "### Gravity Gradient\\n$\\Delta g / g = 1.8 / R$\\n---\\n$g_{\\mathrm{feet}} = {toFixed(pow(2*PI*rpm/60,2)*R/9.81, 3)}$ g\\n$g_{\\mathrm{head}} = {toFixed(pow(2*PI*rpm/60,2)*(R-1.8)/9.81, 3)}$ g\\n$\\Delta g / g = {toFixed(180/R, 2)}$%\\n---\\n**Gradient tolerance:** {(180/R) < 10 ? 'within tolerance (<10%)' : (180/R) < 50 ? 'warning (<50%)' : 'out of tolerance'}"
             }
           ]
         },
@@ -906,7 +906,7 @@
             {
               "id": "full_sim",
               "position": "top-left",
-              "content": "### Habitat Analysis\\n$R = {R}$ m  |  $n = {rpm}$ RPM\\n---\\n$\\omega = {(2*PI*rpm/60).toFixed(3)}$ rad/s\\n$g_a = {(pow(2*PI*rpm/60,2)*R/9.81).toFixed(3)}$ g\\n$a_{\\mathrm{Cor}} = {(2*(2*PI*rpm/60)*abs(v_walk)/9.81).toFixed(4)}$ g ({v_walk >= 0 ? 'prograde' : 'retrograde'})\\n$\\Delta g / g = {(180/R).toFixed(2)}$%\\n**Comfort status:** {(100*exp(-pow(pow(2*PI*rpm/60,2)*R/9.81-1,2)/0.18)*exp(-pow(max(0,rpm-3),2)/3.0)*exp(-pow(min(180/R,20)/10,2)/1.0)).toFixed(0) >= 50 ? 'within tolerance' : (100*exp(-pow(pow(2*PI*rpm/60,2)*R/9.81-1,2)/0.18)*exp(-pow(max(0,rpm-3),2)/3.0)*exp(-pow(min(180/R,20)/10,2)/1.0)).toFixed(0) >= 10 ? 'warning' : 'out of tolerance'}\\n---\\n**Comfort: {(100*exp(-pow(pow(2*PI*rpm/60,2)*R/9.81-1,2)/0.18)*exp(-pow(max(0,rpm-3),2)/3.0)*exp(-pow(min(180/R,20)/10,2)/1.0)).toFixed(0)} / 100**"
+              "content": "### Habitat Analysis\\n$R = {R}$ m  |  $n = {rpm}$ RPM\\n---\\n$\\omega = {toFixed(2*PI*rpm/60, 3)}$ rad/s\\n$g_a = {toFixed(pow(2*PI*rpm/60,2)*R/9.81, 3)}$ g\\n$a_{\\mathrm{Cor}} = {toFixed(2*(2*PI*rpm/60)*abs(v_walk)/9.81, 4)}$ g ({v_walk >= 0 ? 'prograde' : 'retrograde'})\\n$\\Delta g / g = {toFixed(180/R, 2)}$%\\n**Comfort status:** {toFixed(100*exp(-pow(pow(2*PI*rpm/60,2)*R/9.81-1,2)/0.18)*exp(-pow(max(0,rpm-3),2)/3.0)*exp(-pow(min(180/R,20)/10,2)/1.0), 0) >= 50 ? 'within tolerance' : toFixed(100*exp(-pow(pow(2*PI*rpm/60,2)*R/9.81-1,2)/0.18)*exp(-pow(max(0,rpm-3),2)/3.0)*exp(-pow(min(180/R,20)/10,2)/1.0), 0) >= 10 ? 'warning' : 'out of tolerance'}\\n---\\n**Comfort: {toFixed(100*exp(-pow(pow(2*PI*rpm/60,2)*R/9.81-1,2)/0.18)*exp(-pow(max(0,rpm-3),2)/3.0)*exp(-pow(min(180/R,20)/10,2)/1.0), 0)} / 100**"
             }
           ]
         }

@@ -1,5 +1,7 @@
 {
   "title": "Gradient Descent on a 3D Objective Terrain",
+  "unsafe": true,
+  "unsafe_explanation": "The Himmelblau animated descent scene uses iterative JavaScript loops to compute gradient descent paths step-by-step. No closed-form solution exists for this non-convex function, so native JS iteration is required. Scenes 1 and 2 (elliptic bowl) run entirely in the math.js sandbox.",
   "scenes": [
     {
       "title": "Gradient Descent on an Elliptic Bowl",
@@ -245,9 +247,9 @@
             {
               "id": "gd-path-fixed",
               "type": "parametric_curve",
-              "x": "-3*Math.pow(1-0.2*0.6, t)",
-              "y": "2.5*Math.pow(1-0.2*2.0, t)",
-              "z": "0.2*(0.6*Math.pow(-3*Math.pow(1-0.2*0.6, t),2)+2.0*Math.pow(2.5*Math.pow(1-0.2*2.0, t),2))",
+              "x": "-3*pow(1-0.2*0.6, t)",
+              "y": "2.5*pow(1-0.2*2.0, t)",
+              "z": "0.2*(0.6*pow(-3*pow(1-0.2*0.6, t),2)+2.0*pow(2.5*pow(1-0.2*2.0, t),2))",
               "range": [
                 0,
                 30
@@ -274,9 +276,9 @@
             {
               "id": "gd-path-interactive",
               "type": "parametric_curve",
-              "x": "x0*Math.pow(1-eta*0.6, Math.min(t,n))",
-              "y": "y0*Math.pow(1-eta*2.0, Math.min(t,n))",
-              "z": "0.2*(0.6*Math.pow(x0*Math.pow(1-eta*0.6, Math.min(t,n)),2)+2.0*Math.pow(y0*Math.pow(1-eta*2.0, Math.min(t,n)),2))",
+              "x": "x0*pow(1-eta*0.6, min(t,n))",
+              "y": "y0*pow(1-eta*2.0, min(t,n))",
+              "z": "0.2*(0.6*pow(x0*pow(1-eta*0.6, min(t,n)),2)+2.0*pow(y0*pow(1-eta*2.0, min(t,n)),2))",
               "range": [
                 0,
                 40
@@ -295,9 +297,9 @@
                 0
               ],
               "expr": [
-                "x0*Math.pow(1-eta*0.6, k)",
-                "y0*Math.pow(1-eta*2.0, k)",
-                "0.2*(0.6*Math.pow(x0*Math.pow(1-eta*0.6, k),2)+2.0*Math.pow(y0*Math.pow(1-eta*2.0, k),2))"
+                "x0*pow(1-eta*0.6, k)",
+                "y0*pow(1-eta*2.0, k)",
+                "0.2*(0.6*pow(x0*pow(1-eta*0.6, k),2)+2.0*pow(y0*pow(1-eta*2.0, k),2))"
               ],
               "color": "#ffd84d",
               "width": 6,
@@ -312,9 +314,9 @@
                 0
               ],
               "expr": [
-                "x0*Math.pow(1-eta*0.6, Math.min((t*2.0)%(n+1), n))",
-                "y0*Math.pow(1-eta*2.0, Math.min((t*2.0)%(n+1), n))",
-                "0.2*(0.6*Math.pow(x0*Math.pow(1-eta*0.6, Math.min((t*2.0)%(n+1), n)),2)+2.0*Math.pow(y0*Math.pow(1-eta*2.0, Math.min((t*2.0)%(n+1), n)),2))"
+                "x0*pow(1-eta*0.6, min((t*2.0)%(n+1), n))",
+                "y0*pow(1-eta*2.0, min((t*2.0)%(n+1), n))",
+                "0.2*(0.6*pow(x0*pow(1-eta*0.6, min((t*2.0)%(n+1), n)),2)+2.0*pow(y0*pow(1-eta*2.0, min((t*2.0)%(n+1), n)),2))"
               ],
               "color": "#7cf6ff",
               "width": 4,
@@ -330,13 +332,13 @@
               "type": "animated_line",
               "points": [
                 [
-                  "x0*Math.pow(1-eta*0.6, k)",
-                  "y0*Math.pow(1-eta*2.0, k)",
-                  "0.2*(0.6*Math.pow(x0*Math.pow(1-eta*0.6, k),2)+2.0*Math.pow(y0*Math.pow(1-eta*2.0, k),2))"
+                  "x0*pow(1-eta*0.6, k)",
+                  "y0*pow(1-eta*2.0, k)",
+                  "0.2*(0.6*pow(x0*pow(1-eta*0.6, k),2)+2.0*pow(y0*pow(1-eta*2.0, k),2))"
                 ],
                 [
-                  "x0*Math.pow(1-eta*0.6, k)",
-                  "y0*Math.pow(1-eta*2.0, k)",
+                  "x0*pow(1-eta*0.6, k)",
+                  "y0*pow(1-eta*2.0, k)",
                   "0"
                 ]
               ],
@@ -348,14 +350,14 @@
               "type": "animated_line",
               "points": [
                 [
-                  "x0*Math.pow(1-eta*0.6, k)",
-                  "y0*Math.pow(1-eta*2.0, k)",
-                  "0.2*(0.6*Math.pow(x0*Math.pow(1-eta*0.6, k),2)+2.0*Math.pow(y0*Math.pow(1-eta*2.0, k),2))"
+                  "x0*pow(1-eta*0.6, k)",
+                  "y0*pow(1-eta*2.0, k)",
+                  "0.2*(0.6*pow(x0*pow(1-eta*0.6, k),2)+2.0*pow(y0*pow(1-eta*2.0, k),2))"
                 ],
                 [
-                  "x0*Math.pow(1-eta*0.6, k+1)",
-                  "y0*Math.pow(1-eta*2.0, k+1)",
-                  "0.2*(0.6*Math.pow(x0*Math.pow(1-eta*0.6, k+1),2)+2.0*Math.pow(y0*Math.pow(1-eta*2.0, k+1),2))"
+                  "x0*pow(1-eta*0.6, k+1)",
+                  "y0*pow(1-eta*2.0, k+1)",
+                  "0.2*(0.6*pow(x0*pow(1-eta*0.6, k+1),2)+2.0*pow(y0*pow(1-eta*2.0, k+1),2))"
                 ]
               ],
               "color": "#ff6666",
@@ -408,7 +410,7 @@
           "info": [
             {
               "id": "iterate",
-              "content": "$$ \\mathbf{x}_k = \\begin{pmatrix}{x0*Math.pow(1-eta*0.6, k).toFixed(2)}\\\\ {y0*Math.pow(1-eta*2.0, k).toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{x}_k = \\begin{pmatrix}{x0 * pow(1 - eta*0.6, k)}\\\\ {y0 * pow(1 - eta*2.0, k)} \\end{pmatrix} $$"
             }
           ]
         }
@@ -758,7 +760,7 @@
                 [
                   "xk - eta*(0.6*xk)",
                   "yk - eta*(2.0*yk)",
-                  "0.5*(0.6*Math.pow(xk - eta*(0.6*xk),2) + 2.0*Math.pow(yk - eta*(2.0*yk),2))"
+                  "0.5*(0.6*pow(xk - eta*(0.6*xk),2) + 2.0*pow(yk - eta*(2.0*yk),2))"
                 ]
               ],
               "color": "#ff5555",
@@ -776,7 +778,7 @@
               "expr": [
                 "xk - eta*(0.6*xk)",
                 "yk - eta*(2.0*yk)",
-                "0.5*(0.6*Math.pow(xk - eta*(0.6*xk),2) + 2.0*Math.pow(yk - eta*(2.0*yk),2))"
+                "0.5*(0.6*pow(xk - eta*(0.6*xk),2) + 2.0*pow(yk - eta*(2.0*yk),2))"
               ],
               "color": "#7bff7b",
               "width": 6,
@@ -813,21 +815,21 @@
             {
               "id": "current-point",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{x}_k = \\begin{pmatrix}{xk.toFixed(2)}\\\\ {yk.toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{x}_k = \\begin{pmatrix}{xk}\\\\ {yk} \\end{pmatrix} $$"
             },
             {
               "id": "next-point",
               "position": "bottom-right",
-              "content": "$$ \\mathbf{x}_{k+1} = \\begin{pmatrix}{(xk - eta*0.6*xk).toFixed(2)}\\\\ {(yk - eta*2.0*yk).toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{x}_{k+1} = \\begin{pmatrix}{xk - eta*0.6*xk}\\\\ {yk - eta*2.0*yk} \\end{pmatrix} $$"
             },
             {
               "id": "gradient",
-              "content": "$$ \\nabla f(\\mathbf{x}_k) = \\begin{pmatrix}{(0.6*xk).toFixed(2)}\\\\ {(2.0*yk).toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\nabla f(\\mathbf{x}_k) = \\begin{pmatrix}{0.6*xk}\\\\ {2.0*yk} \\end{pmatrix} $$"
             },
             {
               "id": "update",
               "position": "top-right",
-              "content": "$$ \\mathbf{x}_{k+1} = \\begin{pmatrix}{(xk - eta*0.6*xk).toFixed(2)}\\\\ {(yk - eta*2.0*yk).toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{x}_{k+1} = \\begin{pmatrix}{xk - eta*0.6*xk}\\\\ {yk - eta*2.0*yk} \\end{pmatrix} $$"
             }
           ]
         }
@@ -1003,7 +1005,7 @@
               "type": "parametric_surface",
               "x": "u",
               "y": "v",
-              "z": "(Math.pow(u*u + v - 11,2) + Math.pow(u + v*v - 7,2))/20",
+              "z": "(pow(u*u + v - 11,2) + pow(u + v*v - 7,2))/20",
               "uRange": [
                 -6,
                 6
@@ -1093,7 +1095,7 @@
               "expr": [
                 "xp",
                 "yp",
-                "(Math.pow(xp*xp + yp - 11,2) + Math.pow(xp + yp*yp - 7,2))/20"
+                "(pow(xp*xp + yp - 11,2) + pow(xp + yp*yp - 7,2))/20"
               ],
               "color": "#ffcc00",
               "width": 6,
@@ -1106,12 +1108,12 @@
                 [
                   "xp",
                   "yp",
-                  "(Math.pow(xp*xp + yp - 11,2) + Math.pow(xp + yp*yp - 7,2))/20"
+                  "(pow(xp*xp + yp - 11,2) + pow(xp + yp*yp - 7,2))/20"
                 ],
                 [
                   "xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7))",
                   "yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7))",
-                  "(Math.pow(Math.pow(xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7)),2) + (yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7))) - 11,2) + Math.pow((xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7))) + Math.pow(yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7)),2) - 7,2))/20"
+                  "(pow(pow(xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7)),2) + (yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7))) - 11,2) + pow((xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7))) + pow(yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7)),2) - 7,2))/20"
                 ]
               ],
               "color": "#ff5555",
@@ -1129,7 +1131,7 @@
               "expr": [
                 "xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7))",
                 "yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7))",
-                "(Math.pow(Math.pow(xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7)),2) + (yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7))) - 11,2) + Math.pow((xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7))) + Math.pow(yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7)),2) - 7,2))/20"
+                "(pow(pow(xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7)),2) + (yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7))) - 11,2) + pow((xp - eta_ncv*(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7))) + pow(yp - eta_ncv*(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7)),2) - 7,2))/20"
               ],
               "color": "#7bff7b",
               "width": 5,
@@ -1165,7 +1167,7 @@
           "info": [
             {
               "id": "gradient",
-              "content": "$$ \\nabla f(\\mathbf{x}_p) = \\begin{pmatrix}{(4*xp*(xp*xp + yp - 11) + 2*(xp + yp*yp - 7)).toFixed(2)}\\\\ {(2*(xp*xp + yp - 11) + 4*yp*(xp + yp*yp - 7)).toFixed(2)} \\end{pmatrix} $$"
+              "content": "$$ \\nabla f(\\mathbf{x}_p) = \\begin{pmatrix}{4*xp*(xp^2 + yp - 11) + 2*(xp + yp^2 - 7)}\\\\ {2*(xp^2 + yp - 11) + 4*yp*(xp + yp^2 - 7)} \\end{pmatrix} $$"
             }
           ]
         },
@@ -1184,9 +1186,9 @@
             {
               "id": "probe-path-ncv",
               "type": "parametric_curve",
-              "x": "(() => { let x = xp, y = yp; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(t))); const frac = t - Math.floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()",
-              "y": "(() => { let x = xp, y = yp; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(t))); const frac = t - Math.floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()",
-              "z": "(Math.pow(Math.pow((() => { let x = xp, y = yp; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(t))); const frac = t - Math.floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })(),2) + ((() => { let x = xp, y = yp; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(t))); const frac = t - Math.floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()) - 11,2) + Math.pow(((() => { let x = xp, y = yp; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(t))); const frac = t - Math.floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()) + Math.pow((() => { let x = xp, y = yp; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(t))); const frac = t - Math.floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })(),2) - 7,2))/20",
+              "x": "(() => { let x = xp, y = yp; const k = max(0, min(n_iter_ncv, floor(t))); const frac = t - floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()",
+              "y": "(() => { let x = xp, y = yp; const k = max(0, min(n_iter_ncv, floor(t))); const frac = t - floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()",
+              "z": "(pow(pow((() => { let x = xp, y = yp; const k = max(0, min(n_iter_ncv, floor(t))); const frac = t - floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })(),2) + ((() => { let x = xp, y = yp; const k = max(0, min(n_iter_ncv, floor(t))); const frac = t - floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()) - 11,2) + pow(((() => { let x = xp, y = yp; const k = max(0, min(n_iter_ncv, floor(t))); const frac = t - floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()) + pow((() => { let x = xp, y = yp; const k = max(0, min(n_iter_ncv, floor(t))); const frac = t - floor(t); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })(),2) - 7,2))/20",
               "range": [
                 0,
                 80
@@ -1205,9 +1207,9 @@
                 0
               ],
               "expr": [
-                "(() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(tf))); const frac = tf - Math.floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()",
-                "(() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(tf))); const frac = tf - Math.floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()",
-                "(Math.pow(Math.pow((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(tf))); const frac = tf - Math.floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })(),2) + ((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(tf))); const frac = tf - Math.floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()) - 11,2) + Math.pow(((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(tf))); const frac = tf - Math.floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()) + Math.pow((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = Math.max(0, Math.min(n_iter_ncv, Math.floor(tf))); const frac = tf - Math.floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })(),2) - 7,2))/20"
+                "(() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = max(0, min(n_iter_ncv, floor(tf))); const frac = tf - floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()",
+                "(() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = max(0, min(n_iter_ncv, floor(tf))); const frac = tf - floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()",
+                "(pow(pow((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = max(0, min(n_iter_ncv, floor(tf))); const frac = tf - floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })(),2) + ((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = max(0, min(n_iter_ncv, floor(tf))); const frac = tf - floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })()) - 11,2) + pow(((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = max(0, min(n_iter_ncv, floor(tf))); const frac = tf - floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return x; })()) + pow((() => { let x = xp, y = yp; const tf = (t % (n_iter_ncv / speed_ncv)) * speed_ncv; const k = max(0, min(n_iter_ncv, floor(tf))); const frac = tf - floor(tf); for (let i = 0; i < k; i++) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - eta_ncv*gx; y = y - eta_ncv*gy; } if (k < n_iter_ncv) { const gx = 4*x*(x*x + y - 11) + 2*(x + y*y - 7); const gy = 2*(x*x + y - 11) + 4*y*(x + y*y - 7); x = x - frac*eta_ncv*gx; y = y - frac*eta_ncv*gy; } return y; })(),2) - 7,2))/20"
               ],
               "color": "#7cf6ff",
               "width": 6,

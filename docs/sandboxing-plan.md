@@ -1,82 +1,64 @@
 # Sandboxing Improvement Plan
 
-## Current State
+> **Frontend sandboxing is complete.** See [SANDBOX_MODEL.md](../SANDBOX_MODEL.md) for the
+> full implementation reference.
 
-### Frontend (JavaScript)
-Scene JSON files contain math expression strings (e.g. `"sin(t) * a"`) that are compiled and
-evaluated using `new Function()` in `compileExpr()` (`static/app.js`). This runs in the main
-browser context with full access to `window`, `document`, `fetch`, `localStorage`, etc.
+---
 
-**Risk:** A malicious or untrusted scene JSON file can execute arbitrary JavaScript in the page.
+## Frontend — math.js Sandbox ✅ Implemented
 
-MathBox and Three.js handle WebGL/GLSL rendering — that layer is browser-sandboxed — but they
-are not the security boundary for expression evaluation.
+### Previous State
 
-### Backend (Python)
+`compileExpr()` / `evalExpr()` in `static/app.js` used `new Function()` to evaluate all
+expression strings. This ran in the full browser context with unrestricted access to
+`window`, `document`, `fetch`, `localStorage`, etc.
+
+**Risk:** A malicious scene JSON could execute arbitrary JavaScript in the page.
+
+### Current Implementation
+
+Expressions are evaluated through a two-tier model:
+
+**Tier 1 — math.js sandbox (default)**
+- All expressions compiled via `_mathjs.compile()` and evaluated with `compiled.evaluate(scope)`
+- Scope contains only `t` (animation time) and current slider values — no browser APIs reachable
+- `import` and `createUnit` disabled on the sandboxed instance
+
+**Tier 2 — native JS fallback (trusted scenes only)**
+- Expressions matching the JS-only regex route to `new Function`:
+  ```js
+  /\blet\b|\bconst\b|\bvar\b|\breturn\b|\bfor\s*\(|\bwhile\s*\(|=>|\bfunction\b|\bMath\./
+  ```
+- Only executes when user explicitly trusts the scene via the trust dialog
+- `Math.` prefix is detected at compile time, preventing math.js parse-succeeds-but-eval-fails errors
+
+**Trust system**
+- `"unsafe": true` in scene JSON → trust dialog shown immediately (no scan)
+- No `"unsafe"` flag → expression fields scanned; dialog shown only if JS detected
+- User choice is per-scene-load; denied scenes get no-op (return 0) for all JS expressions
+
+**Scene JSON migration**
+- All built-in scenes converted from `Math.sin(t)` → `sin(t)`, `Math.pow(x,n)` → `pow(x,n)`, etc.
+- `gradient-descent-terrain.json`: all non-IIFE expressions converted to math.js;
+  only the Himmelblau animated descent IIFEs remain as native JS (no closed form exists)
+
+---
+
+## Backend — subprocess resource limits ⏳ Pending
+
 Math expressions sent to the `eval_math` tool are evaluated via `safe_eval_math()` in
-`gemini_live_tools/math_eval.py`. This uses:
+`gemini_live_tools/math_eval.py`. The AST-based whitelist approach is solid but there are
+no CPU or memory limits — a pathological expression like `999**999**999` would hang the server.
 
-1. `ast.parse(expr, mode='eval')` — statements (including `import`) are rejected by the parser
-2. AST node whitelist — only arithmetic, literals, function calls, and list/tuple nodes are
-   allowed; `ast.Import`, `ast.Attribute`, `ast.Lambda`, etc. are rejected
-3. `eval(..., {"__builtins__": {}}, namespace)` — builtins stripped at runtime, only whitelisted
-   math functions available
-
-**Remaining gap:** No CPU or memory limits. A pathological expression like `999**999**999` would
-hang the server process.
-
----
-
-## Planned Improvements
-
-### Frontend — Replace `new Function()` with a math-only evaluator
-
-**Goal:** Expression evaluation cannot access any browser API.
-
-**Approach:** Replace `compileExpr()` / `evalExpr()` with [math.js](https://mathjs.org/) `evaluate()`.
-
-- math.js runs in a sandboxed scope with no access to `window` or any global
-- Supports the same functions already in use (`sin`, `cos`, `norm`, `pi`, etc.)
-- Syntax differences to handle: `^` instead of `**`, no `Math.sin` — just `sin`
-
-**Migration steps:**
-1. Add math.js to `static/index.html` (CDN or vendored)
-2. Replace `compileExpr(exprStr)` with a math.js scope builder
-3. Replace `evalExpr(fn, t)` with `math.evaluate(expr, scope)` where scope contains `t`,
-   slider values, and math constants
-4. Update expression syntax in existing scenes if needed (`**` → `^`)
-5. Test all animated elements: `animated_vector`, `animated_polygon`, `parametric_curve`,
-   `parametric_surface`, `animated_line`
-
-**Additional hardening:** Add a Content Security Policy header in `server.py` that removes
-`unsafe-eval`, preventing `new Function` and `eval` at the browser level:
+**Planned approach:** Run `safe_eval_math()` in a worker subprocess with `resource.setrlimit`
+and a wall-clock timeout:
 
 ```python
-self.send_header('Content-Security-Policy', "script-src 'self'")
-```
-
-This acts as a second layer — even if a `new Function` call slips through, the browser blocks it.
-
----
-
-### Backend — Add subprocess-level resource limits
-
-**Goal:** A pathological expression cannot hang or exhaust the server process.
-
-**Approach:** Run `safe_eval_math()` in a worker subprocess with CPU time and memory limits
-using `resource.setrlimit` (Unix) and a wall-clock timeout via `multiprocessing` or
-`concurrent.futures`.
-
-**Sketch:**
-
-```python
-import resource
-import multiprocessing
+import resource, multiprocessing
 
 def _eval_worker(expr, variables, result_queue):
-    # Enforce limits inside the worker process
     resource.setrlimit(resource.RLIMIT_CPU, (2, 2))      # 2 CPU seconds
-    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))  # 256MB
+    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
     result, err = safe_eval_math(expr, variables)
     result_queue.put((result, err))
 
@@ -92,24 +74,23 @@ def sandboxed_eval_math(expr, variables=None, timeout=5.0):
 ```
 
 **Notes:**
-- `resource.setrlimit` is Unix-only; on Windows use a thread with a `threading.Timer` kill
-- Worker startup adds ~50–100ms latency per call — acceptable for agent tool calls, not for
-  60fps animation (but `eval_math` is only called by the agent, not in the render loop)
+- `resource.setrlimit` is Unix-only; on Windows use `threading.Timer`
+- ~50–100ms worker startup latency is acceptable for agent tool calls (not in render loop)
 
 ---
 
 ## Priority
 
-| Item | Risk | Effort | Priority |
-|------|------|--------|----------|
-| Replace `new Function()` with math.js | High (untrusted scenes) | Medium | High |
-| Add CSP `unsafe-eval` removal | High (second layer) | Low | High |
-| Add subprocess timeout/memory limits | Medium (DoS) | Low | Medium |
+| Item | Status | Risk | Priority |
+|---|---|---|---|
+| Replace `new Function()` with math.js | ✅ Done | High | — |
+| Trust dialog + scan system | ✅ Done | High | — |
+| Backend subprocess timeout/memory limits | ⏳ Pending | Medium (DoS) | Medium |
 
 ---
 
 ## Not In Scope
 
 - Sandboxing the AI agent's tool calls beyond `eval_math` — the agent runs server-side with
-  intentional access to scene state; the threat model here is untrusted scene JSON, not the agent
-- Sandboxing MathBox/Three.js expressions — these are library internals, not user-supplied
+  intentional access to scene state; the threat model is untrusted scene JSON, not the agent
+- Sandboxing MathBox/Three.js internals — library code, not user-supplied expressions

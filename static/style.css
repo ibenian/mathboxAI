@@ -479,6 +479,93 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
 }
 #slider-status:hover .slider-status-tooltip { display: block; }
 
+/* JS Trust Status Pill */
+#js-trust-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+    user-select: none;
+    margin-right: 4px;
+}
+#js-trust-pill.hidden { display: none; }
+#js-trust-pill.js-trusted {
+    background: rgba(80, 140, 255, 0.15);
+    border: 1px solid rgba(80, 140, 255, 0.4);
+    color: rgba(140, 190, 255, 0.95);
+}
+#js-trust-pill.js-untrusted {
+    background: rgba(255, 160, 40, 0.15);
+    border: 1px solid rgba(255, 160, 40, 0.4);
+    color: rgba(255, 190, 80, 0.95);
+}
+
+/* Trust Dialog */
+#trust-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#trust-dialog-overlay.hidden { display: none; }
+#trust-dialog {
+    background: rgba(12, 18, 40, 0.98);
+    border: 1px solid rgba(255, 160, 40, 0.5);
+    border-radius: 12px;
+    padding: 28px 32px;
+    max-width: 480px;
+    width: 90vw;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.7);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: rgba(220, 220, 240, 0.95);
+}
+#trust-dialog-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: rgba(255, 180, 60, 0.95);
+    margin-bottom: 14px;
+    letter-spacing: 0.02em;
+}
+#trust-dialog-body {
+    font-size: 12px;
+    line-height: 1.7;
+    color: rgba(200, 210, 235, 0.88);
+    margin-bottom: 22px;
+    white-space: pre-wrap;
+}
+#trust-dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+.trust-btn {
+    padding: 7px 18px;
+    border-radius: 7px;
+    border: none;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.trust-btn:hover { opacity: 0.85; }
+.trust-btn-deny {
+    background: rgba(80, 80, 110, 0.6);
+    border: 1px solid rgba(140, 140, 180, 0.4);
+    color: rgba(200, 200, 230, 0.9);
+}
+.trust-btn-allow {
+    background: rgba(255, 140, 20, 0.25);
+    border: 1px solid rgba(255, 160, 40, 0.5);
+    color: rgba(255, 185, 70, 0.95);
+}
+
 /* Memory Status Pill */
 #memory-status {
     display: inline-flex;
