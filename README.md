@@ -44,6 +44,10 @@ This reinstalls `gemini-live-tools` from GitHub and copies the updated `voice-ch
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add scenes, voice characters, and more.
 
+## Roadmap
+
+See [docs/feature-ideas.md](docs/feature-ideas.md) for a collection of technical directions and creative ideas under consideration.
+
 ---
 
 ## Project Structure
