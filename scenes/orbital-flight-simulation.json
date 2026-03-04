@@ -1,0 +1,712 @@
+{
+  "title": "Orbital Flight Simulation",
+  "scenes": [
+    {
+      "title": "Orbit Basics: Speed vs Height",
+      "description": "Build intuition for circular orbit speed, escape speed, and gravity at altitude around a simple spherical planet.",
+      "markdown": "# Orbit Basics: Speed vs Height\n\nThis scene introduces the three key quantities that control orbital insertion:\n\n$$g(r)=\\frac{\\mu}{r^2}, \\qquad v_{\\text{circ}}=\\sqrt{\\frac{\\mu}{r}}, \\qquad v_{\\text{esc}}=\\sqrt{\\frac{2\\mu}{r}}$$\n\nwhere:\n- $r=R_p+h$ is distance from planet center (planet radius plus altitude),\n- $\\mu=GM$ is the gravitational parameter.\n\nIn the sliders, we use scaled values:\n- $G_s = G\\times 10^{11}$\n- $M_x = M/10^{24}$\n- so $\\mu = G_s\\,M_x\\times10^4$ in km$^3$/s$^2$.\n\n## What To Look For\n\n1. As altitude $h$ increases, both $v_{\\text{circ}}$ and $v_{\\text{esc}}$ decrease.\n2. Gravity weakens with $1/r^2$, but it never becomes zero.\n3. Orbital insertion is mostly a **sideways speed problem**: you need enough tangential speed at the chosen altitude.\n\n## Earth Reference (for context)\n\nUsing Earth-like values $R_p\\approx 6371\\,\\text{km}$ and $\\mu\\approx 398600\\,\\text{km}^3/\\text{s}^2$, low Earth orbit speeds are around $7.8\\,\\text{km/s}$ and escape speed near the surface is about $11.2\\,\\text{km/s}$.\n\nThese values match standard educational and agency references (NASA).",
+      "prompt": "Teach orbital insertion as speed-height-energy tradeoffs. Emphasize that altitude alone does not make orbit; tangential speed is essential. Keep formulas tied to the live sliders.",
+      "range": [
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ]
+      ],
+      "camera": {
+        "position": [
+          15000,
+          9000,
+          9000
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ]
+      },
+      "cameraUp": [
+        0,
+        0,
+        1
+      ],
+      "views": [
+        {
+          "name": "Iso",
+          "description": "3D overview",
+          "position": [
+            15000,
+            9000,
+            9000
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "Equatorial",
+          "description": "Face-on to the orbital plane",
+          "position": [
+            0,
+            0,
+            18000
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Side",
+          "description": "Side view for altitude scale",
+          "position": [
+            0,
+            18000,
+            0
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "elements": [
+        {
+          "type": "axis",
+          "axis": "x",
+          "range": [
+            -15000,
+            15000
+          ],
+          "tickStep": 2000,
+          "color": "#555577",
+          "width": 1,
+          "label": "x"
+        },
+        {
+          "type": "axis",
+          "axis": "y",
+          "range": [
+            -15000,
+            15000
+          ],
+          "tickStep": 2000,
+          "color": "#555577",
+          "width": 1,
+          "label": "y"
+        },
+        {
+          "type": "axis",
+          "axis": "z",
+          "range": [
+            -15000,
+            15000
+          ],
+          "tickStep": 2000,
+          "color": "#555577",
+          "width": 1,
+          "label": "z"
+        }
+      ],
+      "steps": [
+        {
+          "title": "Parameter 1: Planet Radius Rp",
+          "description": "Start with planet radius $R_p$. This sets the size of the world and the base geometric scale for orbit.",
+          "sliders": [
+            {
+              "id": "Rp",
+              "label": "$R_p$ (km)",
+              "min": 3000,
+              "max": 8000,
+              "step": 10,
+              "default": 6371
+            }
+          ],
+          "add": [
+            {
+              "id": "planet_surface",
+              "type": "sphere",
+              "center": [
+                0,
+                0,
+                0
+              ],
+              "radiusExpr": "Rp",
+              "widthSegments": 36,
+              "heightSegments": 20,
+              "color": "#3a6fa8",
+              "opacity": 0.85,
+              "shader": {
+                "shininess": 40,
+                "specular": "#9ec3e8",
+                "emissive": "#10223a"
+              }
+            }
+          ],
+          "info": [
+            {
+              "id": "rp_info",
+              "position": "top-right",
+              "content": "$$R_p={Rp}\\,\\text{km}$$"
+            }
+          ]
+        },
+        {
+          "title": "Parameter 2: Launch Altitude h",
+          "description": "Now add launch altitude $h$. The launch point moves to radius $r=R_p+h$ from the planet center.",
+          "sliders": [
+            {
+              "id": "h",
+              "label": "Launch altitude h (km)",
+              "min": 0,
+              "max": 1200,
+              "step": 5,
+              "default": 1
+            }
+          ],
+          "add": [
+            {
+              "id": "launch_radius",
+              "type": "animated_line",
+              "points": [
+                [
+                  "0",
+                  "0",
+                  "0"
+                ],
+                [
+                  "Rp+h",
+                  "0",
+                  "0"
+                ]
+              ],
+              "color": "#ffd166",
+              "width": 3
+            },
+            {
+              "id": "launch_marker",
+              "type": "animated_point",
+              "expr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "color": "#ff8866",
+              "size": 12,
+              "label": "launch point"
+            }
+          ],
+          "info": [
+            {
+              "id": "rh_info",
+              "position": "top-right",
+              "content": "$$r=R_p+h={Rp+h}\\,\\text{km}$$"
+            }
+          ]
+        },
+        {
+          "title": "Parameters 3-4: Gravity Inputs G and M",
+          "description": "Set gravity constant and planet mass with scaled sliders. We compute $\\mu=GM$ live, then gravity from $g(r)=\\mu/r^2$.",
+          "sliders": [
+            {
+              "id": "Gs",
+              "label": "$G_s=G\\times10^{11}$",
+              "min": 6.5,
+              "max": 6.9,
+              "step": 0.0001,
+              "default": 6.6743
+            },
+            {
+              "id": "Mx",
+              "label": "$M_x=M/10^{24}$ (kg)",
+              "min": 0.1,
+              "max": 10,
+              "step": 0.001,
+              "default": 5.972
+            }
+          ],
+          "info": [
+            {
+              "id": "basic_numbers",
+              "position": "top-right",
+              "content": "$$\\mu=GM={toFixed(Gs*Mx*10000,1)}\\,\\text{km}^3/\\text{s}^2\\\\ g(r)=\\frac{\\mu}{r^2}={toFixed((Gs*Mx*10000)/((Rp+h)^2),5)}\\,\\text{km/s}^2={toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}\\,\\text{m/s}^2$$"
+            }
+          ]
+        },
+        {
+          "title": "Derived Targets: Orbital and Escape Speeds",
+          "description": "With $R_p,h,G,M$ fixed, the green arrow gives circular speed and the red arrow gives escape speed at the same radius.",
+          "add": [
+            {
+              "id": "orbit_ring",
+              "type": "parametric_curve",
+              "x": "(Rp+h)*cos(t)",
+              "y": "(Rp+h)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#87f5a3",
+              "width": 3,
+              "label": "circular orbit at h"
+            },
+            {
+              "id": "vcirc_arrow",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h",
+                "230*sqrt((Gs*Mx*10000)/(Rp+h))",
+                "0"
+              ],
+              "color": "#8cff66",
+              "width": 4,
+              "label": "$v_{circ}$"
+            },
+            {
+              "id": "vesc_arrow",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h",
+                "230*sqrt(2*(Gs*Mx*10000)/(Rp+h))",
+                "0"
+              ],
+              "color": "#ff6b6b",
+              "width": 4,
+              "label": "$v_{esc}$"
+            }
+          ],
+          "info": [
+            {
+              "id": "speed_targets",
+              "position": "top-left",
+              "content": "$$v_{\\mathrm{circ}}=\\sqrt{\\mu/r}={toFixed(sqrt((Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s}\\\\ v_{\\mathrm{esc}}=\\sqrt{2\\mu/r}={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s}$$"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Launch and Insertion Simulator",
+      "description": "Use dry mass, fuel mass, Isp, launch speed, and direction to test whether the rocket falls back, inserts into orbit, or escapes.",
+      "markdown": "# Launch and Insertion Simulator\n\nThis scene ties together **vehicle mass properties** and **orbital targets**.\n\n## Mass and Propulsion Bookkeeping\n\n- Dry mass: $m_d$\n- Fuel mass: $m_f$\n- Initial mass: $m_0=m_d+m_f$\n\nMaximum ideal one-stage delta-v estimate:\n\n$$\\Delta v_{max}=I_{sp}g_0\\ln\\left(\\frac{m_0}{m_d}\\right)$$\n\n(with $g_0=9.81\\,\\text{m/s}^2$).\n\n## Gravity Inputs\n\nWe compute gravity live from:\n- $G_s=G\\times10^{11}$\n- $M_x=M/10^{24}$\n- $\\mu=G_sM_x\\times10^4$ (km$^3$/s$^2$)\n\n## Target Speeds for Orbit\n\nAt launch radius $r=R_p+h$:\n\n$$v_{\\text{circ}}=\\sqrt{\\frac{\\mu}{r}}, \\quad v_{\\text{esc}}=\\sqrt{\\frac{2\\mu}{r}}$$\n\nIf your launch speed is below circular, the trajectory is usually suborbital unless direction and staging are corrected.\n\n## Pedagogical Model Used Here\n\nFor interactive clarity, this simulator uses a blended 2D model:\n- ballistic-like arc when speed is below orbital target,\n- near-circular motion around $v_{\\text{circ}}$,\n- outward escape branch near/above $v_{\\text{esc}}$.\n\nThis keeps the controls intuitive while preserving the key speed-height logic used in real orbital mechanics.",
+      "prompt": "Teach this as a mission design loop: (1) compute speed targets from height, (2) check delta-v budget from mass and Isp, (3) tune launch direction for insertion quality.",
+      "range": [
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ]
+      ],
+      "camera": {
+        "position": [
+          17000,
+          9500,
+          9200
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ]
+      },
+      "cameraUp": [
+        0,
+        0,
+        1
+      ],
+      "views": [
+        {
+          "name": "Iso",
+          "description": "3D mission overview",
+          "position": [
+            17000,
+            9500,
+            9200
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "Plane",
+          "description": "Orbital plane view",
+          "position": [
+            0,
+            0,
+            19500
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Follow Rocket",
+          "description": "Camera follows the rocket marker",
+          "follow": "rocket_anim",
+          "offset": [
+            1400,
+            900,
+            700
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "elements": [
+        {
+          "id": "planet_surface_2",
+          "type": "sphere",
+          "center": [
+            0,
+            0,
+            0
+          ],
+          "radiusExpr": "Rp",
+          "widthSegments": 36,
+          "heightSegments": 20,
+          "color": "#325f95",
+          "opacity": 0.88,
+          "shader": {
+            "shininess": 35,
+            "specular": "#a5c8ef",
+            "emissive": "#0f2138"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "title": "Parameter 1: Planet Geometry and Gravity Inputs",
+          "description": "Set $R_p$, launch altitude $h$, and gravity inputs $G, M$. This defines $r=R_p+h$ and $\\mu=GM$.",
+          "sliders": [
+            {
+              "id": "Rp",
+              "label": "$R_p$ (km)",
+              "min": 3000,
+              "max": 8000,
+              "step": 10,
+              "default": 6371
+            },
+            {
+              "id": "Gs",
+              "label": "$G_s=G\\times10^{11}$",
+              "min": 6.5,
+              "max": 6.9,
+              "step": 0.0001,
+              "default": 6.6743
+            },
+            {
+              "id": "Mx",
+              "label": "$M_x=M/10^{24}$ (kg)",
+              "min": 0.1,
+              "max": 10,
+              "step": 0.001,
+              "default": 5.972
+            },
+            {
+              "id": "h",
+              "label": "Launch altitude h (km)",
+              "min": 0,
+              "max": 1200,
+              "step": 5,
+              "default": 1
+            }
+          ],
+          "add": [
+            {
+              "id": "launch_marker2",
+              "type": "animated_point",
+              "expr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "color": "#ffd166",
+              "size": 11,
+              "label": "pad"
+            }
+          ],
+          "info": [
+            {
+              "id": "gravity_inputs_info",
+              "position": "top-right",
+              "content": "$$\\mu=GM={toFixed(Gs*Mx*10000,1)}\\,\\text{km}^3/\\text{s}^2\\\\ r=R_p+h={Rp+h}\\,\\text{km}\\\\ g(r)={toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}\\,\\text{m/s}^2$$"
+            }
+          ]
+        },
+        {
+          "title": "Parameters 2-3: Dry Mass and Fuel Mass",
+          "description": "Now set vehicle mass. Total mass is $m_0=m_d+m_f$, and weight magnitude scales with $m_0g$.",
+          "sliders": [
+            {
+              "id": "mdry",
+              "label": "Dry mass $m_d$ (t)",
+              "min": 8,
+              "max": 120,
+              "step": 1,
+              "default": 25
+            },
+            {
+              "id": "mfuel",
+              "label": "Fuel mass $m_f$ (t)",
+              "min": 20,
+              "max": 500,
+              "step": 2,
+              "default": 180
+            }
+          ],
+          "add": [
+            {
+              "id": "weight_vector",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h-1400*(mdry+mfuel)/300",
+                "0",
+                "0"
+              ],
+              "color": "#ff7f7f",
+              "width": 4,
+              "label": "weight"
+            }
+          ],
+          "info": [
+            {
+              "id": "mass_info",
+              "position": "top-left",
+              "content": "$$m_0=m_d+m_f={mdry+mfuel}\\,\\text{t}$$"
+            },
+            {
+              "id": "weight_info",
+              "position": "top-right",
+              "content": "$$\\mu=GM={toFixed(Gs*Mx*10000,1)}\\,\\text{km}^3/\\text{s}^2\\\\ g(r)={toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}\\,\\text{m/s}^2\\\\ W=m_0 g={toFixed((mdry+mfuel)*1000*1000*(Gs*Mx*10000)/((Rp+h)^2),0)}\\,\\text{N}$$"
+            }
+          ]
+        },
+        {
+          "title": "Parameter 4: Engine Efficiency (Isp)",
+          "description": "Introduce specific impulse $I_{sp}$ to estimate ideal available mission $\\Delta v$ with the rocket equation.",
+          "sliders": [
+            {
+              "id": "Isp",
+              "label": "Specific impulse $I_{sp}$ (s)",
+              "min": 240,
+              "max": 470,
+              "step": 1,
+              "default": 350
+            }
+          ],
+          "info": [
+            {
+              "id": "mass_info",
+              "position": "top-left",
+              "content": "$$m_0=m_d+m_f={mdry+mfuel}\\,\\text{t}\\\\ \\Delta v_{max}=I_{sp}g_0\\ln\\left(\\frac{m_0}{m_d}\\right)={toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}\\,\\text{km/s}$$"
+            }
+          ]
+        },
+        {
+          "title": "Parameters 5-6: Launch Speed and Direction",
+          "description": "Set launch speed and flight-path angle (relative to local horizontal). Compare to circular and escape targets.",
+          "sliders": [
+            {
+              "id": "vlaunch",
+              "label": "Launch speed (km/s)",
+              "min": 0.5,
+              "max": 14,
+              "step": 0.05,
+              "default": 7.85
+            },
+            {
+              "id": "phi",
+              "label": "Launch direction $\\phi$ (deg from local horizontal)",
+              "min": -20,
+              "max": 60,
+              "step": 1,
+              "default": 8
+            }
+          ],
+          "add": [
+            {
+              "id": "launch_vec",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h+1300*sin(phi*pi/180)",
+                "1300*cos(phi*pi/180)",
+                "0"
+              ],
+              "color": "#fcbf49",
+              "width": 4,
+              "label": "launch direction"
+            },
+            {
+              "id": "orbit_ref",
+              "type": "parametric_curve",
+              "x": "(Rp+h)*cos(t)",
+              "y": "(Rp+h)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#90ee90",
+              "width": 2,
+              "label": "target circular orbit"
+            }
+          ],
+          "info": [
+            {
+              "id": "insertion_targets",
+              "position": "bottom-left",
+              "content": "$$v_{\\mathrm{circ}}={toFixed(sqrt((Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s},\\;v_{\\mathrm{esc}}={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s}\\\\ v_{\\mathrm{launch}}={toFixed(vlaunch,3)}\\,\\text{km/s},\\;\\Delta v_{max}={toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}\\,\\text{km/s}$$"
+            },
+            {
+              "id": "feasibility_note",
+              "position": "bottom-right",
+              "content": "{vlaunch <= Isp*9.81*log((mdry+mfuel)/mdry)/1000 ? \"Within ideal delta-v budget\" : \"Requested speed exceeds ideal one-stage budget\"}"
+            }
+          ]
+        },
+        {
+          "title": "Parameters 7-8: Simulation Horizon and Playback",
+          "description": "Set the simulation horizon $T$, then animate playback with $\\tau$ to inspect whether the trajectory falls, orbits, or escapes.",
+          "virtualTime": {
+            "expr": "tau*T"
+          },
+          "remove": [
+            {
+              "id": "launch_marker2"
+            }
+          ],
+          "sliders": [
+            {
+              "id": "T",
+              "label": "Simulation horizon T (s)",
+              "min": 400,
+              "max": 5000,
+              "step": 50,
+              "default": 1800
+            },
+            {
+              "id": "tau",
+              "label": "Playback $\\tau$",
+              "min": 0,
+              "max": 1,
+              "step": 0.002,
+              "default": 0,
+              "animate": true,
+              "animateMode": "loop",
+              "duration": 5000
+            }
+          ],
+          "add": [
+            {
+              "id": "trajectory_est",
+              "type": "parametric_curve",
+              "x": "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*cos((vlaunch*cos(phi*pi/180)*min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+              "y": "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*sin((vlaunch*cos(phi*pi/180)*min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+              "z": "80",
+              "range": [
+                0,
+                1
+              ],
+              "samples": 300,
+              "color": "#5ee6ff",
+              "width": 4,
+              "label": "estimated trajectory"
+            },
+            {
+              "id": "rocket_anim",
+              "type": "animated_point",
+              "expr": [
+                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*cos((vlaunch*cos(phi*pi/180)*min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*sin((vlaunch*cos(phi*pi/180)*min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+                "80"
+              ],
+              "color": "#ff5d73",
+              "size": 16,
+              "label": "rocket"
+            }
+          ],
+          "info": [
+            {
+              "id": "state_panel",
+              "position": "top-left",
+              "content": "{vlaunch < 0.95*sqrt((Gs*Mx*10000)/(Rp+h)) ? \"Outcome: suborbital, likely falls back\" : (vlaunch < sqrt(2*(Gs*Mx*10000)/(Rp+h)) ? (abs(phi) <= 12 ? \"Outcome: bound orbit candidate\" : \"Outcome: bound but poor insertion angle\") : \"Outcome: escape trajectory candidate\")}"
+            },
+            {
+              "id": "guidance_panel",
+              "position": "top-right",
+              "content": "$$\\text{Rule of thumb:}\\;\\phi\\to 0^\\circ\\;\\text{and}\\;v\\to v_{\\mathrm{circ}}\\;\\text{for clean insertion at fixed }h.$$"
+            },
+            {
+              "id": "time_panel",
+              "position": "bottom-left",
+              "content": "$$\\tau={toFixed(tau,3)}\\;(\\text{normalized}),\\quad t_{\\mathrm{actual}}=\\tau T={toFixed(tau*T,1)}\\,\\text{s}\\\\ t_{\\mathrm{effective}}={toFixed(tau*T,1)}\\,\\text{s}$$"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

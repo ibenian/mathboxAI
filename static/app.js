@@ -51,6 +51,8 @@ let videoRecordedChunks = [];
 let videoRecordingStream = null;
 let videoRecordingExt = 'webm';
 let videoRecordingMime = 'video/webm';
+let activeVirtualTimeExpr = null;
+let activeVirtualTimeCompiled = null;
 
 // ----- Expression Sandbox -----
 // Sandboxed math.js instance — no browser API access from expressions
@@ -1406,6 +1408,10 @@ function renderAxis(el, view) {
     const color = parseColor(el.color || (axis === 'x' ? '#ff4444' : axis === 'y' ? '#44ff44' : '#4488ff'));
     const width = el.width || 2;
     const label = el.label || axis;
+    const showTicks = el.showTicks !== false;
+    const span = Math.abs((range[1] || 0) - (range[0] || 0));
+    const defaultTickStep = span > 0 ? Math.max(1, Math.ceil(span / 24)) : 1;
+    const tickStep = Math.max(1e-9, Number(el.tickStep || defaultTickStep));
 
     const axisMap = { x: [1,0,0], y: [0,1,0], z: [0,0,1] };
     const dir = axisMap[axis] || [1,0,0];
@@ -1432,16 +1438,20 @@ function renderAxis(el, view) {
     axisEntry.node = axisLine;
     axisLineNodes.push(axisEntry);
 
-    // Tick marks
-    const ticks = [];
-    for (let i = Math.ceil(range[0]); i <= Math.floor(range[1]); i++) {
-        if (i === 0) continue;
-        ticks.push(dir.map(d => d * i));
-    }
-    if (ticks.length > 0) {
-        view
-            .array({ channels: 3, width: ticks.length, data: ticks })
-            .point({ color: new THREE.Color(...color), size: 6 });
+    // Tick marks (bounded density for large coordinate spans)
+    if (showTicks) {
+        const ticks = [];
+        const startTick = Math.ceil(range[0] / tickStep) * tickStep;
+        const endTick = range[1];
+        for (let i = startTick; i <= endTick + tickStep * 1e-6; i += tickStep) {
+            if (Math.abs(i) < tickStep * 0.5) continue;
+            ticks.push(dir.map(d => d * i));
+        }
+        if (ticks.length > 0) {
+            view
+                .array({ channels: 3, width: ticks.length, data: ticks })
+                .point({ color: new THREE.Color(...color), size: 6 });
+        }
     }
 
     if (label) {
@@ -1714,9 +1724,9 @@ function renderParametricCurve(el, view) {
         for (let i = 0; i <= samples; i++) {
             const t = range[0] + i * dt;
             try {
-                const x = evalExpr(fnX, t);
-                const y = evalExpr(fnY, t);
-                const z = evalExpr(fnZ, t);
+                const x = evalExpr(fnX, t, { useVirtualTime: false });
+                const y = evalExpr(fnY, t, { useVirtualTime: false });
+                const z = evalExpr(fnZ, t, { useVirtualTime: false });
                 pts.push([isFinite(x) ? x : 0, isFinite(y) ? y : 0, isFinite(z) ? z : 0]);
             } catch(e) {
                 pts.push([0, 0, 0]);
@@ -1877,6 +1887,171 @@ function renderParametricSurface(el, view) {
     registerAnimExpr(animExprEntry);
 
     return { type: 'parametric_surface', color, label, _animState: animState, _animExprEntry: animExprEntry };
+}
+
+function _makeSurfaceMaterial(el, color, opacity, defaults = {}) {
+    const matType = (el.shader && el.shader.type === 'basic') ? THREE.MeshBasicMaterial : THREE.MeshPhongMaterial;
+    const matOpts = {
+        color: new THREE.Color(...color),
+        transparent: true,
+        opacity: opacity,
+        side: THREE.DoubleSide,
+    };
+    const sh = el.shader || {};
+    if (sh.depthWrite !== undefined) matOpts.depthWrite = !!sh.depthWrite;
+    if (sh.depthTest !== undefined) matOpts.depthTest = !!sh.depthTest;
+    if (matType === THREE.MeshPhongMaterial) {
+        matOpts.shininess = sh.shininess !== undefined ? sh.shininess : (defaults.shininess !== undefined ? defaults.shininess : 40);
+        if (sh.emissive) matOpts.emissive = new THREE.Color(sh.emissive);
+        if (sh.specular) matOpts.specular = new THREE.Color(sh.specular);
+        if (sh.flatShading) matOpts.flatShading = true;
+    }
+    return new matType(matOpts);
+}
+
+function _dataAxisScaleFromCenter(centerData, rx, ry, rz) {
+    const centerW = new THREE.Vector3(...dataToWorld(centerData));
+    const xW = new THREE.Vector3(...dataToWorld([centerData[0] + rx, centerData[1], centerData[2]]));
+    const yW = new THREE.Vector3(...dataToWorld([centerData[0], centerData[1] + ry, centerData[2]]));
+    const zW = new THREE.Vector3(...dataToWorld([centerData[0], centerData[1], centerData[2] + rz]));
+    return {
+        centerW,
+        sx: Math.max(centerW.distanceTo(xW), 0.0001),
+        sy: Math.max(centerW.distanceTo(yW), 0.0001),
+        sz: Math.max(centerW.distanceTo(zW), 0.0001),
+    };
+}
+
+function renderSphere(el, view) {
+    const color = parseColor(el.color || '#66aaff');
+    const opacity = el.opacity !== undefined ? el.opacity : 0.8;
+    const label = el.label;
+    const widthSegments = el.widthSegments || el.segments || 32;
+    const heightSegments = el.heightSegments || el.rings || 20;
+
+    const centerExpr = Array.isArray(el.centerExpr) && el.centerExpr.length === 3
+        ? el.centerExpr
+        : ((Array.isArray(el.center) && el.center.length === 3 ? el.center : (Array.isArray(el.position) ? el.position : [0, 0, 0]))
+            .map(v => String(v)));
+    const radiusExpr = typeof el.radiusExpr === 'string'
+        ? el.radiusExpr
+        : String(el.radius !== undefined ? el.radius : 1);
+
+    let centerFns, radiusFn;
+    try {
+        centerFns = centerExpr.map(e => compileExpr(e));
+        radiusFn = compileExpr(radiusExpr);
+    } catch (err) {
+        console.warn('sphere expr compile error:', err);
+        return null;
+    }
+
+    function evalState() {
+        const c = centerFns.map(fn => evalExpr(fn, 0));
+        const r = Math.max(Math.abs(evalExpr(radiusFn, 0)), 0.0001);
+        return { center: c, radius: r };
+    }
+
+    const geom = new THREE.SphereGeometry(1, widthSegments, heightSegments);
+    const mat = _makeSurfaceMaterial(el, color, opacity, { shininess: 50 });
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.userData.targetOpacity = opacity;
+    three.scene.add(mesh);
+    planeMeshes.push(mesh);
+
+    let labelEl = null;
+    if (label) labelEl = addLabel3D(label, [0, 0, 0], color);
+
+    const animState = { stopped: false };
+    const animExprEntry = {
+        exprStrings: [...centerExpr, radiusExpr],
+        animState,
+        _rebuildFn() {
+            const state = evalState();
+            const world = _dataAxisScaleFromCenter(state.center, state.radius, state.radius, state.radius);
+            mesh.position.copy(world.centerW);
+            mesh.scale.set(world.sx, world.sy, world.sz);
+            if (labelEl) {
+                labelEl.dataPos[0] = state.center[0];
+                labelEl.dataPos[1] = state.center[1] + state.radius * 1.05;
+                labelEl.dataPos[2] = state.center[2];
+            }
+        },
+    };
+    registerAnimExpr(animExprEntry);
+    animExprEntry._rebuildFn();
+
+    return { type: 'sphere', color, label, _animState: animState, _animExprEntry: animExprEntry };
+}
+
+function renderEllipsoid(el, view) {
+    const color = parseColor(el.color || '#66aaff');
+    const opacity = el.opacity !== undefined ? el.opacity : 0.8;
+    const label = el.label;
+    const widthSegments = el.widthSegments || el.segments || 32;
+    const heightSegments = el.heightSegments || el.rings || 20;
+
+    const centerExpr = Array.isArray(el.centerExpr) && el.centerExpr.length === 3
+        ? el.centerExpr
+        : ((Array.isArray(el.center) && el.center.length === 3 ? el.center : (Array.isArray(el.position) ? el.position : [0, 0, 0]))
+            .map(v => String(v)));
+    const radiiExpr = Array.isArray(el.radiiExpr) && el.radiiExpr.length === 3
+        ? el.radiiExpr
+        : (() => {
+            if (Array.isArray(el.radii) && el.radii.length === 3) return el.radii.map(v => String(v));
+            const rx = el.rx !== undefined ? el.rx : (el.xRadius !== undefined ? el.xRadius : 1);
+            const ry = el.ry !== undefined ? el.ry : (el.yRadius !== undefined ? el.yRadius : rx);
+            const rz = el.rz !== undefined ? el.rz : (el.zRadius !== undefined ? el.zRadius : rx);
+            return [String(rx), String(ry), String(rz)];
+        })();
+
+    let centerFns, radiiFns;
+    try {
+        centerFns = centerExpr.map(e => compileExpr(e));
+        radiiFns = radiiExpr.map(e => compileExpr(e));
+    } catch (err) {
+        console.warn('ellipsoid expr compile error:', err);
+        return null;
+    }
+
+    function evalState() {
+        const c = centerFns.map(fn => evalExpr(fn, 0));
+        const rx = Math.max(Math.abs(evalExpr(radiiFns[0], 0)), 0.0001);
+        const ry = Math.max(Math.abs(evalExpr(radiiFns[1], 0)), 0.0001);
+        const rz = Math.max(Math.abs(evalExpr(radiiFns[2], 0)), 0.0001);
+        return { center: c, rx, ry, rz };
+    }
+
+    const geom = new THREE.SphereGeometry(1, widthSegments, heightSegments);
+    const mat = _makeSurfaceMaterial(el, color, opacity, { shininess: 50 });
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.userData.targetOpacity = opacity;
+    three.scene.add(mesh);
+    planeMeshes.push(mesh);
+
+    let labelEl = null;
+    if (label) labelEl = addLabel3D(label, [0, 0, 0], color);
+
+    const animState = { stopped: false };
+    const animExprEntry = {
+        exprStrings: [...centerExpr, ...radiiExpr],
+        animState,
+        _rebuildFn() {
+            const state = evalState();
+            const world = _dataAxisScaleFromCenter(state.center, state.rx, state.ry, state.rz);
+            mesh.position.copy(world.centerW);
+            mesh.scale.set(world.sx, world.sy, world.sz);
+            if (labelEl) {
+                labelEl.dataPos[0] = state.center[0];
+                labelEl.dataPos[1] = state.center[1] + state.ry * 1.05;
+                labelEl.dataPos[2] = state.center[2];
+            }
+        },
+    };
+    registerAnimExpr(animExprEntry);
+    animExprEntry._rebuildFn();
+
+    return { type: 'ellipsoid', color, label, _animState: animState, _animExprEntry: animExprEntry };
 }
 
 function renderVectorField(el, view) {
@@ -2944,6 +3119,8 @@ function renderElement(el, view) {
         case 'surface': return renderSurface(el, view);
         case 'parametric_curve': return renderParametricCurve(el, view);
         case 'parametric_surface': return renderParametricSurface(el, view);
+        case 'sphere': return renderSphere(el, view);
+        case 'ellipsoid': return renderEllipsoid(el, view);
         case 'vectors': return renderVectors(el, view);
         case 'vector_field': return renderVectorField(el, view);
         case 'plane': return renderPlane(el, view);
@@ -2996,10 +3173,12 @@ function loadScene(spec) {
     updateFollowAngleLockButtonState();
     for (const k in animatedElementPos) delete animatedElementPos[k];
     // Scene reload performs a full animation lifecycle reset.
+    activeAnimExprs = [];
     activeAnimUpdaters = [];
     clearWorldStarfield();
     clearWorldSkybox();
     currentSpec = spec;
+    _setActiveVirtualTimeExpr(spec, -1);
     updateTitle(spec);
     updateExplanationPanel(spec);
 
@@ -3868,6 +4047,50 @@ function _buildScope(extras) {
     return scope;
 }
 
+function _normalizeVirtualTimeExpr(spec) {
+    if (typeof spec === 'string') return spec;
+    if (spec && spec.options) {
+        if (typeof spec.options.expr === 'string') return spec.options.expr;
+        if (typeof spec.options.scale === 'number') return `${Number(spec.options.scale)}*t`;
+    }
+    if (spec && typeof spec.expr === 'string') return spec.expr;
+    return null;
+}
+
+function _setActiveVirtualTimeExpr(scene, stepIdx) {
+    const sceneExpr = _normalizeVirtualTimeExpr(scene && scene.virtualTime);
+    let stepExpr = null;
+    if (scene && Array.isArray(scene.steps) && stepIdx >= 0 && scene.steps[stepIdx]) {
+        stepExpr = _normalizeVirtualTimeExpr(scene.steps[stepIdx].virtualTime);
+    }
+    activeVirtualTimeExpr = stepExpr || sceneExpr || null;
+    if (!activeVirtualTimeExpr) {
+        activeVirtualTimeCompiled = null;
+        return;
+    }
+    try {
+        activeVirtualTimeCompiled = compileExpr(activeVirtualTimeExpr);
+    } catch (err) {
+        console.warn('virtualTime compile error:', err);
+        activeVirtualTimeCompiled = null;
+    }
+}
+
+function _resolveVirtualAnimTime(rawT) {
+    if (!activeVirtualTimeCompiled) return rawT;
+    const tauSlider = sceneSliders.tau;
+    const tau = tauSlider ? Number(tauSlider.value) : rawT;
+    try {
+        const mapped = evalExpr(activeVirtualTimeCompiled, rawT, {
+            useVirtualTime: false,
+            extraScope: { tau },
+        });
+        return Number.isFinite(mapped) ? mapped : rawT;
+    } catch (_err) {
+        return rawT;
+    }
+}
+
 function compileExpr(exprStr) {
     if (_JS_ONLY_RE.test(exprStr)) {
         if (_sceneJsTrustState === 'trusted') {
@@ -3895,13 +4118,16 @@ function compileExpr(exprStr) {
     }
 }
 
-function evalExpr(compiled, t) {
+function evalExpr(compiled, t, opts = {}) {
+    const useVirtualTime = opts.useVirtualTime !== false;
+    const evalT = useVirtualTime ? _resolveVirtualAnimTime(t) : t;
+    const extraScope = (opts && typeof opts.extraScope === 'object' && opts.extraScope) ? opts.extraScope : null;
     if (compiled && compiled._isFallback) {
         const ids = Array.isArray(compiled._sliderIds) ? compiled._sliderIds : getSliderIds();
         const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
-        return compiled(t, ...vals, ..._MATH_VALS);
+        return compiled(evalT, ...vals, ..._MATH_VALS);
     }
-    return compiled.evaluate(_buildScope({ t }));
+    return compiled.evaluate(_buildScope({ t: evalT, ...(extraScope || {}) }));
 }
 
 function compileSurfaceExpr(exprStr) {
@@ -4088,11 +4314,18 @@ function registerSliders(sliderDefs) {
             label: def.label || def.id,
             default: def.default,
             animate: def.animate || false,
+            animateMode: String(def.animateMode || def.animationMode || 'loop').toLowerCase(),
+            autoplay: def.autoplay !== false,
             duration: def.duration || 3000,
             _loopPlaying: false,
             _loopRaf: null,
         };
         ids.push(def.id);
+    }
+    // Auto-start animated sliders unless explicitly disabled.
+    for (const id of ids) {
+        const s = sceneSliders[id];
+        if (s && s.animate && s.autoplay) startSliderLoop(id);
     }
     return ids;
 }
@@ -4104,14 +4337,25 @@ function startSliderLoop(id) {
     if (!slider) return;
     slider._loopPlaying = true;
     const range = slider.max - slider.min;
-    const halfPeriod = slider.duration;
+    const period = slider.duration;
+    const mode = (slider.animateMode || 'loop');
     const startTime = performance.now();
 
     function tick(now) {
         if (!slider._loopPlaying || !sceneSliders[id]) return;
-        const elapsed = (now - startTime) / halfPeriod;
-        const phase = elapsed % 2;                           // 0–2 repeating
-        const tNorm = phase < 1 ? phase : 2 - phase;        // triangle wave 0→1→0
+        const elapsed = (now - startTime) / period;
+        let tNorm;
+        if (mode === 'loop') {
+            tNorm = elapsed % 1;                            // sawtooth 0→1 loop
+        } else if (mode === 'once') {
+            tNorm = Math.min(elapsed, 1);                   // one-shot 0→1 then stop
+            if (tNorm >= 1) {
+                slider._loopPlaying = false;
+            }
+        } else {
+            const phase = elapsed % 2;                      // 0–2 repeating
+            tNorm = phase < 1 ? phase : 2 - phase;         // triangle wave 0→1→0
+        }
         slider.value = slider.min + tNorm * range;
         const input = document.querySelector(`input[data-slider-id="${id}"]`);
         if (input) {
@@ -4119,8 +4363,12 @@ function startSliderLoop(id) {
             const valSpan = input.parentElement && input.parentElement.querySelector('.slider-value');
             if (valSpan) valSpan.textContent = Number(slider.value).toFixed(2);
         }
-        recompileActiveExprs();
-        slider._loopRaf = requestAnimationFrame(tick);
+        refreshActiveExprsForSliderValueChange();
+        if (slider._loopPlaying) {
+            slider._loopRaf = requestAnimationFrame(tick);
+        } else {
+            slider._loopRaf = null;
+        }
     }
     slider._loopRaf = requestAnimationFrame(tick);
 }
@@ -4144,7 +4392,29 @@ function removeSliderIds(ids) {
         stopSliderLoop(id);
         delete sceneSliders[id];
     }
+    if (activeVirtualTimeExpr) {
+        try {
+            activeVirtualTimeCompiled = compileExpr(activeVirtualTimeExpr);
+        } catch (err) {
+            console.warn('virtualTime recompile error:', err);
+            activeVirtualTimeCompiled = null;
+        }
+    }
     syncSliderState();
+}
+
+function refreshActiveExprsForSliderValueChange() {
+    for (const entry of activeAnimExprs) {
+        if (!entry || !entry.animState || entry.animState.stopped) continue;
+        if (typeof entry._rebuildFn === 'function') {
+            try {
+                entry._rebuildFn();
+            } catch (err) {
+                console.warn('Slider reactive rebuild error:', err);
+            }
+        }
+    }
+    updateInfoOverlays();
 }
 
 // Recompile all active animated_vector expressions when slider set changes
@@ -4186,7 +4456,7 @@ function runAnimUpdaters(nowMs) {
 function recompileActiveExprs() {
     for (const entry of activeAnimExprs) {
         if (entry.animState.stopped) continue;
-        if (entry._isParametricCurve || entry._isParametricSurface) {
+        if (typeof entry._rebuildFn === 'function') {
             try {
                 entry._rebuildFn();
             } catch (err) {
@@ -4243,6 +4513,14 @@ function recompileActiveExprs() {
             }
         }
     }
+    if (activeVirtualTimeExpr) {
+        try {
+            activeVirtualTimeCompiled = compileExpr(activeVirtualTimeExpr);
+        } catch (err) {
+            console.warn('virtualTime recompile error:', err);
+            activeVirtualTimeCompiled = null;
+        }
+    }
     updateInfoOverlays();
 }
 
@@ -4273,6 +4551,26 @@ function _fmtNum(val) {
     const n = Number(val);
     if (Number.isInteger(n)) return String(n);
     return parseFloat(n.toFixed(3)).toString();
+}
+
+function _isKnownInfoExprIdentifier(name) {
+    if (!name) return false;
+    if (Object.prototype.hasOwnProperty.call(sceneSliders, name)) return true;
+    if (name === 't' || name === 'u' || name === 'v') return true;
+    if (name === 'pi' || name === 'e' || name === 'PI' || name === 'E') return true;
+    if (name === 'true' || name === 'false' || name === 'Infinity' || name === 'NaN') return true;
+    if (name === 'toFixed') return true;
+    return _MATH_NAMES.includes(name);
+}
+
+function _exprHasUnknownIdentifiers(expr) {
+    const sanitized = String(expr).replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, ' ');
+    const matches = sanitized.match(/[A-Za-z_][A-Za-z0-9_]*/g);
+    if (!matches) return false;
+    for (const id of matches) {
+        if (!_isKnownInfoExprIdentifier(id)) return true;
+    }
+    return false;
 }
 
 function _replaceInlineExprs(template, evaluator) {
@@ -4332,7 +4630,13 @@ function _replaceInlineExprs(template, evaluator) {
         if (!expr) {
             out += '{}';
         } else {
-            out += evaluator(expr);
+            const prev = i > 0 ? template[i - 1] : '';
+            // Treat LaTeX grouping like _{max}, ^{2}, {m_d} as literal unless
+            // the token is an actual slider id or the expression has operators.
+            const isSimpleIdent = /^[A-Za-z_][A-Za-z0-9_]*$/.test(expr);
+            const isSliderIdent = !!sceneSliders[expr];
+            const shouldEval = !((prev === '_' || prev === '^') || (isSimpleIdent && !isSliderIdent));
+            out += shouldEval ? evaluator(expr) : ('{' + expr + '}');
         }
         i = j;
     }
@@ -4342,6 +4646,10 @@ function _replaceInlineExprs(template, evaluator) {
 function resolveInfoContent(template) {
     return _replaceInlineExprs(template, (expr) => {
         const trimmed = expr.trim();
+        if (_exprHasUnknownIdentifiers(trimmed)) {
+            // Likely symbolic LaTeX group (e.g., r^2 in \frac{\mu}{r^2}), not a dynamic placeholder.
+            return '{' + expr + '}';
+        }
         try {
             return _fmtNum(evalExpr(compileExpr(trimmed), 0));
         } catch {
@@ -5047,8 +5355,7 @@ function navigateTo(sceneIdx, stepIdx) {
         legendToggledOff = new Set();
         stopAllSliderLoops();
         sceneSliders = {};
-        activeAnimExprs = [];
-        activeAnimUpdaters = [];
+        // loadScene() already resets animation registries before rendering base elements.
         removeAllInfoOverlays();
         buildSliderOverlay();
 
@@ -5107,6 +5414,7 @@ function navigateTo(sceneIdx, stepIdx) {
 
     currentSceneIndex = sceneIdx;
     currentStepIndex = stepIdx;
+    _setActiveVirtualTimeExpr(scene, stepIdx);
 
     // Apply info overlays for the active step only (clears previous step's overlays)
     const activeStep = scene.steps && scene.steps[stepIdx];
