@@ -34,8 +34,8 @@
       "starfield": {
         "enabled": true,
         "count": 1200,
-        "radiusMin": 4200,
-        "radiusMax": 9500,
+        "radiusMin": 21000,
+        "radiusMax": 47500,
         "size": 1.8,
         "opacity": 0.9,
         "color": "#d7e3ff",
