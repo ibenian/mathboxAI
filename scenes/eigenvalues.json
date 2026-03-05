@@ -5,7 +5,7 @@
       "title": "Vectors That Don't Rotate",
       "description": "Most vectors change direction under a matrix transformation. **Eigenvectors** are the special exceptions: they only get stretched or shrunk, never rotated.",
       "prompt": "Teach eigenvectors with geometric contrast: most vectors rotate under $A$, eigenvectors do not. Keep explanations concise and visual-first. When the user asks for proof, reference $A\\mathbf{v}=\\lambda\\mathbf{v}$ and explicitly compare original vs transformed direction. If asked for intuition, describe eigenvectors as the matrix's natural action directions.",
-      "markdown": "# Vectors That Don't Rotate\n\nFor matrix $A = \\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$, most vectors $\\mathbf{v}$ satisfy $A\\mathbf{v} \\neq \\lambda\\mathbf{v}$ for any scalar $\\lambda$ \u2014 $A$ changes their direction.\n\n## The Eigenvalue Equation\n\nA nonzero vector $\\mathbf{v}$ is an **eigenvector** of $A$ with **eigenvalue** $\\lambda$ if:\n\n$$A\\mathbf{v} = \\lambda\\mathbf{v}$$\n\nThe transformation only **scales** $\\mathbf{v}$, never rotates it.\n\n## Matrix $A = \\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$\n\nThe eigenvalues are $\\lambda_1 = 4$ and $\\lambda_2 = 2$.\n\n**Eigenvector for $\\lambda_1 = 4$:**\n$$\\mathbf{v}_1 = \\frac{1}{\\sqrt{2}}\\begin{pmatrix}1\\\\1\\end{pmatrix}, \\quad A\\mathbf{v}_1 = 4\\mathbf{v}_1$$\n\n**Eigenvector for $\\lambda_2 = 2$:**\n$$\\mathbf{v}_2 = \\frac{1}{\\sqrt{2}}\\begin{pmatrix}1\\\\-1\\end{pmatrix}, \\quad A\\mathbf{v}_2 = 2\\mathbf{v}_2$$\n\n## Verification\n\n$$A\\mathbf{v}_1 = \\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}\\begin{pmatrix}0.707\\\\0.707\\end{pmatrix} = \\begin{pmatrix}2.828\\\\2.828\\end{pmatrix} = 4 \\times \\begin{pmatrix}0.707\\\\0.707\\end{pmatrix}$$\n\n> **Key insight**: Eigenvectors point along the transformation's natural axes. In these directions, $A$ acts like simple multiplication.",
+      "markdown": "# Vectors That Don't Rotate\n\nFor matrix $A = \\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$, most vectors $\\mathbf{v}$ satisfy $A\\mathbf{v} \\neq \\lambda\\mathbf{v}$ for any scalar $\\lambda$ — $A$ changes their direction.\n\n## The Eigenvalue Equation\n\nA nonzero vector $\\mathbf{v}$ is an **eigenvector** of $A$ with **eigenvalue** $\\lambda$ if:\n\n$$A\\mathbf{v} = \\lambda\\mathbf{v}$$\n\nThe transformation only **scales** $\\mathbf{v}$, never rotates it.\n\n## Matrix $A = \\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$\n\nThe eigenvalues are $\\lambda_1 = 4$ and $\\lambda_2 = 2$.\n\n**Eigenvector for $\\lambda_1 = 4$:**\n$$\\mathbf{v}_1 = \\frac{1}{\\sqrt{2}}\\begin{pmatrix}1\\\\1\\end{pmatrix}, \\quad A\\mathbf{v}_1 = 4\\mathbf{v}_1$$\n\n**Eigenvector for $\\lambda_2 = 2$:**\n$$\\mathbf{v}_2 = \\frac{1}{\\sqrt{2}}\\begin{pmatrix}1\\\\-1\\end{pmatrix}, \\quad A\\mathbf{v}_2 = 2\\mathbf{v}_2$$\n\n## Verification\n\n$$A\\mathbf{v}_1 = \\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}\\begin{pmatrix}0.707\\\\0.707\\end{pmatrix} = \\begin{pmatrix}2.828\\\\2.828\\end{pmatrix} = 4 \\times \\begin{pmatrix}0.707\\\\0.707\\end{pmatrix}$$\n\n> **Key insight**: Eigenvectors point along the transformation's natural axes. In these directions, $A$ acts like simple multiplication.",
       "range": [
         [
           -3,
@@ -50,7 +50,7 @@
             0,
             0
           ],
-          "description": "Zoomed-out face-on view \u2014 see the full eigenvector / transformation plane"
+          "description": "Zoomed-out face-on view — see the full eigenvector / transformation plane"
         },
         {
           "name": "Iso",
@@ -64,7 +64,7 @@
             0,
             0
           ],
-          "description": "3D perspective \u2014 notice eigenvectors lie in the XY plane (no Z extent)"
+          "description": "3D perspective — notice eigenvectors lie in the XY plane (no Z extent)"
         },
         {
           "name": "Top Down",
@@ -78,7 +78,7 @@
             0,
             0
           ],
-          "description": "Looking straight down \u2014 edge-on view of the XY plane"
+          "description": "Looking straight down — edge-on view of the XY plane"
         },
         {
           "name": "Side",
@@ -92,7 +92,7 @@
             0,
             0
           ],
-          "description": "Side view along X \u2014 edge-on, shows only Y-axis extent"
+          "description": "Side view along X — edge-on, shows only Y-axis extent"
         }
       ],
       "elements": [
@@ -135,7 +135,7 @@
       "steps": [
         {
           "title": "Non-eigenvector: $\\mathbf{v} = (1, 0)$",
-          "description": "$A\\mathbf{v} = (3,1)$ \u2014 the image points in a completely different direction. This vector is NOT an eigenvector.",
+          "description": "$A\\mathbf{v} = (3,1)$ — the image points in a completely different direction. This vector is NOT an eigenvector.",
           "add": [
             {
               "id": "v1-orig",
@@ -151,7 +151,6 @@
                 0
               ],
               "color": "#4488ff",
-              "width": 5,
               "label": "$\\mathbf{v} = (1,0)$"
             },
             {
@@ -168,7 +167,6 @@
                 0
               ],
               "color": "#ff4488",
-              "width": 5,
               "label": "$A\\mathbf{v} = (3,1)$"
             },
             {
@@ -194,7 +192,7 @@
         },
         {
           "title": "Another non-eigenvector: $\\mathbf{v} = (0, 1)$",
-          "description": "$A(0,1) = (1,3)$ \u2014 again the direction changes. $\\mathbf{e}_2$ is not an eigenvector of $A$.",
+          "description": "$A(0,1) = (1,3)$ — again the direction changes. $\\mathbf{e}_2$ is not an eigenvector of $A$.",
           "add": [
             {
               "id": "v2-orig",
@@ -210,7 +208,6 @@
                 0
               ],
               "color": "#44ff88",
-              "width": 5,
               "label": "$\\mathbf{v} = (0,1)$"
             },
             {
@@ -227,14 +224,13 @@
                 0
               ],
               "color": "#ff8844",
-              "width": 5,
               "label": "$A\\mathbf{v} = (1,3)$"
             }
           ]
         },
         {
           "title": "Eigenvector $\\mathbf{v}_1 = (1,1)/\\sqrt{2}$: stretched 4x",
-          "description": "$A\\mathbf{v}_1 = 4\\mathbf{v}_1 = (2.828, 2.828)$. The direction is PRESERVED \u2014 only the length changes. This is eigenvector for $\\lambda_1 = 4$.",
+          "description": "$A\\mathbf{v}_1 = 4\\mathbf{v}_1 = (2.828, 2.828)$. The direction is PRESERVED — only the length changes. This is eigenvector for $\\lambda_1 = 4$.",
           "remove": [
             {
               "id": "v1-orig"
@@ -267,7 +263,6 @@
                 0
               ],
               "color": "#ffcc00",
-              "width": 6,
               "label": "$\\mathbf{v}_1 = (1,1)/\\sqrt{2}$"
             },
             {
@@ -284,7 +279,6 @@
                 0
               ],
               "color": "#ffcc00",
-              "width": 3,
               "label": "$A\\mathbf{v}_1 = 4\\mathbf{v}_1$"
             },
             {
@@ -314,7 +308,7 @@
         },
         {
           "title": "Eigenvector $\\mathbf{v}_2 = (1,-1)/\\sqrt{2}$: stretched 2x",
-          "description": "$A\\mathbf{v}_2 = 2\\mathbf{v}_2 = (1.414, -1.414)$. Again the direction is preserved \u2014 stretched by $\\lambda_2 = 2$. Both gold eigenvectors are the natural axes of $A$.",
+          "description": "$A\\mathbf{v}_2 = 2\\mathbf{v}_2 = (1.414, -1.414)$. Again the direction is preserved — stretched by $\\lambda_2 = 2$. Both gold eigenvectors are the natural axes of $A$.",
           "add": [
             {
               "id": "ev2-orig",
@@ -330,7 +324,6 @@
                 0
               ],
               "color": "#ff8800",
-              "width": 6,
               "label": "$\\mathbf{v}_2 = (1,-1)/\\sqrt{2}$"
             },
             {
@@ -347,7 +340,6 @@
                 0
               ],
               "color": "#ff8800",
-              "width": 3,
               "label": "$A\\mathbf{v}_2 = 2\\mathbf{v}_2$"
             },
             {
@@ -426,7 +418,7 @@
             0,
             0
           ],
-          "description": "Zoomed-out face-on view \u2014 see the full eigenvector / transformation plane"
+          "description": "Zoomed-out face-on view — see the full eigenvector / transformation plane"
         },
         {
           "name": "Iso",
@@ -440,7 +432,7 @@
             0,
             0
           ],
-          "description": "3D perspective \u2014 notice eigenvectors lie in the XY plane (no Z extent)"
+          "description": "3D perspective — notice eigenvectors lie in the XY plane (no Z extent)"
         },
         {
           "name": "Top Down",
@@ -454,7 +446,7 @@
             0,
             0
           ],
-          "description": "Looking straight down \u2014 edge-on view of the XY plane"
+          "description": "Looking straight down — edge-on view of the XY plane"
         },
         {
           "name": "Side",
@@ -468,7 +460,7 @@
             0,
             0
           ],
-          "description": "Side view along X \u2014 edge-on, shows only Y-axis extent"
+          "description": "Side view along X — edge-on, shows only Y-axis extent"
         }
       ],
       "elements": [
@@ -511,7 +503,7 @@
       "steps": [
         {
           "title": "Both eigenvectors",
-          "description": "The two eigenvectors are at 45\u00b0 and -45\u00b0: $\\mathbf{v}_1 = (1,1)/\\sqrt{2}$ for $\\lambda_1=4$ (gold) and $\\mathbf{v}_2 = (1,-1)/\\sqrt{2}$ for $\\lambda_2=2$ (orange).",
+          "description": "The two eigenvectors are at 45° and -45°: $\\mathbf{v}_1 = (1,1)/\\sqrt{2}$ for $\\lambda_1=4$ (gold) and $\\mathbf{v}_2 = (1,-1)/\\sqrt{2}$ for $\\lambda_2=2$ (orange).",
           "add": [
             {
               "id": "ev1",
@@ -527,7 +519,6 @@
                 0
               ],
               "color": "#ffcc00",
-              "width": 6,
               "label": "$\\mathbf{v}_1, \\lambda=4$"
             },
             {
@@ -544,7 +535,6 @@
                 0
               ],
               "color": "#ff8800",
-              "width": 6,
               "label": "$\\mathbf{v}_2, \\lambda=2$"
             }
           ],
@@ -558,7 +548,7 @@
         },
         {
           "title": "The eigenspaces (spans)",
-          "description": "Each eigenvector generates a whole **eigenspace** \u2014 a line through the origin. $A$ acts as multiplication by $\\lambda$ along each eigenspace.",
+          "description": "Each eigenvector generates a whole **eigenspace** — a line through the origin. $A$ acts as multiplication by $\\lambda$ along each eigenspace.",
           "add": [
             {
               "id": "span1",
@@ -598,7 +588,7 @@
         },
         {
           "title": "Decomposing an arbitrary vector",
-          "description": "Any vector $\\mathbf{w}$ in the plane can be written as $c_1\\mathbf{v}_1 + c_2\\mathbf{v}_2$. Then $A\\mathbf{w} = 4c_1\\mathbf{v}_1 + 2c_2\\mathbf{v}_2$ \u2014 no matrix multiplication needed!",
+          "description": "Any vector $\\mathbf{w}$ in the plane can be written as $c_1\\mathbf{v}_1 + c_2\\mathbf{v}_2$. Then $A\\mathbf{w} = 4c_1\\mathbf{v}_1 + 2c_2\\mathbf{v}_2$ — no matrix multiplication needed!",
           "add": [
             {
               "id": "w-vec",
@@ -614,7 +604,6 @@
                 0
               ],
               "color": "#44aaff",
-              "width": 5,
               "label": "$\\mathbf{w} = (2,1)$"
             },
             {
@@ -631,7 +620,6 @@
                 0
               ],
               "color": "#ffcc0088",
-              "width": 3,
               "label": "$c_1\\mathbf{v}_1$"
             },
             {
@@ -648,7 +636,6 @@
                 0
               ],
               "color": "#ff880088",
-              "width": 3,
               "label": "$c_2\\mathbf{v}_2$"
             },
             {
@@ -665,7 +652,6 @@
                 0
               ],
               "color": "#ff44aa",
-              "width": 4,
               "label": "$A\\mathbf{w} = (7,5)$"
             }
           ],
@@ -801,7 +787,6 @@
                 0
               ],
               "color": "#44aaff",
-              "width": 5,
               "label": "$A(1,0)=(3,1)$"
             },
             {
@@ -818,7 +803,6 @@
                 0
               ],
               "color": "#ff8844",
-              "width": 5,
               "label": "$A(0,1)=(1,3)$"
             },
             {
@@ -887,7 +871,6 @@
                 0
               ],
               "color": "#ffcc00",
-              "width": 5,
               "label": "$(A-4I)(1,0)$"
             },
             {
@@ -904,7 +887,6 @@
                 0
               ],
               "color": "#ff66aa",
-              "width": 5,
               "label": "$(A-4I)(0,1)$"
             },
             {
@@ -962,7 +944,6 @@
                 0
               ],
               "color": "#ffaa44",
-              "width": 5,
               "label": "$(A-2I)(1,0)$"
             },
             {
@@ -979,7 +960,6 @@
                 0
               ],
               "color": "#44ffcc",
-              "width": 5,
               "label": "$(A-2I)(0,1)$"
             },
             {
@@ -1053,7 +1033,6 @@
                 "0"
               ],
               "color": "#44aaff",
-              "width": 5,
               "label": "$(A-\\lambda I)\\mathbf{e}_1$"
             },
             {
@@ -1070,7 +1049,6 @@
                 "0"
               ],
               "color": "#ff8844",
-              "width": 5,
               "label": "$(A-\\lambda I)\\mathbf{e}_2$"
             },
             {
@@ -1105,12 +1083,12 @@
           "info": [
             {
               "id": "det-live",
-              "content": "$$M(\\lambda)=A-\\lambda I=\\begin{pmatrix}3-\\lambda&1\\\\1&3-\\lambda\\end{pmatrix},\\quad \\det M={( (3-lam)*(3-lam)-1 )}$$",
+              "content": "$$M(\\lambda)=A-\\lambda I=\\begin{pmatrix}3-\\lambda&1\\\\1&3-\\lambda\\end{pmatrix},\\quad \\det M={{(3-lam)*(3-lam)-1}}$$",
               "position": "top-left"
             },
             {
               "id": "collapse-live",
-              "content": "Status: {(abs((3-lam)*(3-lam)-1) < 0.05) ? 'near 1D collapse' : 'full 2D image'}",
+              "content": "Status: {{(abs((3-lam)*(3-lam)-1) < 0.05) ? 'near 1D collapse' : 'full 2D image'}}",
               "position": "top-right"
             }
           ]
@@ -1121,7 +1099,7 @@
       "title": "3D: Rotation Axis is an Eigenvector",
       "description": "When a 3D rotation fixes an axis, that axis is an eigenvector with eigenvalue $\\lambda = 1$. Vectors in the perpendicular plane rotate, but the axis stays put.",
       "prompt": "Teach 3D rotation eigenstructure with one core message: the fixed rotation axis is an eigenvector with $\\lambda=1$. Distinguish clearly between vectors on the axis (unchanged direction and magnitude) and vectors in the perpendicular plane (direction changes). In interactive mode, reference the live $\\theta$ value and the rotated coordinates.",
-      "markdown": "# 3D Rotation: The Axis is an Eigenvector\n\nConsider rotation by $45^\\circ$ about the $z$-axis:\n\n$$R_z(45^\\circ) = \\begin{pmatrix}\\frac{\\sqrt{2}}{2} & -\\frac{\\sqrt{2}}{2} & 0\\\\ \\frac{\\sqrt{2}}{2} & \\frac{\\sqrt{2}}{2} & 0\\\\ 0 & 0 & 1\\end{pmatrix}$$\n\n## The $z$-Axis is Fixed\n\n$$R_z\\begin{pmatrix}0\\\\0\\\\1\\end{pmatrix} = \\begin{pmatrix}0\\\\0\\\\1\\end{pmatrix} = 1 \\cdot \\begin{pmatrix}0\\\\0\\\\1\\end{pmatrix}$$\n\nSo $(0,0,1)$ is an **eigenvector** with eigenvalue $\\lambda = 1$.\n\n## Vectors in the $xy$-Plane Rotate\n\n$$R_z(45^\\circ)\\begin{pmatrix}1\\\\0\\\\0\\end{pmatrix} = \\begin{pmatrix}0.707\\\\0.707\\\\0\\end{pmatrix}$$\n\nThe $z$-component is preserved; the $xy$-components rotate.\n\n## General 3D Rotation\n\nBy **Euler's Rotation Theorem**, every rotation in 3D has a fixed axis. The rotation axis is always an eigenvector with $\\lambda = 1$.\n\nThe other two eigenvalues are complex: $e^{\\pm i\\theta}$, encoding the rotation angle $\\theta$.\n\n## Why This Matters\n\nThis connects eigenvalue theory to geometry:\n- Find the eigenvalue-1 eigenvector \u2192 you have found the rotation axis\n- The angle $\\theta$ is encoded in the complex eigenvalues: $\\lambda = e^{\\pm i\\theta}$",
+      "markdown": "# 3D Rotation: The Axis is an Eigenvector\n\nConsider rotation by $45^\\circ$ about the $z$-axis:\n\n$$R_z(45^\\circ) = \\begin{pmatrix}\\frac{\\sqrt{2}}{2} & -\\frac{\\sqrt{2}}{2} & 0\\\\ \\frac{\\sqrt{2}}{2} & \\frac{\\sqrt{2}}{2} & 0\\\\ 0 & 0 & 1\\end{pmatrix}$$\n\n## The $z$-Axis is Fixed\n\n$$R_z\\begin{pmatrix}0\\\\0\\\\1\\end{pmatrix} = \\begin{pmatrix}0\\\\0\\\\1\\end{pmatrix} = 1 \\cdot \\begin{pmatrix}0\\\\0\\\\1\\end{pmatrix}$$\n\nSo $(0,0,1)$ is an **eigenvector** with eigenvalue $\\lambda = 1$.\n\n## Vectors in the $xy$-Plane Rotate\n\n$$R_z(45^\\circ)\\begin{pmatrix}1\\\\0\\\\0\\end{pmatrix} = \\begin{pmatrix}0.707\\\\0.707\\\\0\\end{pmatrix}$$\n\nThe $z$-component is preserved; the $xy$-components rotate.\n\n## General 3D Rotation\n\nBy **Euler's Rotation Theorem**, every rotation in 3D has a fixed axis. The rotation axis is always an eigenvector with $\\lambda = 1$.\n\nThe other two eigenvalues are complex: $e^{\\pm i\\theta}$, encoding the rotation angle $\\theta$.\n\n## Why This Matters\n\nThis connects eigenvalue theory to geometry:\n- Find the eigenvalue-1 eigenvector → you have found the rotation axis\n- The angle $\\theta$ is encoded in the complex eigenvalues: $\\lambda = e^{\\pm i\\theta}$",
       "range": [
         [
           -2,
@@ -1166,7 +1144,7 @@
             0,
             0
           ],
-          "description": "Wide isometric view \u2014 see the rotation and its eigenvector (the rotation axis)"
+          "description": "Wide isometric view — see the rotation and its eigenvector (the rotation axis)"
         },
         {
           "name": "Top",
@@ -1180,7 +1158,7 @@
             0,
             0
           ],
-          "description": "Looking down the Y axis \u2014 see the rotation plane from above"
+          "description": "Looking down the Y axis — see the rotation plane from above"
         },
         {
           "name": "Front",
@@ -1194,7 +1172,7 @@
             0,
             0
           ],
-          "description": "Front view \u2014 see the rotation axis pointing toward you"
+          "description": "Front view — see the rotation axis pointing toward you"
         },
         {
           "name": "Side",
@@ -1262,7 +1240,6 @@
                 0
               ],
               "color": "#4488ff",
-              "width": 5,
               "label": "$\\mathbf{v} = (1,0,0)$"
             },
             {
@@ -1279,14 +1256,13 @@
                 0
               ],
               "color": "#ff6644",
-              "width": 5,
               "label": "$R_z(45^\\circ)\\mathbf{v}$"
             }
           ]
         },
         {
           "title": "The $z$-axis eigenvector is unchanged",
-          "description": "$R_z(45^\\circ)(0,0,1) = (0,0,1)$ \u2014 the $z$-axis vector is completely unchanged by the rotation. It is an eigenvector with $\\lambda = 1$.",
+          "description": "$R_z(45^\\circ)(0,0,1) = (0,0,1)$ — the $z$-axis vector is completely unchanged by the rotation. It is an eigenvector with $\\lambda = 1$.",
           "add": [
             {
               "id": "z-eigen",
@@ -1302,7 +1278,6 @@
                 1.5
               ],
               "color": "#ffcc00",
-              "width": 7,
               "label": "$\\mathbf{z}, \\lambda=1$"
             },
             {
@@ -1321,7 +1296,7 @@
         },
         {
           "title": "Interactive: rotate a 3D vector",
-          "description": "Rotate $\\mathbf{w} = (0.6, 0.5, 0.8)$ about the $z$-axis by angle $\\theta$. Notice the $z$-component always stays at 0.8 \u2014 the rotation axis ($z$) is always the fixed eigenvector.",
+          "description": "Rotate $\\mathbf{w} = (0.6, 0.5, 0.8)$ about the $z$-axis by angle $\\theta$. Notice the $z$-component always stays at 0.8 — the rotation axis ($z$) is always the fixed eigenvector.",
           "remove": [
             {
               "id": "v-before"
@@ -1348,7 +1323,6 @@
                 0.8
               ],
               "color": "#4488ff",
-              "width": 5,
               "label": "$\\mathbf{w}$"
             },
             {
@@ -1365,7 +1339,6 @@
                 "0.8"
               ],
               "color": "#ff6644",
-              "width": 6,
               "label": "$R_z(\\theta)\\mathbf{w}$"
             }
           ],
@@ -1382,7 +1355,7 @@
           "info": [
             {
               "id": "rz-live",
-              "content": "$$\\theta={theta}\\;\\text{rad},\\quad R_z(\\theta)\\mathbf{w}=\\big({(0.6*cos(theta) - 0.5*sin(theta))},\\;{(0.6*sin(theta) + 0.5*cos(theta))},\\;0.800\\big)$$",
+              "content": "$$\\theta={{theta}}\\;\\text{rad},\\quad R_z(\\theta)\\mathbf{w}=\\big({{0.6*cos(theta) - 0.5*sin(theta)}},\\;{{0.6*sin(theta) + 0.5*cos(theta)}},\\;0.800\\big)$$",
               "position": "top-left"
             },
             {

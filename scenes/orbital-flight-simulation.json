@@ -168,7 +168,7 @@
             {
               "id": "rp_info",
               "position": "top-right",
-              "content": "$$R_p={Rp}\\,\\text{km}$$"
+              "content": "$$R_p={{Rp}}\\,\\text{km}$$"
             }
           ]
         },
@@ -221,7 +221,7 @@
             {
               "id": "rh_info",
               "position": "top-right",
-              "content": "$$r=R_p+h={Rp+h}\\,\\text{km}$$"
+              "content": "$$r=R_p+h={{Rp+h}}\\,\\text{km}$$"
             }
           ]
         },
@@ -250,7 +250,7 @@
             {
               "id": "basic_numbers",
               "position": "top-right",
-              "content": "$$\\mu=GM={toFixed(Gs*Mx*10000,1)}\\,\\text{km}^3/\\text{s}^2\\\\ g(r)=\\frac{\\mu}{r^2}={toFixed((Gs*Mx*10000)/((Rp+h)^2),5)}\\,\\text{km/s}^2={toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}\\,\\text{m/s}^2$$"
+              "content": "$$\\mu=GM={{toFixed(Gs*Mx*10000,1)}}\\,\\text{km}^3/\\text{s}^2\\\\ g(r)=\\frac{\\mu}{r^2}={{toFixed((Gs*Mx*10000)/((Rp+h)^2),5)}}\\,\\text{km/s}^2={{toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}}\\,\\text{m/s}^2$$"
             }
           ]
         },
@@ -313,7 +313,7 @@
             {
               "id": "speed_targets",
               "position": "top-left",
-              "content": "$$v_{\\mathrm{circ}}=\\sqrt{\\mu/r}={toFixed(sqrt((Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s}\\\\ v_{\\mathrm{esc}}=\\sqrt{2\\mu/r}={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s}$$"
+              "content": "$$v_{\\mathrm{circ}}=\\sqrt{\\mu/r}={{toFixed(sqrt((Gs*Mx*10000)/(Rp+h)),3)}}\\,\\text{km/s}\\\\ v_{\\mathrm{esc}}=\\sqrt{2\\mu/r}={{toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h)),3)}}\\,\\text{km/s}$$"
             }
           ]
         }
@@ -482,7 +482,7 @@
             {
               "id": "gravity_inputs_info",
               "position": "top-right",
-              "content": "$$\\mu=GM={toFixed(Gs*Mx*10000,1)}\\,\\text{km}^3/\\text{s}^2\\\\ r=R_p+h={Rp+h}\\,\\text{km}\\\\ g(r)={toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}\\,\\text{m/s}^2$$"
+              "content": "$$\\mu=GM={{toFixed(Gs*Mx*10000,1)}}\\,\\text{km}^3/\\text{s}^2\\\\ r=R_p+h={{Rp+h}}\\,\\text{km}\\\\ g(r)={{toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}}\\,\\text{m/s}^2$$"
             }
           ]
         },
@@ -530,12 +530,12 @@
             {
               "id": "mass_info",
               "position": "top-left",
-              "content": "$$m_0=m_d+m_f={mdry+mfuel}\\,\\text{t}$$"
+              "content": "$$m_0=m_d+m_f={{mdry+mfuel}}\\,\\text{t}$$"
             },
             {
               "id": "weight_info",
               "position": "top-right",
-              "content": "$$\\mu=GM={toFixed(Gs*Mx*10000,1)}\\,\\text{km}^3/\\text{s}^2\\\\ g(r)={toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}\\,\\text{m/s}^2\\\\ W=m_0 g={toFixed((mdry+mfuel)*1000*1000*(Gs*Mx*10000)/((Rp+h)^2),0)}\\,\\text{N}$$"
+              "content": "$$\\mu=GM={{toFixed(Gs*Mx*10000,1)}}\\,\\text{km}^3/\\text{s}^2\\\\ g(r)={{toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2),2)}}\\,\\text{m/s}^2\\\\ W=m_0 g={{toFixed((mdry+mfuel)*1000*1000*(Gs*Mx*10000)/((Rp+h)^2),0)}}\\,\\text{N}$$"
             }
           ]
         },
@@ -556,7 +556,7 @@
             {
               "id": "mass_info",
               "position": "top-left",
-              "content": "$$m_0=m_d+m_f={mdry+mfuel}\\,\\text{t}\\\\ \\Delta v_{max}=I_{sp}g_0\\ln\\left(\\frac{m_0}{m_d}\\right)={toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}\\,\\text{km/s}$$"
+              "content": "$$m_0=m_d+m_f={{mdry+mfuel}}\\,\\text{t}\\\\ \\Delta v_{max}=I_{sp}g_0\\ln\\left(\\frac{m_0}{m_d}\\right)={{toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}$$"
             }
           ]
         },
@@ -644,12 +644,12 @@
             {
               "id": "insertion_targets",
               "position": "bottom-left",
-              "content": "$$r_{\\mathrm{launch}}=R_p+h={toFixed(Rp+h,1)}\\,\\text{km},\\;r_{\\mathrm{target}}=R_p+h_{target}={toFixed(Rp+h_target,1)}\\,\\text{km}\\\\ v_{\\mathrm{circ,target}}={toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s},\\;v_{\\mathrm{esc,target}}={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\ v_{\\mathrm{launch}}={toFixed(vlaunch,3)}\\,\\text{km/s},\\;\\Delta v_{max}={toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}\\,\\text{km/s}$$"
+              "content": "$$r_{\\mathrm{launch}}=R_p+h={{toFixed(Rp+h,1)}}\\,\\text{km},\\;r_{\\mathrm{target}}=R_p+h_{target}={{toFixed(Rp+h_target,1)}}\\,\\text{km}\\\\ v_{\\mathrm{circ,target}}={{toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}}\\,\\text{km/s},\\;v_{\\mathrm{esc,target}}={{toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h_target)),3)}}\\,\\text{km/s}\\\\ v_{\\mathrm{launch}}={{toFixed(vlaunch,3)}}\\,\\text{km/s},\\;\\Delta v_{max}={{toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}$$"
             },
             {
               "id": "feasibility_note",
               "position": "bottom-right",
-              "content": "{vlaunch <= Isp*9.81*log((mdry+mfuel)/mdry)/1000 ? \"Within ideal delta-v budget\" : \"Requested speed exceeds ideal one-stage budget\"}"
+              "content": "{{vlaunch <= Isp*9.81*log((mdry+mfuel)/mdry)/1000 ? \"Within ideal delta-v budget\" : \"Requested speed exceeds ideal one-stage budget\"}}"
             }
           ]
         },
@@ -728,7 +728,7 @@
             {
               "id": "state_panel",
               "position": "top-left",
-              "content": "{orbitOutcome(t,0)}"
+              "content": "{{orbitOutcome(t,0)}}"
             },
             {
               "id": "guidance_panel",
@@ -738,7 +738,7 @@
             {
               "id": "time_panel",
               "position": "bottom-left",
-              "content": "$$\\tau={toFixed(tau,3)}\\;(\\text{normalized}),\\quad t_{\\mathrm{actual}}={toFixed(t,1)}\\,\\text{s}$$"
+              "content": "$$\\tau={{toFixed(tau,3)}}\\;(\\text{normalized}),\\quad t_{\\mathrm{actual}}={{toFixed(t,1)}}\\,\\text{s}$$"
             }
           ]
         }
@@ -1031,22 +1031,22 @@
             {
               "id": "powered_metrics",
               "position": "bottom-left",
-              "content": "$$\\begin{aligned}r_{\\mathrm{launch}}&=R_p+h={toFixed(Rp+h,1)}\\,\\text{km}\\\\r_{\\mathrm{target}}&=R_p+h_{\\mathrm{target}}={toFixed(Rp+h_target,1)}\\,\\text{km}\\\\v_{\\mathrm{circ,target}}&={toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\v_{\\mathrm{esc,target}}&={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\a_T&={toFixed(athrust*1000,1)}\\,\\text{m/s}^2,\\;t_{\\mathrm{burn}}={toFixed(tburn,0)}\\,\\text{s}\\\\\\Delta v_{\\mathrm{burn}}&\\approx{toFixed(athrust*tburn,3)}\\,\\text{km/s}\\end{aligned}$$"
+              "content": "$$\\begin{aligned}r_{\\mathrm{launch}}&=R_p+h={{toFixed(Rp+h,1)}}\\,\\text{km}\\\\r_{\\mathrm{target}}&=R_p+h_{\\mathrm{target}}={{toFixed(Rp+h_target,1)}}\\,\\text{km}\\\\v_{\\mathrm{circ,target}}&={{toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}}\\,\\text{km/s}\\\\v_{\\mathrm{esc,target}}&={{toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h_target)),3)}}\\,\\text{km/s}\\\\a_T&={{toFixed(athrust*1000,1)}}\\,\\text{m/s}^2,\\;t_{\\mathrm{burn}}={{toFixed(tburn,0)}}\\,\\text{s}\\\\\\Delta v_{\\mathrm{burn}}&\\approx{{toFixed(athrust*tburn,3)}}\\,\\text{km/s}\\end{aligned}$$"
             },
             {
               "id": "powered_orbit_checks",
               "position": "bottom-right",
-              "content": "$$\\begin{aligned}r(t)&={toFixed(orbitR(t,1),1)}\\,\\text{km}\\\\v_{\\theta}(t)&={toFixed(orbitVt(t,1),3)}\\,\\text{km/s}\\\\v_r(t)&={toFixed(orbitVr(t,1),3)}\\,\\text{km/s}\\end{aligned}$$"
+              "content": "$$\\begin{aligned}r(t)&={{toFixed(orbitR(t,1),1)}}\\,\\text{km}\\\\v_{\\theta}(t)&={{toFixed(orbitVt(t,1),3)}}\\,\\text{km/s}\\\\v_r(t)&={{toFixed(orbitVr(t,1),3)}}\\,\\text{km/s}\\end{aligned}$$"
             },
             {
               "id": "powered_outcome",
               "position": "top-center",
-              "content": "{orbitOutcome(t,1)}"
+              "content": "{{orbitOutcome(t,1)}}"
             },
             {
               "id": "powered_time",
               "position": "top-right",
-              "content": "$$\\tau={toFixed(tau,3)},\\quad t_{\\mathrm{actual}}={toFixed(t,1)}\\,\\text{s}$$"
+              "content": "$$\\tau={{toFixed(tau,3)}},\\quad t_{\\mathrm{actual}}={{toFixed(t,1)}}\\,\\text{s}$$"
             }
           ]
         }
@@ -1404,27 +1404,27 @@
             {
               "id": "guided_timeline",
               "position": "top-right",
-              "content": "$$t_{burn1}={toFixed(tburn1,0)}\\,s,\\;t_{coast}={toFixed(tcoast,0)}\\,s,\\;t_{burn2}={toFixed(tburn2,0)}\\,s\\\\t_{end,burn}={toFixed(tburn1+tcoast+tburn2,0)}\\,s$$"
+              "content": "$$t_{burn1}={{toFixed(tburn1,0)}}\\,s,\\;t_{coast}={{toFixed(tcoast,0)}}\\,s,\\;t_{burn2}={{toFixed(tburn2,0)}}\\,s\\\\t_{end,burn}={{toFixed(tburn1+tcoast+tburn2,0)}}\\,s$$"
             },
             {
               "id": "guided_checks",
               "position": "bottom-left",
-              "content": "$$\\begin{aligned}r(t)&={toFixed(orbitR(t,2),1)}\\,\\text{km}\\\\v_{\\theta}(t)&={toFixed(orbitVt(t,2),3)}\\,\\text{km/s}\\\\v_r(t)&={toFixed(orbitVr(t,2),3)}\\,\\text{km/s}\\\\v_{circ,target}&={toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\end{aligned}$$"
+              "content": "$$\\begin{aligned}r(t)&={{toFixed(orbitR(t,2),1)}}\\,\\text{km}\\\\v_{\\theta}(t)&={{toFixed(orbitVt(t,2),3)}}\\,\\text{km/s}\\\\v_r(t)&={{toFixed(orbitVr(t,2),3)}}\\,\\text{km/s}\\\\v_{circ,target}&={{toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}}\\,\\text{km/s}\\end{aligned}$$"
             },
             {
               "id": "guided_outcome",
               "position": "bottom-right",
-              "content": "{orbitOutcome(t,2)}"
+              "content": "{{orbitOutcome(t,2)}}"
             },
             {
               "id": "guided_time",
               "position": "top-center",
-              "content": "$$\\tau={toFixed(tau,3)},\\quad t_{actual}={toFixed(t,1)}\\,\\text{s}$$"
+              "content": "$$\\tau={{toFixed(tau,3)}},\\quad t_{actual}={{toFixed(t,1)}}\\,\\text{s}$$"
             },
             {
               "id": "guided_mach",
               "position": "top-right",
-              "content": "$$v={toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2)),3)}\\,\\text{km/s}\\\\M_{\\mathrm{SL}}\\approx\\frac{v}{0.343}={toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2))/0.343,2)}$$"
+              "content": "$$v={{toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2)),3)}}\\,\\text{km/s}\\\\M_{\\mathrm{SL}}\\approx\\frac{v}{0.343}={{toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2))/0.343,2)}}$$"
             }
           ]
         }

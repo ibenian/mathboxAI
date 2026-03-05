@@ -334,7 +334,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}\\frac{\\sqrt{2}}{2} & -\\frac{\\sqrt{2}}{2}\\\\ \\frac{\\sqrt{2}}{2} & \\frac{\\sqrt{2}}{2}\\end{pmatrix}$$"
+              "content": "$$M = \\begin{pmatrix}\\frac{\\sqrt{2}}{{2}} & -\\frac{\\sqrt{2}}{{2}}\\\\ \\frac{\\sqrt{2}}{{2}} & \\frac{\\sqrt{2}}{{2}}\\end{pmatrix}$$"
             }
           ]
         },
@@ -482,7 +482,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}{m11} & {m12}\\\\ {m21} & {m22}\\end{pmatrix}$$"
+              "content": "$$M = \\begin{pmatrix}{{m11}} & {{m12}}\\\\ {{m21}} & {{m22}}\\end{pmatrix}$$"
             }
           ]
         }
@@ -794,7 +794,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}{a} & 0\\\\ 0 & {d}\\end{pmatrix}$$"
+              "content": "$$M = \\begin{pmatrix}{{a}} & 0\\\\ 0 & {{d}}\\end{pmatrix}$$"
             }
           ]
         },
@@ -916,7 +916,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}1 & 0\\\\ {c} & 1\\end{pmatrix}$$"
+              "content": "$$M = \\begin{pmatrix}1 & 0\\\\ {{c}} & 1\\end{pmatrix}$$"
             }
           ]
         },
@@ -1038,7 +1038,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}1 & {b}\\\\ 0 & 1\\end{pmatrix}$$"
+              "content": "$$M = \\begin{pmatrix}1 & {{b}}\\\\ 0 & 1\\end{pmatrix}$$"
             }
           ]
         },
@@ -1184,7 +1184,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}$$"
+              "content": "$$M = \\begin{pmatrix}{{a}} & {{b}}\\\\ {{c}} & {{d}}\\end{pmatrix}$$"
             }
           ]
         },
@@ -1373,7 +1373,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M(t) = \\begin{pmatrix}{1-t+t*a} & {t*b}\\\\ {t*c} & {1-t+t*d}\\end{pmatrix}$$"
+              "content": "$$M(t) = \\begin{pmatrix}{{1-t+t*a}} & {{t*b}}\\\\ {{t*c}} & {{1-t+t*d}}\\end{pmatrix}$$"
             }
           ]
         }
@@ -1525,7 +1525,7 @@
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{{x}}\\\\ {{y}} \\end{pmatrix} $$"
             }
           ]
         },
@@ -1604,12 +1604,12 @@
             {
               "id": "mat-A",
               "position": "top-left",
-              "content": "$$ A = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d} \\end{pmatrix} $$"
+              "content": "$$ A = \\begin{pmatrix}{{a}} & {{b}}\\\\ {{c}} & {{d}} \\end{pmatrix} $$"
             },
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{{x}}\\\\ {{y}} \\end{pmatrix} $$"
             }
           ]
         },
@@ -1646,17 +1646,17 @@
             {
               "id": "mat-A",
               "position": "top-left",
-              "content": "$$ A = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d} \\end{pmatrix} $$"
+              "content": "$$ A = \\begin{pmatrix}{{a}} & {{b}}\\\\ {{c}} & {{d}} \\end{pmatrix} $$"
             },
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{{x}}\\\\ {{y}} \\end{pmatrix} $$"
             },
             {
               "id": "vec-av",
               "position": "bottom-right",
-              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{(a*x+b*y)}\\\\ {(c*x+d*y)} \\end{pmatrix} $$"
+              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{{(a*x+b*y)}}\\\\ {{(c*x+d*y)}} \\end{pmatrix} $$"
             }
           ]
         },
@@ -1740,17 +1740,17 @@
             {
               "id": "decomp",
               "position": "top-left",
-              "content": "$$ A\\mathbf{v} = {x}\\!\\begin{pmatrix}{a}\\\\ {c}\\end{pmatrix} + {y}\\!\\begin{pmatrix}{b}\\\\ {d}\\end{pmatrix} $$"
+              "content": "$$ A\\mathbf{v} = {{x}}\\!\\begin{pmatrix}{{a}}\\\\ {{c}}\\end{pmatrix} + {{y}}\\!\\begin{pmatrix}{{b}}\\\\ {{d}}\\end{pmatrix} $$"
             },
             {
               "id": "vec-v",
               "position": "bottom-left",
-              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{x}\\\\ {y} \\end{pmatrix} $$"
+              "content": "$$ \\mathbf{v} = \\begin{pmatrix}{{x}}\\\\ {{y}} \\end{pmatrix} $$"
             },
             {
               "id": "vec-av",
               "position": "bottom-right",
-              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{(a*x+b*y)}\\\\ {(c*x+d*y)} \\end{pmatrix} $$"
+              "content": "$$ A\\mathbf{v} = \\begin{pmatrix}{{(a*x+b*y)}}\\\\ {{(c*x+d*y)}} \\end{pmatrix} $$"
             }
           ]
         }
@@ -1954,7 +1954,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$R(45^\\circ) = \\begin{pmatrix}\\frac{\\sqrt{2}}{2} & -\\frac{\\sqrt{2}}{2}\\\\ \\frac{\\sqrt{2}}{2} & \\frac{\\sqrt{2}}{2}\\end{pmatrix}$$"
+              "content": "$$R(45^\\circ) = \\begin{pmatrix}\\frac{\\sqrt{2}}{{2}} & -\\frac{\\sqrt{2}}{{2}}\\\\ \\frac{\\sqrt{2}}{{2}} & \\frac{\\sqrt{2}}{{2}}\\end{pmatrix}$$"
             }
           ]
         },
@@ -2013,7 +2013,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$R(\\theta) = \\begin{pmatrix}{cos(theta)} & {-sin(theta)}\\\\ {sin(theta)} & {cos(theta)}\\end{pmatrix}$$"
+              "content": "$$R(\\theta) = \\begin{pmatrix}{{cos(theta)}} & {{-sin(theta)}}\\\\ {{sin(theta)}} & {{cos(theta)}}\\end{pmatrix}$$"
             }
           ]
         }
@@ -2449,7 +2449,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}, \\quad \\det(M) = {(a*d - b*c)}$$"
+              "content": "$$M = \\begin{pmatrix}{{a}} & {{b}}\\\\ {{c}} & {{d}}\\end{pmatrix}, \\quad \\det(M) = {{(a*d - b*c)}}$$"
             }
           ]
         }
@@ -2651,7 +2651,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}$$\n\nParallelogram area $= |ad - bc| = {abs(a*d - b*c)}$"
+              "content": "$$M = \\begin{pmatrix}{{a}} & {{b}}\\\\ {{c}} & {{d}}\\end{pmatrix}$$\n\nParallelogram area $= |ad - bc| = {{abs(a*d - b*c)}}$"
             }
           ]
         },
@@ -2696,7 +2696,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Bounding box $= (a+b)(c+d)$\n\n$= ({a}+{b})({c}+{d}) = {((a+b)*(c+d))}$\n\nParallelogram $= {abs(a*d - b*c)}$"
+              "content": "Bounding box $= (a+b)(c+d)$\n\n$= ({{a}}+{{b}})({{c}}+{{d}}) = {{((a+b)*(c+d))}}$\n\nParallelogram $= {{abs(a*d - b*c)}}$"
             }
           ]
         },
@@ -2781,7 +2781,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Subtract **2 rectangles** of $b \\times c$:\n\n$2bc = 2({b})({c}) = {(2*b*c)}$\n\nRunning total removed: ${(2*b*c)}$"
+              "content": "Subtract **2 rectangles** of $b \\times c$:\n\n$2bc = 2({{b}})({{c}}) = {{(2*b*c)}}$\n\nRunning total removed: ${{(2*b*c)}}$"
             }
           ]
         },
@@ -2914,7 +2914,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Subtract **2 ac-triangles** of $\\frac{1}{2}ac$:\n\n$\\frac{1}{2}({a})({c}) = {(a*c/2)}$ each\n\nTotal $ac = {(a*c)}$\n\nRunning total removed: ${(2*b*c + a*c)}$"
+              "content": "Subtract **2 ac-triangles** of $\\frac{1}{2}ac$:\n\n$\\frac{1}{2}({{a}})({{c}}) = {{(a*c/2)}}$ each\n\nTotal $ac = {{(a*c)}}$\n\nRunning total removed: ${{(2*b*c + a*c)}}$"
             }
           ]
         },
@@ -3049,7 +3049,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "Subtract **2 bd-triangles** of $\\frac{1}{2}bd$:\n\n$\\frac{1}{2}({b})({d}) = {(b*d/2)}$ each\n\nTotal $bd = {(b*d)}$\n\nRunning total removed: ${(2*b*c + a*c + b*d)}$"
+              "content": "Subtract **2 bd-triangles** of $\\frac{1}{2}bd$:\n\n$\\frac{1}{2}({{b}})({{d}}) = {{(b*d/2)}}$ each\n\nTotal $bd = {{(b*d)}}$\n\nRunning total removed: ${{(2*b*c + a*c + b*d)}}$"
             }
           ]
         },
@@ -3083,7 +3083,7 @@
             {
               "id": "det-info",
               "pos": "bottom-right",
-              "content": "$(a+b)(c+d) - ac - bd - 2bc = ad - bc$\n\n$= ({a})({d}) - ({b})({c}) = {(a*d-b*c)}$"
+              "content": "$(a+b)(c+d) - ac - bd - 2bc = ad - bc$\n\n$= ({{a}})({{d}}) - ({{b}})({{c}}) = {{(a*d-b*c)}}$"
             }
           ]
         }
@@ -3346,7 +3346,7 @@
           "info": [
             {
               "id": "matrix",
-              "content": "$$R_z(\\theta) = \\begin{pmatrix}{cos(theta)} & {-sin(theta)} & 0\\\\ {sin(theta)} & {cos(theta)} & 0\\\\ 0 & 0 & 1\\end{pmatrix}$$"
+              "content": "$$R_z(\\theta) = \\begin{pmatrix}{{cos(theta)}} & {{-sin(theta)}} & 0\\\\ {{sin(theta)}} & {{cos(theta)}} & 0\\\\ 0 & 0 & 1\\end{pmatrix}$$"
             }
           ]
         }

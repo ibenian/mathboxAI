@@ -4921,6 +4921,36 @@ function _exprHasUnknownIdentifiers(expr) {
     return false;
 }
 
+function _evalInfoExpr(expr) {
+    const trimmed = String(expr || '').trim();
+    if (!trimmed) return '';
+    if (_exprHasUnknownIdentifiers(trimmed)) {
+        return null;
+    }
+    try {
+        return _fmtNum(evalExpr(compileExpr(trimmed), 0));
+    } catch {
+        // math.js failed (e.g. JS-only helpers/method calls)
+        if (_sceneJsTrustState === 'trusted') {
+            try {
+                const ids = getSliderIds();
+                const fn = Function('t', ...ids, ..._MATH_NAMES, 'return (' + trimmed + ')');
+                const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
+                return _fmtNum(fn(0, ...vals, ..._MATH_VALS));
+            } catch { /* fall through */ }
+        }
+        return '?';
+    }
+}
+
+function _replaceDoubleBraceExprs(template, evaluator) {
+    if (typeof template !== 'string' || template.indexOf('{{') === -1) return template;
+    return template.replace(/\{\{([\s\S]*?)\}\}/g, (_m, expr) => {
+        const v = evaluator(expr);
+        return v == null ? _m : String(v);
+    });
+}
+
 function _replaceInlineExprs(template, evaluator) {
     if (typeof template !== 'string' || template.indexOf('{') === -1) return template;
     let out = '';
@@ -4968,19 +4998,31 @@ function _replaceInlineExprs(template, evaluator) {
             // If this brace group is an argument to a LaTeX command (e.g. \frac{...}, \text{...}),
             // keep it literal and do not treat it as a dynamic placeholder.
             let isLatexCommandArg = false;
+            const latexLiteralArgCmds = new Set([
+                // Structural/text commands whose immediate brace group is plain TeX.
+                'begin', 'end', 'text', 'mathrm', 'mathbf', 'mathit', 'operatorname',
+                // Commands where brace args are mathematical TeX, not dynamic placeholders.
+                'frac', 'dfrac', 'tfrac', 'cfrac', 'binom', 'sqrt', 'left', 'right',
+                'overline', 'underline', 'hat', 'bar', 'vec', 'dot', 'ddot'
+            ]);
+            const latexSecondLiteralArgCmds = new Set([
+                'frac', 'dfrac', 'tfrac', 'cfrac', 'binom'
+            ]);
             {
                 let k = i - 1;
                 while (k >= 0 && /\s/.test(template[k])) k -= 1;
                 let end = k;
                 while (k >= 0 && /[A-Za-z]/.test(template[k])) k -= 1;
                 if (end >= 0 && k >= 0 && template[k] === '\\' && end > k) {
-                    isLatexCommandArg = true;
+                    const cmd = template.slice(k + 1, end + 1);
+                    if (latexLiteralArgCmds.has(cmd)) isLatexCommandArg = true;
                 }
                 // Also treat the *second* argument of commands like \frac{...}{...}
                 // as literal TeX, where the previous character is '}'.
                 if (!isLatexCommandArg && end >= 0 && template[end] === '}') {
                     const prefix = template.slice(0, i);
-                    if (/\\[A-Za-z]+\{[^{}]*\}\s*$/.test(prefix)) {
+                    const m = prefix.match(/\\([A-Za-z]+)\{[^{}]*\}\s*$/);
+                    if (m && latexSecondLiteralArgCmds.has(m[1])) {
                         isLatexCommandArg = true;
                     }
                 }
@@ -4998,28 +5040,9 @@ function _replaceInlineExprs(template, evaluator) {
 }
 
 function resolveInfoContent(template) {
-    return _replaceInlineExprs(template, (expr) => {
-        const trimmed = expr.trim();
-        if (_exprHasUnknownIdentifiers(trimmed)) {
-            // Likely symbolic LaTeX group (e.g., r^2 in \frac{\mu}{r^2}), not a dynamic placeholder.
-            return '{' + expr + '}';
-        }
-        try {
-            return _fmtNum(evalExpr(compileExpr(trimmed), 0));
-        } catch {
-            // math.js failed (e.g. Math.xxx, .toFixed(), or JS method calls not caught by _JS_ONLY_RE)
-            // Try JS fallback if user has trusted the scene
-            if (_sceneJsTrustState === 'trusted') {
-                try {
-                    const ids = getSliderIds();
-                    const fn = Function('t', ...ids, ..._MATH_NAMES, 'return (' + trimmed + ')');
-                    const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
-                    return _fmtNum(fn(0, ...vals, ..._MATH_VALS));
-                } catch { /* fall through */ }
-            }
-            return '?';
-        }
-    });
+    // Explicit bindings only: evaluate {{expr}} and leave all single-brace
+    // groups untouched as literal text/LaTeX.
+    return _replaceDoubleBraceExprs(template, (expr) => _evalInfoExpr(expr));
 }
 
 function updateInfoOverlays() {
