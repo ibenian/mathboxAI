@@ -187,6 +187,14 @@
               "max": 10,
               "step": 0.1,
               "default": 2
+            },
+            {
+              "id": "v_walk",
+              "label": "$v$ — Walk speed: $+$ prograde / $-$ retrograde (m/s)",
+              "min": -4,
+              "max": 4,
+              "step": 0.1,
+              "default": 1.5
             }
           ],
           "add": [
@@ -451,6 +459,14 @@
               "max": 10,
               "step": 0.1,
               "default": 2
+            },
+            {
+              "id": "v_walk",
+              "label": "$v$ — Walk speed: $+$ prograde / $-$ retrograde (m/s)",
+              "min": -4,
+              "max": 4,
+              "step": 0.1,
+              "default": 0
             }
           ],
           "add": [
@@ -559,13 +575,13 @@
               "id": "gravity_vec",
               "type": "animated_vector",
               "fromExpr": [
-                "(R+10)*cos(t * 2*PI*rpm/60)",
-                "(R+10)*sin(t * 2*PI*rpm/60)",
+                "(R+10)*cos(t * (2*PI*rpm/60 + v_walk/R))",
+                "(R+10)*sin(t * (2*PI*rpm/60 + v_walk/R))",
                 "0"
               ],
               "expr": [
-                "(R+10+pow(2*PI*rpm/60,2)*R/9.81*35)*cos(t * 2*PI*rpm/60)",
-                "(R+10+pow(2*PI*rpm/60,2)*R/9.81*35)*sin(t * 2*PI*rpm/60)",
+                "(R+10+pow(2*PI*rpm/60 + v_walk/R,2)*R/9.81*35)*cos(t * (2*PI*rpm/60 + v_walk/R))",
+                "(R+10+pow(2*PI*rpm/60 + v_walk/R,2)*R/9.81*35)*sin(t * (2*PI*rpm/60 + v_walk/R))",
                 "0"
               ],
               "color": "#ff2222",
@@ -577,7 +593,7 @@
             {
               "id": "gravity_info",
               "position": "top-left",
-              "content": "### Artificial Gravity\\n$g_a = \\omega^2 R$\\n---\\n$\\omega = {{toFixed(2*PI*rpm/60, 3)}}$ rad/s\\n$R = {{R}}$ m\\n$g_a = {{toFixed(pow(2*PI*rpm/60,2)*R, 2)}}$ m/s²\\n$g_a = {{toFixed(pow(2*PI*rpm/60,2)*R/9.81, 3)}}$ g\\n---\\n**Target: 0.9 – 1.0 g**"
+              "content": "### Artificial Gravity\\n$g_a = \\omega_{\\mathrm{eff}}^2 R$\\n---\\n$\\omega = {{toFixed(2*PI*rpm/60, 3)}}$ rad/s\\n$\\omega_{\\mathrm{eff}} = \\omega + v/R = {{toFixed(2*PI*rpm/60 + v_walk/R, 4)}}$ rad/s\\n$R = {{R}}$ m\\n$g_a = {{toFixed(pow(2*PI*rpm/60 + v_walk/R,2)*R, 2)}}$ m/s²\\n$g_a = {{toFixed(pow(2*PI*rpm/60 + v_walk/R,2)*R/9.81, 3)}}$ g\\n---\\n**Target: 0.9 – 1.0 g**"
             }
           ]
         },
@@ -746,13 +762,13 @@
               "id": "g_feet",
               "type": "animated_vector",
               "fromExpr": [
-                "R*cos(t * 2*PI*rpm/60)",
-                "R*sin(t * 2*PI*rpm/60)",
+                "R*cos(t * (2*PI*rpm/60 + v_walk/R))",
+                "R*sin(t * (2*PI*rpm/60 + v_walk/R))",
                 "0"
               ],
               "expr": [
-                "(R+pow(2*PI*rpm/60,2)*R/9.81*35)*cos(t * 2*PI*rpm/60)",
-                "(R+pow(2*PI*rpm/60,2)*R/9.81*35)*sin(t * 2*PI*rpm/60)",
+                "(R+pow(2*PI*rpm/60 + v_walk/R,2)*R/9.81*35)*cos(t * (2*PI*rpm/60 + v_walk/R))",
+                "(R+pow(2*PI*rpm/60 + v_walk/R,2)*R/9.81*35)*sin(t * (2*PI*rpm/60 + v_walk/R))",
                 "0"
               ],
               "color": "#ff8822",
@@ -763,13 +779,13 @@
               "id": "g_head",
               "type": "animated_vector",
               "fromExpr": [
-                "(R-1.8)*cos(t * 2*PI*rpm/60)",
-                "(R-1.8)*sin(t * 2*PI*rpm/60)",
+                "(R-1.8)*cos(t * (2*PI*rpm/60 + v_walk/R))",
+                "(R-1.8)*sin(t * (2*PI*rpm/60 + v_walk/R))",
                 "0"
               ],
               "expr": [
-                "(R-1.8+pow(2*PI*rpm/60,2)*(R-1.8)/9.81*35)*cos(t * 2*PI*rpm/60)",
-                "(R-1.8+pow(2*PI*rpm/60,2)*(R-1.8)/9.81*35)*sin(t * 2*PI*rpm/60)",
+                "(R-1.8+pow(2*PI*rpm/60 + v_walk/R,2)*(R-1.8)/9.81*35)*cos(t * (2*PI*rpm/60 + v_walk/R))",
+                "(R-1.8+pow(2*PI*rpm/60 + v_walk/R,2)*(R-1.8)/9.81*35)*sin(t * (2*PI*rpm/60 + v_walk/R))",
                 "0"
               ],
               "color": "#ffaa44",
@@ -781,7 +797,7 @@
             {
               "id": "gradient_info",
               "position": "top-left",
-              "content": "### Gravity Gradient\\n$\\Delta g / g = 1.8 / R$\\n---\\n$g_{\\mathrm{feet}} = {{toFixed(pow(2*PI*rpm/60,2)*R/9.81, 3)}}$ g\\n$g_{\\mathrm{head}} = {{toFixed(pow(2*PI*rpm/60,2)*(R-1.8)/9.81, 3)}}$ g\\n$\\Delta g / g = {{toFixed(180/R, 2)}}$%\\n---\\n**Gradient tolerance:** {{(180/R) < 10 ? 'within tolerance (<10%)' : (180/R) < 50 ? 'warning (<50%)' : 'out of tolerance'}}"
+              "content": "### Gravity Gradient\\n$\\Delta g / g = 1.8 / R$\\n---\\n$\\omega_{\\mathrm{eff}} = \\omega + v/R = {{toFixed(2*PI*rpm/60 + v_walk/R, 4)}}$ rad/s\\n$g_{\\mathrm{feet}} = {{toFixed(pow(2*PI*rpm/60 + v_walk/R,2)*R/9.81, 3)}}$ g\\n$g_{\\mathrm{head}} = {{toFixed(pow(2*PI*rpm/60 + v_walk/R,2)*(R-1.8)/9.81, 3)}}$ g\\n$\\Delta g / g = {{toFixed(180/R, 2)}}$%\\n---\\n**Gradient tolerance:** {{(180/R) < 10 ? 'within tolerance (<10%)' : (180/R) < 50 ? 'warning (<50%)' : 'out of tolerance'}}"
             }
           ]
         },
