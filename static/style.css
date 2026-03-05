@@ -1462,11 +1462,12 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
     color: rgba(224, 224, 240, 0.92);
     font-size: 0.88em;
     line-height: 1.6;
-    width: max-content;
-    max-width: 480px;
+    width: auto;
+    max-width: min(70vw, 900px);
     pointer-events: all;
     cursor: grab;
     user-select: none;
+    overflow: hidden;
     transition: border-color 0.15s, background 0.15s;
 }
 .info-overlay:hover { border-color: rgba(130, 150, 255, 0.5); background: rgba(14, 14, 40, 0.8); }
@@ -1519,7 +1520,13 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
 }
 .info-overlay-ai-btn svg { pointer-events: none; }
 .info-overlay.collapsed .info-overlay-ai-btn { display: none; }
-.info-overlay-content { flex: 1; }
+.info-overlay-content {
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+}
 /* Default positions — top offsets account for viewport buttons */
 .info-overlay.pos-top-left     { top: 58px; left: 14px; }
 .info-overlay.pos-top-right    { top: 86px; right: 14px; }
@@ -1527,7 +1534,15 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
 .info-overlay.pos-bottom-right { bottom: 80px; right: 14px; }
 .info-overlay.pos-top-center   { top: 58px; left: 50%; transform: translateX(-50%); }
 .info-overlay .katex { color: rgba(210, 220, 255, 0.95); }
-.info-overlay .katex-display { margin: 4px 0; overflow: visible; }
+.info-overlay .katex-display {
+    margin: 4px 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+.info-overlay .katex-display > .katex {
+    white-space: normal;
+    max-width: 100%;
+}
 
 #empty-state h2 {
     font-size: 1.6em;

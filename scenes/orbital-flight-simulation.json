@@ -173,12 +173,12 @@
           ]
         },
         {
-          "title": "Parameter 2: Launch Altitude h",
-          "description": "Now add launch altitude $h$. The launch point moves to radius $r=R_p+h$ from the planet center.",
+          "title": "Parameter 2: Launch Height h",
+          "description": "Set launch height $h$. In this model, the vehicle starts at a launch point on radius $r=R_p+h$ (post-ascent phase).",
           "sliders": [
             {
               "id": "h",
-              "label": "Launch altitude h (km)",
+              "label": "Launch height h (km)",
               "min": 0,
               "max": 1200,
               "step": 5,
@@ -271,6 +271,7 @@
               "samples": 260,
               "color": "#87f5a3",
               "width": 3,
+              "opacity": 0.6,
               "label": "circular orbit at h"
             },
             {
@@ -319,9 +320,9 @@
       ]
     },
     {
-      "title": "Launch and Insertion Simulator",
-      "description": "Use dry mass, fuel mass, Isp, launch speed, and direction to test whether the rocket falls back, inserts into orbit, or escapes.",
-      "markdown": "# Launch and Insertion Simulator\n\nThis scene ties together **vehicle mass properties** and **orbital targets**.\n\n## Mass and Propulsion Bookkeeping\n\n- Dry mass: $m_d$\n- Fuel mass: $m_f$\n- Initial mass: $m_0=m_d+m_f$\n\nMaximum ideal one-stage delta-v estimate:\n\n$$\\Delta v_{max}=I_{sp}g_0\\ln\\left(\\frac{m_0}{m_d}\\right)$$\n\n(with $g_0=9.81\\,\\text{m/s}^2$).\n\n## Gravity Inputs\n\nWe compute gravity live from:\n- $G_s=G\\times10^{11}$\n- $M_x=M/10^{24}$\n- $\\mu=G_sM_x\\times10^4$ (km$^3$/s$^2$)\n\n## Target Speeds for Orbit\n\nAt launch radius $r=R_p+h$:\n\n$$v_{\\text{circ}}=\\sqrt{\\frac{\\mu}{r}}, \\quad v_{\\text{esc}}=\\sqrt{\\frac{2\\mu}{r}}$$\n\nIf your launch speed is below circular, the trajectory is usually suborbital unless direction and staging are corrected.\n\n## Pedagogical Model Used Here\n\nFor interactive clarity, this simulator uses a blended 2D model:\n- ballistic-like arc when speed is below orbital target,\n- near-circular motion around $v_{\\text{circ}}$,\n- outward escape branch near/above $v_{\\text{esc}}$.\n\nThis keeps the controls intuitive while preserving the key speed-height logic used in real orbital mechanics.",
+      "title": "Passive Coast Flight (No Thrust)",
+      "description": "This scene is a no-thrust coast model: choose initial speed and direction at launch height, then observe ballistic/gravity-dominated outcomes.",
+      "markdown": "# Launch and Insertion Simulator\n\nThis scene ties together **vehicle mass properties** and **orbital targets**.\n\n## Important Modeling Note\n\nThis simplified simulator starts at a **launch-height point** at altitude $h$ (post-ascent), not from ground liftoff. So $h$ is the simulation start height, while $h_{target}$ is the desired orbit height.\n\n## Mass and Propulsion Bookkeeping\n\n- Dry mass: $m_d$\n- Fuel mass: $m_f$\n- Initial mass: $m_0=m_d+m_f$\n\nMaximum ideal one-stage delta-v estimate:\n\n$$\\Delta v_{max}=I_{sp}g_0\\ln\\left(\\frac{m_0}{m_d}\\right)$$\n\n(with $g_0=9.81\\,\\text{m/s}^2$).\n\n## Gravity Inputs\n\nWe compute gravity live from:\n- $G_s=G\\times10^{11}$\n- $M_x=M/10^{24}$\n- $\\mu=G_sM_x\\times10^4$ (km$^3$/s$^2$)\n\n## Target Speeds for Orbit\n\nAt launch-height radius $r=R_p+h$:\n\n$$v_{\\text{circ}}=\\sqrt{\\frac{\\mu}{r}}, \\quad v_{\\text{esc}}=\\sqrt{\\frac{2\\mu}{r}}$$\n\nIf your speed is below circular, the trajectory is usually suborbital unless direction and staging are corrected.\n\n## Pedagogical Model Used Here\n\nFor interactive clarity, this simulator uses a blended 2D model:\n- ballistic-like arc when speed is below orbital target,\n- near-circular motion around $v_{\\text{circ}}$,\n- outward escape branch near/above $v_{\\text{esc}}$.\n\nThis keeps the controls intuitive while preserving the key speed-height logic used in real orbital mechanics.",
       "prompt": "Teach this as a mission design loop: (1) compute speed targets from height, (2) check delta-v budget from mass and Isp, (3) tune launch direction for insertion quality.",
       "range": [
         [
@@ -428,7 +429,7 @@
       "steps": [
         {
           "title": "Parameter 1: Planet Geometry and Gravity Inputs",
-          "description": "Set $R_p$, launch altitude $h$, and gravity inputs $G, M$. This defines $r=R_p+h$ and $\\mu=GM$.",
+          "description": "Set $R_p$, launch height $h$, and gravity inputs $G, M$. This defines $r=R_p+h$ and $\\mu=GM$.",
           "sliders": [
             {
               "id": "Rp",
@@ -456,7 +457,7 @@
             },
             {
               "id": "h",
-              "label": "Launch altitude h (km)",
+              "label": "Launch height h (km)",
               "min": 0,
               "max": 1200,
               "step": 5,
@@ -474,7 +475,7 @@
               ],
               "color": "#ffd166",
               "size": 11,
-              "label": "pad"
+              "label": "launch point"
             }
           ],
           "info": [
@@ -561,7 +562,7 @@
         },
         {
           "title": "Parameters 5-6: Launch Speed and Direction",
-          "description": "Set launch speed and flight-path angle (relative to local horizontal). Compare to circular and escape targets.",
+          "description": "Set launch speed, flight-path angle, and target height. Green ring = launch height, red ring = target height.",
           "sliders": [
             {
               "id": "vlaunch",
@@ -578,6 +579,14 @@
               "max": 60,
               "step": 1,
               "default": 8
+            },
+            {
+              "id": "h_target",
+              "label": "Target height $h_{target}$ (km)",
+              "min": 50,
+              "max": 2000,
+              "step": 10,
+              "default": 300
             }
           ],
           "add": [
@@ -599,7 +608,7 @@
               "label": "launch direction"
             },
             {
-              "id": "orbit_ref",
+              "id": "orbit_start_ref",
               "type": "parametric_curve",
               "x": "(Rp+h)*cos(t)",
               "y": "(Rp+h)*sin(t)",
@@ -610,15 +619,32 @@
               ],
               "samples": 260,
               "color": "#90ee90",
-              "width": 2,
-              "label": "target circular orbit"
+              "width": 1,
+              "opacity": 0.6,
+              "label": "launch-height ring"
+            },
+            {
+              "id": "orbit_target_ref",
+              "type": "parametric_curve",
+              "x": "(Rp+h_target)*cos(t)",
+              "y": "(Rp+h_target)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#ff7f7f",
+              "width": 1,
+              "opacity": 0.6,
+              "label": "target-height ring"
             }
           ],
           "info": [
             {
               "id": "insertion_targets",
               "position": "bottom-left",
-              "content": "$$v_{\\mathrm{circ}}={toFixed(sqrt((Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s},\\;v_{\\mathrm{esc}}={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h)),3)}\\,\\text{km/s}\\\\ v_{\\mathrm{launch}}={toFixed(vlaunch,3)}\\,\\text{km/s},\\;\\Delta v_{max}={toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}\\,\\text{km/s}$$"
+              "content": "$$r_{\\mathrm{launch}}=R_p+h={toFixed(Rp+h,1)}\\,\\text{km},\\;r_{\\mathrm{target}}=R_p+h_{target}={toFixed(Rp+h_target,1)}\\,\\text{km}\\\\ v_{\\mathrm{circ,target}}={toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s},\\;v_{\\mathrm{esc,target}}={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\ v_{\\mathrm{launch}}={toFixed(vlaunch,3)}\\,\\text{km/s},\\;\\Delta v_{max}={toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}\\,\\text{km/s}$$"
             },
             {
               "id": "feasibility_note",
@@ -672,19 +698,29 @@
               ],
               "samples": 300,
               "color": "#5ee6ff",
-              "width": 4,
+              "width": 0.125,
+              "opacity": 0.6,
               "label": "estimated trajectory"
             },
             {
               "id": "rocket_anim",
-              "type": "animated_point",
-              "expr": [
+              "type": "animated_vector",
+              "visibleExpr": "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))>Rp",
+              "fromExpr": [
                 "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*cos((vlaunch*cos(phi*pi/180)*min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
                 "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*sin((vlaunch*cos(phi*pi/180)*min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
                 "80"
               ],
+              "expr": [
+                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*cos((vlaunch*cos(phi*pi/180)*min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*sin((vlaunch*cos(phi*pi/180)*min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+                "80"
+              ],
               "color": "#ff5d73",
-              "size": 16,
+              "width": 12.8,
+              "arrowScale": 1.2,
+              "labelShowAltitude": true,
+              "labelAltitudePrecision": 1,
               "label": "rocket"
             }
           ],
@@ -702,7 +738,305 @@
             {
               "id": "time_panel",
               "position": "bottom-left",
-              "content": "$$\\tau={toFixed(tau,3)}\\;(\\text{normalized}),\\quad t_{\\mathrm{actual}}=\\tau T={toFixed(tau*T,1)}\\,\\text{s}\\\\ t_{\\mathrm{effective}}={toFixed(tau*T,1)}\\,\\text{s}$$"
+              "content": "$$\\tau={toFixed(tau,3)}\\;(\\text{normalized}),\\quad t_{\\mathrm{actual}}={toFixed(t,1)}\\,\\text{s}$$"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Thrust-Driven Flight (Powered Model)",
+      "description": "This scene adds sustained thrust and burn duration. Unlike passive coast, the rocket accelerates during burn, then coasts under gravity.",
+      "markdown": "# Thrust-Driven Flight (Powered Model)\n\nThis scene shows a simplified powered ascent/insertion model.\n\n## Key Difference From Scene 2\n\n- Scene 2: no sustained thrust after start (passive coast).\n- Scene 3: thrust is applied for a burn duration $t_{burn}$.\n\n## Simplified Powered Dynamics Used Here\n\nWe split time into burn and coast:\n\n- $t_e = \\min(t, t_{burn})$ (engine-on time)\n- $t_c = \\max(0, t - t_{burn})$ (coast time)\n\nRadial and tangential motion get thrust contributions during burn, then coast with gravity.\n\nThis is still educational/simplified, but it captures the core operational idea: **orbit insertion depends on powered acceleration, not only an assumed initial speed**.",
+      "prompt": "Emphasize that sustained thrust over burn time changes both speed and trajectory. Contrast this with no-thrust ballistic coast from scene 2.",
+      "range": [
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ]
+      ],
+      "camera": {
+        "position": [
+          17000,
+          9500,
+          9200
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ]
+      },
+      "cameraUp": [
+        0,
+        0,
+        1
+      ],
+      "views": [
+        {
+          "name": "Iso",
+          "description": "3D mission overview",
+          "position": [
+            17000,
+            9500,
+            9200
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "Plane",
+          "description": "Orbital plane view",
+          "position": [
+            0,
+            0,
+            19500
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Follow Rocket",
+          "description": "Camera follows powered rocket",
+          "follow": "rocket_powered",
+          "offset": [
+            1400,
+            900,
+            700
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "elements": [
+        {
+          "id": "planet_surface_3",
+          "type": "sphere",
+          "center": [
+            0,
+            0,
+            0
+          ],
+          "radiusExpr": "Rp",
+          "widthSegments": 36,
+          "heightSegments": 20,
+          "color": "#325f95",
+          "opacity": 0.88,
+          "shader": {
+            "shininess": 35,
+            "specular": "#a5c8ef",
+            "emissive": "#0f2138"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "title": "Powered Flight Parameters and Playback",
+          "description": "Set launch/target heights, initial speed, thrust acceleration, burn time, and flight-path angle. Then animate with $\\tau$.",
+          "virtualTime": {
+            "expr": "tau*T"
+          },
+          "sliders": [
+            {
+              "id": "Rp",
+              "label": "$R_p$ (km)",
+              "min": 3000,
+              "max": 8000,
+              "step": 10,
+              "default": 6371
+            },
+            {
+              "id": "Gs",
+              "label": "$G_s=G\\times10^{11}$",
+              "min": 6.5,
+              "max": 6.9,
+              "step": 0.0001,
+              "default": 6.6743
+            },
+            {
+              "id": "Mx",
+              "label": "$M_x=M/10^{24}$ (kg)",
+              "min": 0.1,
+              "max": 10,
+              "step": 0.001,
+              "default": 5.972
+            },
+            {
+              "id": "h",
+              "label": "Launch height h (km)",
+              "min": 0,
+              "max": 1200,
+              "step": 5,
+              "default": 1
+            },
+            {
+              "id": "h_target",
+              "label": "Target height $h_{target}$ (km)",
+              "min": 50,
+              "max": 2000,
+              "step": 10,
+              "default": 300
+            },
+            {
+              "id": "v0",
+              "label": "Initial speed $v_0$ (km/s)",
+              "min": 0,
+              "max": 3,
+              "step": 0.05,
+              "default": 0.2
+            },
+            {
+              "id": "athrust",
+              "label": "Thrust accel $a_T$ (km/s$^2$)",
+              "min": 0,
+              "max": 0.08,
+              "step": 0.001,
+              "default": 0.02
+            },
+            {
+              "id": "tburn",
+              "label": "Burn time $t_{burn}$ (s)",
+              "min": 0,
+              "max": 800,
+              "step": 5,
+              "default": 180
+            },
+            {
+              "id": "phi",
+              "label": "Thrust direction $\\phi$ (deg from local horizontal)",
+              "min": -20,
+              "max": 45,
+              "step": 1,
+              "default": 8
+            },
+            {
+              "id": "T",
+              "label": "Simulation horizon T (s)",
+              "min": 400,
+              "max": 6000,
+              "step": 50,
+              "default": 2200
+            },
+            {
+              "id": "tau",
+              "label": "Playback $\\tau$",
+              "min": 0,
+              "max": 1,
+              "step": 0.002,
+              "default": 0,
+              "animate": true,
+              "animateMode": "loop",
+              "duration": 5000
+            }
+          ],
+          "add": [
+            {
+              "id": "launch_ring_powered",
+              "type": "parametric_curve",
+              "x": "(Rp+h)*cos(t)",
+              "y": "(Rp+h)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#90ee90",
+              "width": 1,
+              "opacity": 0.6,
+              "label": "launch-height ring"
+            },
+            {
+              "id": "target_ring_powered",
+              "type": "parametric_curve",
+              "x": "(Rp+h_target)*cos(t)",
+              "y": "(Rp+h_target)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#ff7f7f",
+              "width": 1,
+              "opacity": 0.6,
+              "label": "target-height ring"
+            },
+            {
+              "id": "trajectory_powered",
+              "type": "parametric_curve",
+              "x": "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t*T,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t*T-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t*T,2)))*cos((v0*cos(phi*pi/180)*min(t*T,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t*T-tburn))/(Rp+h))",
+              "y": "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t*T,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t*T-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t*T,2)))*sin((v0*cos(phi*pi/180)*min(t*T,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t*T-tburn))/(Rp+h))",
+              "z": "80",
+              "range": [
+                0,
+                1
+              ],
+              "samples": 300,
+              "color": "#ffcf5e",
+              "width": 0.2,
+              "opacity": 0.6,
+              "label": "powered trajectory"
+            },
+            {
+              "id": "rocket_powered",
+              "type": "animated_vector",
+              "visibleExpr": "((Rp+h)+v0*sin(phi*pi/180)*min(t,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t,2))>Rp",
+              "fromExpr": [
+                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t,2)))*cos((v0*cos(phi*pi/180)*min(t,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t-tburn))/(Rp+h))",
+                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t,2)))*sin((v0*cos(phi*pi/180)*min(t,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t-tburn))/(Rp+h))",
+                "80"
+              ],
+              "expr": [
+                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t+40,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t+40-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t+40,2)))*cos((v0*cos(phi*pi/180)*min(t+40,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t+40-tburn))/(Rp+h))",
+                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t+40,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t+40-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t+40,2)))*sin((v0*cos(phi*pi/180)*min(t+40,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t+40-tburn))/(Rp+h))",
+                "80"
+              ],
+              "color": "#ffd166",
+              "width": 12.8,
+              "arrowScale": 1.2,
+              "labelShowAltitude": true,
+              "labelAltitudePrecision": 1,
+              "label": "powered rocket"
+            }
+          ],
+          "info": [
+            {
+              "id": "powered_note",
+              "position": "top-left",
+              "content": "Powered mode: thrust is active while $t\\le t_{burn}$, then trajectory coasts under gravity."
+            },
+            {
+              "id": "powered_metrics",
+              "position": "bottom-left",
+              "content": "$$\\begin{aligned}r_{\\mathrm{launch}}&=R_p+h={toFixed(Rp+h,1)}\\,\\text{km}\\\\r_{\\mathrm{target}}&=R_p+h_{\\mathrm{target}}={toFixed(Rp+h_target,1)}\\,\\text{km}\\\\v_{\\mathrm{circ,target}}&={toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\v_{\\mathrm{esc,target}}&={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\a_T&={toFixed(athrust*1000,1)}\\,\\text{m/s}^2,\\;t_{\\mathrm{burn}}={toFixed(tburn,0)}\\,\\text{s}\\\\\\Delta v_{\\mathrm{burn}}&\\approx{toFixed(athrust*tburn,3)}\\,\\text{km/s}\\end{aligned}$$"
+            },
+            {
+              "id": "powered_time",
+              "position": "top-right",
+              "content": "$$\\tau={toFixed(tau,3)},\\quad t_{\\mathrm{actual}}={toFixed(t,1)}\\,\\text{s}$$"
             }
           ]
         }

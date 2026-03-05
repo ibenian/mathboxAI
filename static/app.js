@@ -381,10 +381,21 @@ function resolveShaftThicknessScale(mesh) {
 function applyShaftThickness(mesh) {
     if (!mesh) return;
     const thickness = resolveShaftThicknessScale(mesh);
+    const baseShaftRadius = mesh.userData && typeof mesh.userData.baseShaftRadius === 'number'
+        ? Math.max(mesh.userData.baseShaftRadius, 1e-6)
+        : 1;
+    const maxRadiusFromHead = mesh.userData && typeof mesh.userData.maxRadiusFromHead === 'number'
+        ? mesh.userData.maxRadiusFromHead
+        : Infinity;
+    // `thickness` is a scale multiplier. Convert radius cap to a scale cap.
+    const maxThicknessScale = Number.isFinite(maxRadiusFromHead)
+        ? (maxRadiusFromHead / baseShaftRadius)
+        : Infinity;
+    const cappedThickness = Math.min(thickness, maxThicknessScale);
     const lengthScale = mesh.userData && typeof mesh.userData.lengthScale === 'number'
         ? mesh.userData.lengthScale
         : 1;
-    mesh.scale.set(thickness, lengthScale, thickness);
+    mesh.scale.set(cappedThickness, lengthScale, cappedThickness);
 }
 
 function isShaftEntry(entry) {
@@ -1218,7 +1229,7 @@ function addLabel3D(text, dataPos, color, cssClass) {
     el.innerHTML = renderKaTeX(text, false);
     if (color) el.style.color = colorToCSS(color);
     container.appendChild(el);
-    const entry = { el, dataPos: dataPos.slice(), screenX: null, screenY: null };
+    const entry = { el, dataPos: dataPos.slice(), screenX: null, screenY: null, forceHidden: false };
     labels.push(entry);
     return entry;
 }
@@ -1240,7 +1251,7 @@ function updateLabels() {
         const projected = v.project(camera);
         const targetX = (projected.x * 0.5 + 0.5) * w;
         const targetY = (-projected.y * 0.5 + 0.5) * h;
-        const visible = projected.z < 1 && targetX > -50 && targetX < w + 50 && targetY > -50 && targetY < h + 50;
+        const visible = !lbl.forceHidden && projected.z < 1 && targetX > -50 && targetX < w + 50 && targetY > -50 && targetY < h + 50;
 
         // Temporal smoothing reduces apparent HTML-overlay shimmer during inertial camera motion.
         if (lbl.screenX == null || lbl.screenY == null) {
@@ -1530,6 +1541,8 @@ function makeArrowMesh(from, to, color, sizeScale, shaftBaseScale) {
     shaft.userData.baseThicknessScale = shaftBaseScale;
     shaft.userData.autoThicknessScale = autoScale;
     shaft.userData.lengthScale = 1;
+    shaft.userData.baseShaftRadius = shaftRadius;
+    shaft.userData.maxRadiusFromHead = wHeadRadius * 0.75;
     applyShaftThickness(shaft);
     three.scene.add(shaft);
     const arrowPair = {
@@ -2195,11 +2208,25 @@ function renderAnimatedVector(el, view) {
     const loop = el.loop !== false;
     const exprStrings = el.expr || el.toExpr; // array of 3 JS expression strings using 't'
     const fromExprStrings = el.fromExpr; // optional array of 3 JS expression strings for dynamic origin
+    const visibleExprString = (typeof el.visibleExpr === 'string' && el.visibleExpr.trim()) ? el.visibleExpr.trim() : null;
+    const labelShowAltitude = !!el.labelShowAltitude;
+    const labelAltitudePrecision = Number.isFinite(el.labelAltitudePrecision) ? Math.max(0, Math.floor(el.labelAltitudePrecision)) : 1;
     const trailOpts = el.trail; // { color, width, length }
-    const localArrowScale = resolveArrowSizeScale(el.arrowScale !== undefined ? el.arrowScale : 1);
+    const hasExplicitWidth = (typeof el.width === 'number' && isFinite(el.width));
+    // Animated vectors default to 1.3x static vector width when width is omitted.
+    // If width is explicitly provided, honor it exactly.
+    const widthScale = hasExplicitWidth ? Math.max(0.01, el.width) : 1.3;
+    // Keep head and shaft scaling coupled so thick vectors don't lose visible heads.
+    const widthHeadScale = Math.max(0.4, Math.sqrt(widthScale));
+    const localArrowScale = (el.arrowScale !== undefined ? el.arrowScale : 1) * widthHeadScale;
     const localArrowMinFactor = el.arrowMinFactor !== undefined ? el.arrowMinFactor : ARROW_HEAD_MIN_FACTOR;
     const localArrowMaxFactor = el.arrowMaxFactor !== undefined ? el.arrowMaxFactor : ARROW_HEAD_MAX_FACTOR;
-    const shaftBaseScale = 1; // ignore per-element width for animated vectors; use global settings only
+    // Honor per-element thickness control for animated vectors.
+    // `width` remains the primary scene knob; `shaftScale` can further tune it.
+    const defaultAnimatedShaftMul = 1;
+    const shaftBaseScale = (typeof el.shaftScale === 'number' && isFinite(el.shaftScale))
+        ? Math.max(0.01, widthScale * el.shaftScale)
+        : (widthScale * defaultAnimatedShaftMul);
 
     // Determine animation mode
     const useExpr = Array.isArray(exprStrings) && exprStrings.length === 3;
@@ -2246,7 +2273,7 @@ function renderAnimatedVector(el, view) {
         const wdx = tipWorld[0]-fromWorld[0], wdy = tipWorld[1]-fromWorld[1], wdz = tipWorld[2]-fromWorld[2];
         const wLen = Math.sqrt(wdx*wdx + wdy*wdy + wdz*wdz);
         const worldSceneSize = Math.min(currentScale[0], currentScale[1]) * 2;
-        const effectiveArrowScale = localArrowScale * resolveArrowSizeScale(displayParams.arrowScale || 1);
+        const effectiveArrowScale = resolveArrowSizeScale(localArrowScale * (displayParams.arrowScale || 1));
         const baseHeadLen = Math.max(Math.min(wLen * 0.25, worldSceneSize * localArrowMaxFactor), worldSceneSize * localArrowMinFactor) * effectiveArrowScale;
         const autoScale = resolveSmallVectorAutoScale(wLen, baseHeadLen);
         const wHeadLen = baseHeadLen * autoScale;
@@ -2294,7 +2321,7 @@ function renderAnimatedVector(el, view) {
 
     // Create 3D cylinder shaft — runs from fromWorld to cone base (tipWorld - dir*wHeadLen)
     function createShaft(from, to) {
-        const { fromWorld, wLen, shaftLen, shaftRadius, dir, autoScale } = computeArrowParams(from, to);
+        const { fromWorld, wLen, wHeadRadius, shaftLen, shaftRadius, dir, autoScale } = computeArrowParams(from, to);
         if (wLen < 0.0001) return null;
 
         // Unit geometry for dynamic vectors:
@@ -2311,7 +2338,12 @@ function renderAnimatedVector(el, view) {
         );
         const up = new THREE.Vector3(0, 1, 0);
         shaft.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(up, dir));
-        const shaftRadiusScaled = shaftRadius * computeShaftThicknessMul(autoScale);
+        // Cap shaft diameter to 75% of arrow-head diameter:
+        // 2 * shaftR <= 0.75 * (2 * headR)  => shaftR <= 0.75 * headR
+        const shaftRadiusScaled = Math.min(
+            shaftRadius * computeShaftThicknessMul(autoScale),
+            wHeadRadius * 0.75
+        );
         shaft.scale.set(shaftRadiusScaled, shaftLen, shaftRadiusScaled);
 
         three.scene.add(shaft);
@@ -2357,7 +2389,11 @@ function renderAnimatedVector(el, view) {
                     fromWorld[2] + dir.z * shaftLen / 2,
                 );
                 shaft.setRotationFromQuaternion(quat);
-                const shaftRadiusScaled = shaftRadius * computeShaftThicknessMul(autoScale);
+                // Keep the same geometric cap during animation updates.
+                const shaftRadiusScaled = Math.min(
+                    shaftRadius * computeShaftThicknessMul(autoScale),
+                    wHeadRadius * 0.75
+                );
                 shaft.scale.set(shaftRadiusScaled, shaftLen, shaftRadiusScaled);
                 const entry = arrowMeshes.find(e => e.mesh === shaft);
                 if (entry) {
@@ -2370,7 +2406,7 @@ function renderAnimatedVector(el, view) {
     }
 
     let arrowCone = null;
-    const arrowShaft = createShaft(initFrom, initTo);
+    let arrowShaft = createShaft(initFrom, initTo);
     if (el.arrow !== false) {
         arrowCone = createCone(initFrom, initTo);
     }
@@ -2412,7 +2448,8 @@ function renderAnimatedVector(el, view) {
     // Compiled expr functions (slider-aware)
     let exprFns = null;
     let fromExprFns = null;
-    const animExprEntry = { exprStrings, fromExprStrings, animState: null, compiledFns: null, fromExprFns: null };
+    let visibleFn = null;
+    const animExprEntry = { exprStrings, fromExprStrings, visibleExprString, animState: null, compiledFns: null, fromExprFns: null, visibleFn: null };
     if (useExpr) {
         try {
             exprFns = exprStrings.map(e => compileExpr(e));
@@ -2429,6 +2466,14 @@ function renderAnimatedVector(el, view) {
             console.warn('animated_vector fromExpr compile error:', err);
         }
     }
+    if (visibleExprString) {
+        try {
+            visibleFn = compileExpr(visibleExprString);
+            animExprEntry.visibleFn = visibleFn;
+        } catch (err) {
+            console.warn('animated_vector visibleExpr compile error:', err);
+        }
+    }
 
     // Animation control
     const animState = { stopped: false };
@@ -2443,11 +2488,11 @@ function renderAnimatedVector(el, view) {
             if (arrowCone && !arrowCone.visible && arrowCone._hiddenByRemove) return;
 
             const elapsed = nowMs - startTime;
+            const tSec = elapsed / 1000;
             let cf, ct;
 
             if (useExpr && (animExprEntry.compiledFns || exprFns)) {
                 // Expression mode: evaluate expr(t) where t is seconds
-                const tSec = elapsed / 1000;
                 // Evaluate dynamic origin if fromExpr is present
                 const fromFns = animExprEntry.fromExprFns || fromExprFns;
                 if (fromFns) {
@@ -2490,6 +2535,26 @@ function renderAnimatedVector(el, view) {
             currentFrom = cf;
             currentTo = ct;
 
+            let isVisible = true;
+            const curVisibleFn = animExprEntry.visibleFn || visibleFn;
+            if (curVisibleFn) {
+                try {
+                    isVisible = !!evalExpr(curVisibleFn, tSec);
+                } catch (_err) {
+                    isVisible = true;
+                }
+            }
+            if (!isVisible) {
+                if (arrowCone) arrowCone.visible = false;
+                if (arrowShaft) arrowShaft.visible = false;
+                if (labelEl) labelEl.forceHidden = true;
+                return;
+            }
+
+            // Lazy-create geometry if initial length was near-zero but later becomes valid.
+            if (!arrowShaft) arrowShaft = createShaft(cf, ct);
+            if (el.arrow !== false && !arrowCone) arrowCone = createCone(cf, ct);
+
             // Update cone + shaft
             updateArrow(arrowCone, arrowShaft, cf, ct);
 
@@ -2508,6 +2573,17 @@ function renderAnimatedVector(el, view) {
                 labelEl.dataPos[0] = (cf[0] + ct[0]) / 2;
                 labelEl.dataPos[1] = (cf[1] + ct[1]) / 2 + 0.3;
                 labelEl.dataPos[2] = (cf[2] + ct[2]) / 2;
+                labelEl.forceHidden = false;
+                if (labelShowAltitude) {
+                    const rr = Math.sqrt(cf[0] * cf[0] + cf[1] * cf[1] + cf[2] * cf[2]);
+                    const RpVal = sceneSliders.Rp ? Number(sceneSliders.Rp.value) : 0;
+                    const alt = Math.max(0, rr - RpVal);
+                    const txt = `h=${alt.toFixed(labelAltitudePrecision)} km`;
+                    if (labelEl._lastDynamicText !== txt) {
+                        labelEl.el.innerHTML = renderKaTeX(txt, false);
+                        labelEl._lastDynamicText = txt;
+                    }
+                }
             }
 
             // Publish vector endpoints for follow-cam and orientation lock helpers
@@ -2696,14 +2772,17 @@ function renderAnimatedPoint(el, view) {
     const radius = el.radius !== undefined ? el.radius : 0.25; // data-space radius (m in this scene)
     const label = el.label;
     const exprStrings = el.expr || el.positionExpr || el.toExpr;
+    const visibleExprString = (typeof el.visibleExpr === 'string' && el.visibleExpr.trim()) ? el.visibleExpr.trim() : null;
 
     if (!Array.isArray(exprStrings) || exprStrings.length !== 3) return null;
 
     let exprFns;
+    let visibleFn = null;
     let initPos;
     try {
         exprFns = exprStrings.map(e => compileExpr(e));
         initPos = exprFns.map(fn => evalExpr(fn, 0));
+        if (visibleExprString) visibleFn = compileExpr(visibleExprString);
     } catch (err) {
         console.warn('animated_point expr compile/eval error:', err);
         return null;
@@ -2730,7 +2809,13 @@ function renderAnimatedPoint(el, view) {
     }
 
     const animState = { stopped: false };
-    const animExprEntry = { exprStrings, animState, compiledFns: exprFns };
+    const animExprEntry = {
+        exprStrings,
+        animState,
+        compiledFns: exprFns,
+        visibleExprString,
+        visibleFn,
+    };
     registerAnimExpr(animExprEntry);
 
     const startTime = performance.now();
@@ -2745,6 +2830,16 @@ function renderAnimatedPoint(el, view) {
             } catch (err) {
                 // keep previous position
             }
+            let isVisible = true;
+            const curVisibleFn = animExprEntry.visibleFn || visibleFn;
+            if (curVisibleFn) {
+                try {
+                    isVisible = !!evalExpr(curVisibleFn, tSec);
+                } catch (_err) {
+                    isVisible = true;
+                }
+            }
+            mesh.visible = isVisible;
 
             const w = dataToWorld(p);
             mesh.position.set(w[0], w[1], w[2]);
@@ -2755,6 +2850,7 @@ function renderAnimatedPoint(el, view) {
                 labelEl.dataPos[0] = p[0];
                 labelEl.dataPos[1] = p[1];
                 labelEl.dataPos[2] = p[2] + 0.3;
+                labelEl.forceHidden = !isVisible;
             }
 
             // Only publish while visible; hidden step elements must not compete for the same id.
@@ -4032,7 +4128,15 @@ function buildSceneTree(spec) {
 // ----- Slider System -----
 
 function getSliderIds() {
-    return Object.keys(sceneSliders);
+    const ids = Object.keys(sceneSliders);
+    const launchIdx = ids.indexOf('h');
+    const injectionIdx = ids.indexOf('h_target');
+    if (launchIdx >= 0 && injectionIdx >= 0 && launchIdx !== injectionIdx - 1) {
+        ids.splice(launchIdx, 1);
+        const newInjectionIdx = ids.indexOf('h_target');
+        ids.splice(newInjectionIdx, 0, 'h');
+    }
+    return ids;
 }
 
 // Legacy MATH_NAMES/VALS kept only for the new Function fallback path
@@ -4483,6 +4587,13 @@ function recompileActiveExprs() {
                 console.warn('Slider radiusExpr recompile error:', err);
             }
         }
+        if (entry.visibleExprString) {
+            try {
+                entry.visibleFn = compileExpr(entry.visibleExprString);
+            } catch (err) {
+                console.warn('Slider visibleExpr recompile error:', err);
+            }
+        }
         if (entry._isAnimatedPolygon && entry._vertexExprs) {
             try {
                 entry._compiledVerts = entry._vertexExprs.map(v => v.map(e => compileExpr(e)));
@@ -4583,20 +4694,6 @@ function _replaceInlineExprs(template, evaluator) {
             out += ch;
             i += 1;
             continue;
-        }
-        // Skip LaTeX command arguments: \text{...}, \mathbf{...}, \frac{...}, etc.
-        // Look back past any letters to see if there's a backslash before them.
-        // Require ≥2 letters so single-char sequences like \n (line separator) don't
-        // false-positive as LaTeX commands. Real LaTeX functions are always multi-letter.
-        {
-            let k = i - 1;
-            let letterCount = 0;
-            while (k >= 0 && /[a-zA-Z]/.test(template[k])) { k--; letterCount++; }
-            if (letterCount >= 2 && k >= 0 && template[k] === '\\') {
-                out += ch;
-                i += 1;
-                continue;
-            }
         }
         let j = i + 1;
         let depth = 1;
@@ -5812,6 +5909,7 @@ function setupSettingsPanel() {
                         // Resize shaft along its axis so it always terminates at cone base.
                         pair.shaft.userData.autoThicknessScale = autoScale;
                         pair.shaft.userData.lengthScale = scaledShaftLen / Math.max(pair.baseShaftLen, 0.0001);
+                        pair.shaft.userData.maxRadiusFromHead = (scaledHeadLen * ARROW_HEAD_RADIUS_RATIO) * 0.75;
                         applyShaftThickness(pair.shaft);
                         pair.shaft.position.copy(pair.fromWorld).addScaledVector(pair.dir, scaledShaftLen * 0.5);
                         continue;
