@@ -575,8 +575,8 @@
             {
               "id": "phi",
               "label": "Launch direction $\\phi$ (deg from local horizontal)",
-              "min": -20,
-              "max": 60,
+              "min": 0,
+              "max": 180,
               "step": 1,
               "default": 8
             },
@@ -689,8 +689,8 @@
             {
               "id": "trajectory_est",
               "type": "parametric_curve",
-              "x": "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*cos((vlaunch*cos(phi*pi/180)*min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
-              "y": "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*sin((vlaunch*cos(phi*pi/180)*min(t*T,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+              "x": "orbitX(t*T,0)",
+              "y": "orbitY(t*T,0)",
               "z": "80",
               "range": [
                 0,
@@ -705,15 +705,15 @@
             {
               "id": "rocket_anim",
               "type": "animated_vector",
-              "visibleExpr": "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))>Rp",
+              "visibleExpr": "orbitHit(t,0) < 0.5",
               "fromExpr": [
-                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*cos((vlaunch*cos(phi*pi/180)*min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
-                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*sin((vlaunch*cos(phi*pi/180)*min(t,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+                "orbitX(t,0)",
+                "orbitY(t,0)",
                 "80"
               ],
               "expr": [
-                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*cos((vlaunch*cos(phi*pi/180)*min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
-                "((Rp+h)+vlaunch*sin(phi*pi/180)*(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)),2))*sin((vlaunch*cos(phi*pi/180)*min(t+40,(vlaunch*sin(phi*pi/180)+sqrt(pow(vlaunch*sin(phi*pi/180),2)+2*((Gs*Mx*10000)/((Rp+h)^2))*h))/max((Gs*Mx*10000)/((Rp+h)^2),1e-6)))/(Rp+h))",
+                "orbitX(t+40,0)",
+                "orbitY(t+40,0)",
                 "80"
               ],
               "color": "#ff5d73",
@@ -728,7 +728,7 @@
             {
               "id": "state_panel",
               "position": "top-left",
-              "content": "{vlaunch < 0.95*sqrt((Gs*Mx*10000)/(Rp+h)) ? \"Outcome: suborbital, likely falls back\" : (vlaunch < sqrt(2*(Gs*Mx*10000)/(Rp+h)) ? (abs(phi) <= 12 ? \"Outcome: bound orbit candidate\" : \"Outcome: bound but poor insertion angle\") : \"Outcome: escape trajectory candidate\")}"
+              "content": "{orbitOutcome(t,0)}"
             },
             {
               "id": "guidance_panel",
@@ -926,8 +926,8 @@
             {
               "id": "phi",
               "label": "Thrust direction $\\phi$ (deg from local horizontal)",
-              "min": -20,
-              "max": 45,
+              "min": 0,
+              "max": 180,
               "step": 1,
               "default": 8
             },
@@ -987,8 +987,8 @@
             {
               "id": "trajectory_powered",
               "type": "parametric_curve",
-              "x": "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t*T,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t*T-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t*T,2)))*cos((v0*cos(phi*pi/180)*min(t*T,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t*T-tburn))/(Rp+h))",
-              "y": "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t*T,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t*T-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t*T,2)))*sin((v0*cos(phi*pi/180)*min(t*T,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t*T,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t*T-tburn))/(Rp+h))",
+              "x": "orbitX(t*T,1)",
+              "y": "orbitY(t*T,1)",
               "z": "80",
               "range": [
                 0,
@@ -1003,15 +1003,15 @@
             {
               "id": "rocket_powered",
               "type": "animated_vector",
-              "visibleExpr": "((Rp+h)+v0*sin(phi*pi/180)*min(t,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t,2))>Rp",
+              "visibleExpr": "orbitHit(t,1) < 0.5",
               "fromExpr": [
-                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t,2)))*cos((v0*cos(phi*pi/180)*min(t,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t-tburn))/(Rp+h))",
-                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t,2)))*sin((v0*cos(phi*pi/180)*min(t,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t-tburn))/(Rp+h))",
+                "orbitX(t,1)",
+                "orbitY(t,1)",
                 "80"
               ],
               "expr": [
-                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t+40,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t+40-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t+40,2)))*cos((v0*cos(phi*pi/180)*min(t+40,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t+40-tburn))/(Rp+h))",
-                "(max(Rp,(Rp+h)+v0*sin(phi*pi/180)*min(t+40,tburn)+0.5*athrust*sin(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*sin(phi*pi/180)+athrust*sin(phi*pi/180)*tburn)*max(0,t+40-tburn)-0.5*((Gs*Mx*10000)/((Rp+h)^2))*pow(t+40,2)))*sin((v0*cos(phi*pi/180)*min(t+40,tburn)+0.5*athrust*cos(phi*pi/180)*pow(min(t+40,tburn),2)+(v0*cos(phi*pi/180)+athrust*cos(phi*pi/180)*tburn)*max(0,t+40-tburn))/(Rp+h))",
+                "orbitX(t+40,1)",
+                "orbitY(t+40,1)",
                 "80"
               ],
               "color": "#ffd166",
@@ -1034,9 +1034,397 @@
               "content": "$$\\begin{aligned}r_{\\mathrm{launch}}&=R_p+h={toFixed(Rp+h,1)}\\,\\text{km}\\\\r_{\\mathrm{target}}&=R_p+h_{\\mathrm{target}}={toFixed(Rp+h_target,1)}\\,\\text{km}\\\\v_{\\mathrm{circ,target}}&={toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\v_{\\mathrm{esc,target}}&={toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\\\a_T&={toFixed(athrust*1000,1)}\\,\\text{m/s}^2,\\;t_{\\mathrm{burn}}={toFixed(tburn,0)}\\,\\text{s}\\\\\\Delta v_{\\mathrm{burn}}&\\approx{toFixed(athrust*tburn,3)}\\,\\text{km/s}\\end{aligned}$$"
             },
             {
+              "id": "powered_orbit_checks",
+              "position": "bottom-right",
+              "content": "$$\\begin{aligned}r(t)&={toFixed(orbitR(t,1),1)}\\,\\text{km}\\\\v_{\\theta}(t)&={toFixed(orbitVt(t,1),3)}\\,\\text{km/s}\\\\v_r(t)&={toFixed(orbitVr(t,1),3)}\\,\\text{km/s}\\end{aligned}$$"
+            },
+            {
+              "id": "powered_outcome",
+              "position": "top-center",
+              "content": "{orbitOutcome(t,1)}"
+            },
+            {
               "id": "powered_time",
               "position": "top-right",
               "content": "$$\\tau={toFixed(tau,3)},\\quad t_{\\mathrm{actual}}={toFixed(t,1)}\\,\\text{s}$$"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Guided Two-Burn Orbital Insertion",
+      "description": "A more realistic educational flight profile: ascent burn with pitch program, coast arc, then prograde circularization burn to achieve stable orbit.",
+      "markdown": "# Guided Two-Burn Orbital Insertion\n\nThis scene uses a simplified but physically grounded 2D orbital model with **central gravity** and **time integration**.\n\n## Physics Model Used\n\nState is propagated in the orbital plane with position and velocity:\n\n$$\\dot{\\mathbf{r}}=\\mathbf{v}, \\qquad \\dot{\\mathbf{v}}=\\mathbf{a}_g+\\mathbf{a}_T$$\n\nGravity is not constant; it updates with altitude each step:\n\n$$\\mathbf{a}_g=-\\mu\\,\\frac{\\mathbf{r}}{\\|\\mathbf{r}\\|^3}, \\qquad g(r)=\\frac{\\mu}{r^2}$$\n\nwith\n\n$$\\mu=GM=(G_s\\,M_x)\\times10^4\\;\\text{km}^3/\\text{s}^2$$\n\nin this slider scaling.\n\n## Circular-Orbit Balance\n\nAt radius $r$, the circular-orbit speed is\n\n$$v_{\\mathrm{circ}}(r)=\\sqrt{\\frac{\\mu}{r}}$$\n\nwhich is equivalent to centripetal balance:\n\n$$\\frac{v^2}{r}=\\frac{\\mu}{r^2}$$\n\nSo altitude alone is insufficient; you need the right **tangential speed** and near-zero radial speed.\n\n## Flight Phases in This Scene\n\n1. **Burn 1 (ascent + gravity turn):** thrust while pitch transitions from pitch_start to pitch_end over t_pitch.\n2. **Coast:** no thrust for t_coast.\n3. **Burn 2 (circularization):** guidance trims tangential speed toward $v_{\\mathrm{circ,target}}$ and damps radial speed $v_r$.\n\n## Numerical Integration Note\n\nThe trajectory is propagated with a stepwise symplectic-style update (interactive educational fidelity, not mission-grade guidance software).\n\n## Stable-Orbit Criterion (Displayed Outcome)\n\nAfter burns complete, the scene reports **stable-orbit target achieved** when all are met:\n\n- $|r-r_{target}|\\le 40\\,\\text{km}$\n- $|v_\\theta-v_{\\mathrm{circ,target}}|\\le 0.25\\,\\text{km/s}$\n- $|v_r|\\le 0.08\\,\\text{km/s}$\n\nwhere $r_{target}=R_p+h_{target}$.\n\n## Falcon 9-like Baseline (Simplified)\n\nDefaults are tuned to approximate a Falcon 9 style ISS insertion in this educational model:\n\n- $h_{target}=420\\,\\text{km}$ (ISS-class altitude)\n- Burn 1 / coast / burn 2 sequence tuned for near-circular insertion\n\nThese are educational defaults, not mission-certified flight software parameters.",
+      "prompt": "Explain the model transparently as a guided two-burn insertion under central gravity. Emphasize that g varies with radius (mu/r^2), show why circular orbit requires v^2/r = mu/r^2, and connect sliders to burn 1, coast, burn 2 guidance, and the explicit stability thresholds (radius error, tangential-speed error, radial speed). Contrast educational simplifications with real mission guidance.",
+      "range": [
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ],
+        [
+          -15000,
+          15000
+        ]
+      ],
+      "camera": {
+        "position": [
+          17000,
+          9500,
+          9200
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ]
+      },
+      "cameraUp": [
+        0,
+        0,
+        1
+      ],
+      "views": [
+        {
+          "name": "Iso",
+          "description": "3D mission overview",
+          "position": [
+            17000,
+            9500,
+            9200
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "Plane",
+          "description": "Orbital plane view",
+          "position": [
+            0,
+            0,
+            19500
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Follow Rocket",
+          "description": "Camera follows guided rocket",
+          "follow": "rocket_guided",
+          "offset": [
+            1400,
+            900,
+            700
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ]
+        }
+      ],
+      "elements": [
+        {
+          "id": "planet_surface_4",
+          "type": "sphere",
+          "center": [
+            0,
+            0,
+            0
+          ],
+          "radiusExpr": "Rp",
+          "widthSegments": 36,
+          "heightSegments": 20,
+          "color": "#325f95",
+          "opacity": 0.88,
+          "shader": {
+            "shininess": 35,
+            "specular": "#a5c8ef",
+            "emissive": "#0f2138"
+          }
+        }
+      ],
+      "steps": [
+        {
+          "title": "Guided Ascent, Coast, and Circularization",
+          "description": "Tune two burns and pitch program to hit a stable orbit at target height.",
+          "virtualTime": {
+            "expr": "tau*T"
+          },
+          "sliders": [
+            {
+              "id": "Rp",
+              "label": "$R_p$ (km)",
+              "min": 3000,
+              "max": 8000,
+              "step": 10,
+              "default": 6371
+            },
+            {
+              "id": "Gs",
+              "label": "$G_s=G\\times10^{11}$",
+              "min": 6.5,
+              "max": 6.9,
+              "step": 0.0001,
+              "default": 6.6743
+            },
+            {
+              "id": "Mx",
+              "label": "$M_x=M/10^{24}$ (kg)",
+              "min": 0.1,
+              "max": 10,
+              "step": 0.001,
+              "default": 5.972
+            },
+            {
+              "id": "h",
+              "label": "Launch height h (km)",
+              "min": 0,
+              "max": 1200,
+              "step": 5,
+              "default": 1
+            },
+            {
+              "id": "h_target",
+              "label": "Target height $h_{target}$ (km)",
+              "min": 120,
+              "max": 2000,
+              "step": 10,
+              "default": 420
+            },
+            {
+              "id": "v0",
+              "label": "Initial tangential speed $v_0$ (km/s)",
+              "min": 0,
+              "max": 8,
+              "step": 0.05,
+              "default": 0.05
+            },
+            {
+              "id": "phi",
+              "label": "Initial direction $\\phi$ (deg from local horizontal)",
+              "min": 0,
+              "max": 180,
+              "step": 1,
+              "default": 88
+            },
+            {
+              "id": "athrust1",
+              "label": "Burn 1 accel $a_{T1}$ (km/s$^2$)",
+              "min": 0,
+              "max": 0.08,
+              "step": 0.001,
+              "default": 0.024
+            },
+            {
+              "id": "tburn1",
+              "label": "Burn 1 duration $t_{burn1}$ (s)",
+              "min": 20,
+              "max": 800,
+              "step": 5,
+              "default": 240
+            },
+            {
+              "id": "pitch_start",
+              "label": "Pitch start (deg)",
+              "min": 60,
+              "max": 95,
+              "step": 1,
+              "default": 88
+            },
+            {
+              "id": "pitch_end",
+              "label": "Pitch end (deg)",
+              "min": -10,
+              "max": 20,
+              "step": 1,
+              "default": 4
+            },
+            {
+              "id": "tpitch",
+              "label": "Pitch program time $t_{pitch}$ (s)",
+              "min": 30,
+              "max": 600,
+              "step": 5,
+              "default": 240
+            },
+            {
+              "id": "tcoast",
+              "label": "Coast time (s)",
+              "min": 0,
+              "max": 1500,
+              "step": 10,
+              "default": 100
+            },
+            {
+              "id": "athrust2",
+              "label": "Burn 2 accel $a_{T2}$ (km/s$^2$)",
+              "min": 0,
+              "max": 0.08,
+              "step": 0.001,
+              "default": 0.024
+            },
+            {
+              "id": "tburn2",
+              "label": "Burn 2 duration $t_{burn2}$ (s)",
+              "min": 0,
+              "max": 800,
+              "step": 5,
+              "default": 300
+            },
+            {
+              "id": "T",
+              "label": "Simulation horizon T (s)",
+              "min": 600,
+              "max": 9000,
+              "step": 50,
+              "default": 3600
+            },
+            {
+              "id": "tau",
+              "label": "Playback $\\tau$",
+              "min": 0,
+              "max": 1,
+              "step": 0.002,
+              "default": 0,
+              "animate": true,
+              "animateMode": "loop",
+              "duration": 6000
+            }
+          ],
+          "add": [
+            {
+              "id": "launch_ring_guided",
+              "type": "parametric_curve",
+              "x": "(Rp+h)*cos(t)",
+              "y": "(Rp+h)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#90ee90",
+              "width": 0.5,
+              "opacity": 0.6,
+              "label": "launch-height ring"
+            },
+            {
+              "id": "target_ring_guided",
+              "type": "parametric_curve",
+              "x": "(Rp+h_target)*cos(t)",
+              "y": "(Rp+h_target)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#ff7f7f",
+              "width": 0.5,
+              "opacity": 0.6,
+              "label": "target-height ring"
+            },
+            {
+              "id": "initial_dir_guided",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h+700*sin(phi*pi/180)",
+                "700*cos(phi*pi/180)",
+                "0"
+              ],
+              "color": "#fcbf49",
+              "width": 3,
+              "label": "initial direction"
+            },
+            {
+              "id": "trajectory_guided",
+              "type": "parametric_curve",
+              "x": "orbitX(t*T,2)",
+              "y": "orbitY(t*T,2)",
+              "z": "80",
+              "range": [
+                0,
+                1
+              ],
+              "samples": 420,
+              "color": "#82f7ff",
+              "width": 0.125,
+              "opacity": 0.6,
+              "label": "guided trajectory"
+            },
+            {
+              "id": "rocket_guided",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,2) < 0.5",
+              "fromExpr": [
+                "orbitX(t,2)",
+                "orbitY(t,2)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t+35,2)",
+                "orbitY(t+35,2)",
+                "80"
+              ],
+              "color": "#ffd166",
+              "width": 12,
+              "arrowScale": 1.2,
+              "labelShowAltitude": true,
+              "labelAltitudePrecision": 1,
+              "label": "guided rocket"
+            }
+          ],
+          "info": [
+            {
+              "id": "guided_note",
+              "position": "top-left",
+              "content": "Guided mode: burn 1 + gravity turn, coast, then prograde burn 2 for circularization."
+            },
+            {
+              "id": "guided_timeline",
+              "position": "top-right",
+              "content": "$$t_{burn1}={toFixed(tburn1,0)}\\,s,\\;t_{coast}={toFixed(tcoast,0)}\\,s,\\;t_{burn2}={toFixed(tburn2,0)}\\,s\\\\t_{end,burn}={toFixed(tburn1+tcoast+tburn2,0)}\\,s$$"
+            },
+            {
+              "id": "guided_checks",
+              "position": "bottom-left",
+              "content": "$$\\begin{aligned}r(t)&={toFixed(orbitR(t,2),1)}\\,\\text{km}\\\\v_{\\theta}(t)&={toFixed(orbitVt(t,2),3)}\\,\\text{km/s}\\\\v_r(t)&={toFixed(orbitVr(t,2),3)}\\,\\text{km/s}\\\\v_{circ,target}&={toFixed(sqrt((Gs*Mx*10000)/(Rp+h_target)),3)}\\,\\text{km/s}\\end{aligned}$$"
+            },
+            {
+              "id": "guided_outcome",
+              "position": "bottom-right",
+              "content": "{orbitOutcome(t,2)}"
+            },
+            {
+              "id": "guided_time",
+              "position": "top-center",
+              "content": "$$\\tau={toFixed(tau,3)},\\quad t_{actual}={toFixed(t,1)}\\,\\text{s}$$"
+            },
+            {
+              "id": "guided_mach",
+              "position": "top-right",
+              "content": "$$v={toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2)),3)}\\,\\text{km/s}\\\\M_{\\mathrm{SL}}\\approx\\frac{v}{0.343}={toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2))/0.343,2)}$$"
             }
           ]
         }
