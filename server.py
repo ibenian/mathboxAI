@@ -477,7 +477,37 @@ def call_gemini_chat(message, history, context):
                         tc_args = {**tc_args['scene']}
                     # Build scene object from top-level args
                     scene_obj = {k: v for k, v in tc_args.items() if k not in ('_parseError',)}
+                    # Normalize misplaced top-level sliders into the first step.
+                    # Renderer only registers sliders from step.sliders.
+                    normalized_root_sliders = False
+                    root_sliders = scene_obj.get('sliders')
+                    if isinstance(root_sliders, list) and len(root_sliders) > 0:
+                        steps = scene_obj.get('steps')
+                        if not isinstance(steps, list):
+                            steps = []
+                        if len(steps) == 0 or not isinstance(steps[0], dict):
+                            steps.insert(0, {
+                                "title": "Interactive Controls",
+                                "description": "Adjust sliders to explore the scene interactively.",
+                                "sliders": root_sliders
+                            })
+                        else:
+                            first = steps[0]
+                            existing = first.get('sliders')
+                            if not isinstance(existing, list):
+                                first['sliders'] = list(root_sliders)
+                            else:
+                                seen = {s.get('id') for s in existing if isinstance(s, dict)}
+                                for s in root_sliders:
+                                    if isinstance(s, dict) and s.get('id') not in seen:
+                                        existing.append(s)
+                        scene_obj['steps'] = steps
+                        scene_obj.pop('sliders', None)
+                        normalized_root_sliders = True
+                        print(f"   ⚠️  add_scene: normalized {len(root_sliders)} root-level sliders into step 1")
                     tc_args['parsedScene'] = scene_obj
+                    if normalized_root_sliders:
+                        tc_args['_normalizedRootSliders'] = True
                     print(f"   ✅ scene object — {len(scene_obj.get('elements', []))} elements, "
                           f"{len(scene_obj.get('steps', []))} steps, title: {scene_obj.get('title', '?')}")
                 # Track add_scene calls so navigate_to validation accounts for newly added scenes
@@ -490,6 +520,8 @@ def call_gemini_chat(message, history, context):
                     new_scene_num = scene_count  # 1-based number of the newly added scene
                     tc_result = {"status": "success", "newSceneNumber": new_scene_num,
                                  "message": f"Scene added as scene {new_scene_num}. The client will auto-navigate to it. Do NOT call navigate_to."}
+                    if tc_args.get('_normalizedRootSliders'):
+                        tc_result["note"] = "Moved top-level sliders into step 1 (renderer expects step.sliders)."
                 elif tc_name == 'navigate_to':
                     # Agent sends 1-based scene numbers
                     req_scene = int(tc_args.get('scene', 0))  # 1-based

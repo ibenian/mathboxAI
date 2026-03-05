@@ -8,6 +8,7 @@ The tools are the only way to make visualizations actually render. When in doubt
 ### `add_scene` — Build a visualization
 
 Pass scene fields as direct top-level arguments. The client auto-navigates after adding — do NOT call `navigate_to` afterwards.
+For interactive controls, place sliders under `steps[].sliders` (not top-level `sliders`).
 
 ```
 add_scene(
@@ -43,10 +44,19 @@ add_scene(
 {"type":"vector_field","fx":"-y","fy":"x","fz":"0","density":4,"scale":0.3,"color":"#44aaff"}
 ```
 
-**Sliders:**
+**Sliders (inside a step):**
 ```
-{"id":"a","label":"Amplitude $a$","min":0.5,"max":3,"value":1,"step":0.01}
-{"id":"a","label":"Amplitude $a$","min":0.5,"max":3,"value":1,"step":0.01,"animate":true,"duration":2000}
+{
+  "steps": [
+    {
+      "title": "Interactive controls",
+      "sliders": [
+        {"id":"a","label":"Amplitude $a$","min":0.5,"max":3,"value":1,"step":0.01},
+        {"id":"t","label":"$t$","min":0,"max":1,"value":0,"step":0.01,"animate":true,"duration":2000}
+      ]
+    }
+  ]
+}
 ```
 
 ---

@@ -51,7 +51,7 @@ SET_CAMERA_TOOL_DECL = types.FunctionDeclaration(
 
 ADD_SCENE_TOOL_DECL = types.FunctionDeclaration(
     name="add_scene",
-    description="Add a new 3D scene to the lesson. Pass scene fields (title, elements, steps, etc.) as DIRECT top-level arguments — do NOT nest them under a 'scene' key. The scene is appended and the client auto-navigates to it — do NOT call navigate_to after add_scene. See system prompt for the full scene schema and examples.",
+    description="Add a new 3D scene to the lesson. Pass scene fields (title, elements, steps, etc.) as DIRECT top-level arguments — do NOT nest them under a 'scene' key. IMPORTANT: sliders must be placed in steps[].sliders (renderer does not use top-level scene.sliders). The scene is appended and the client auto-navigates to it — do NOT call navigate_to after add_scene. See system prompt for the full scene schema and examples.",
     parameters=types.Schema(
         type="OBJECT",
         properties={
@@ -59,7 +59,7 @@ ADD_SCENE_TOOL_DECL = types.FunctionDeclaration(
             "description": types.Schema(type="STRING", description="Caption below viewport"),
             "markdown": types.Schema(type="STRING", description="Explanation panel with LaTeX"),
             "elements": types.Schema(type="ARRAY", items=types.Schema(type="OBJECT"), description="Array of element objects. Element labels support LaTeX — wrap math in $...$, e.g. \"$\\\\vec{a}_c$\" not \"\\\\vec{a}_c\". Plain text labels (no math) don't need $...$."  ),
-            "steps": types.Schema(type="ARRAY", items=types.Schema(type="OBJECT"), description="Progressive reveal steps"),
+            "steps": types.Schema(type="ARRAY", items=types.Schema(type="OBJECT"), description="Progressive reveal steps. Put interactive controls in step.sliders (not at scene root)."),
             "range": types.Schema(type="ARRAY", items=types.Schema(type="ARRAY", items=types.Schema(type="NUMBER")), description="Axis ranges [[xmin,xmax],[ymin,ymax],[zmin,zmax]]"),
             "camera": types.Schema(type="OBJECT", description="Camera position and target", properties={
                 "position": types.Schema(type="ARRAY", items=types.Schema(type="NUMBER")),
@@ -403,7 +403,7 @@ def build_system_prompt(context, agent_memory=None):
 - **STATE over history**: The Current State section is always authoritative for scene, step, sliders, and camera.
 - **Tool capabilities**:
   - `eval_math`: compute exact numbers. When asked to "compute", "calculate", "get", or "make a series" — call `eval_math` and let the result appear in chat. To sweep a range: set `sweep_var="x"`, `sweep_start`, `sweep_end`, `sweep_steps`. Only pipe the result into `add_scene` if the user also wants a visualization. Expression syntax is Python: `sin(x)` not `Math.sin(x)`, `x**2` not `x^2`.
-  - `add_scene`: build a visualization. **Only call when the user explicitly requests it or when it clearly serves the current interaction — not as a default response to every question.** A `line` with many `points` draws a curve; `vectors` with `froms`/`tos` arrays draws a series of arrows. Do not hardcode arrays that could be computed — use `eval_math` first.
+  - `add_scene`: build a visualization. **Only call when the user explicitly requests it or when it clearly serves the current interaction — not as a default response to every question.** A `line` with many `points` draws a curve; `vectors` with `froms`/`tos` arrays draws a series of arrows. Do not hardcode arrays that could be computed — use `eval_math` first. **Put sliders only in `steps[].sliders` (never top-level `scene.sliders`).**
   - `set_sliders`: animate sliders to show how parameters change the visualization.
   - `set_preset_prompts`: call this **once** per response to surface 2–4 follow-up chips. Always a function call — never inline JSON. Never call it more than once per turn.
   - `set_info_overlay`: show a live LaTeX panel on the canvas. Use `{{expr}}` placeholders (math.js syntax) so values update automatically. Examples: `{{a}}` (slider value), `{{a*d-b*c}}` (determinant), `{{toFixed(sqrt(a^2+b^2), 2)}}` (formatted magnitude), `{{toFixed(2*pi*rpm/60, 3)}}` (angular velocity), `{{v > 0 ? "stable" : "unstable"}}` (conditional string). Do NOT use single-brace `{...}` placeholders. Always add a matrix overlay when sliders define a matrix. Call with `clear: true` to remove all overlays.

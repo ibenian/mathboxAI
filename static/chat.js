@@ -539,13 +539,20 @@ async function sendChatMessage(text, { silent = false } = {}) {
                     if (!Array.isArray(lessonSpec.scenes)) lessonSpec.scenes = [];
                     lessonSpec.scenes.push(newScene);
                     const targetIdx = lessonSpec.scenes.length - 1;
+                    const firstStepHasSliders = !!(
+                        Array.isArray(newScene.steps) &&
+                        newScene.steps.length > 0 &&
+                        Array.isArray(newScene.steps[0].sliders) &&
+                        newScene.steps[0].sliders.length > 0
+                    );
+                    const targetStep = firstStepHasSliders ? 0 : -1;
                     console.log('  Navigating to scene index:', targetIdx, 'currentSceneIndex:', currentSceneIndex);
 
                     // Rebuild scene tree UI and navigate to new scene
                     try {
                         if (typeof buildSceneTree === 'function') buildSceneTree(lessonSpec);
                         if (typeof updateDockVisibility === 'function') updateDockVisibility();
-                        if (typeof navigateTo === 'function') navigateTo(targetIdx, -1);
+                        if (typeof navigateTo === 'function') navigateTo(targetIdx, targetStep);
                         console.log('%c🎬 add_scene complete', 'color: #44ff44; font-weight: bold');
                     } catch(e) {
                         console.error('add_scene: navigation/render failed:', e);
