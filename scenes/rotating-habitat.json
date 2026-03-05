@@ -238,18 +238,18 @@
               "id": "spoke_e",
               "type": "animated_cylinder",
               "fromExpr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + PI)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + PI)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + PI)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + PI)",
+                "0.08"
               ],
               "expr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + 0.0000000000)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + 0.0000000000)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + 0.0000000000)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + 0.0000000000)",
+                "0.08"
               ],
               "radius": 5,
               "color": "#4c2f7a",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
@@ -261,18 +261,18 @@
               "id": "spoke_n",
               "type": "animated_cylinder",
               "fromExpr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + 3*PI/2)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + 3*PI/2)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + 3*PI/2)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + 3*PI/2)",
+                "0.08"
               ],
               "expr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + 1.5707963268)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + 1.5707963268)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + 1.5707963268)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + 1.5707963268)",
+                "0.08"
               ],
               "radius": 5,
               "color": "#4c2f7a",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
@@ -284,18 +284,18 @@
               "id": "spoke_cross_ne",
               "type": "animated_cylinder",
               "fromExpr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + 5*PI/4)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + 5*PI/4)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + 5*PI/4)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + 5*PI/4)",
+                "0.08"
               ],
               "expr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + PI/4)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + PI/4)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + PI/4)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + PI/4)",
+                "0.08"
               ],
               "radius": 2.5,
               "color": "#2ecc71",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
@@ -307,18 +307,18 @@
               "id": "spoke_cross_nw",
               "type": "animated_cylinder",
               "fromExpr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + 7*PI/4)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + 7*PI/4)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + 7*PI/4)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + 7*PI/4)",
+                "0.08"
               ],
               "expr": [
-                "(R+10)*cos(t * 2*PI*rpm/60 + 3*PI/4)",
-                "(R+10)*sin(t * 2*PI*rpm/60 + 3*PI/4)",
-                "0"
+                "(R+9.4)*cos(t * 2*PI*rpm/60 + 3*PI/4)",
+                "(R+9.4)*sin(t * 2*PI*rpm/60 + 3*PI/4)",
+                "0.08"
               ],
               "radius": 2.5,
               "color": "#2ecc71",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
@@ -341,7 +341,7 @@
               ],
               "radius": 0.45,
               "color": "#335577",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
@@ -364,7 +364,7 @@
               ],
               "radius": 0.45,
               "color": "#335577",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
@@ -387,7 +387,7 @@
               ],
               "radius": 0.45,
               "color": "#335577",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
@@ -410,7 +410,7 @@
               ],
               "radius": 0.45,
               "color": "#335577",
-              "opacity": 0.95,
+              "opacity": 1,
               "radialSegments": 20,
               "openEnded": false,
               "shader": {
