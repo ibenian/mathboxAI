@@ -464,7 +464,7 @@ Each point is an array of 3 math.js expression strings.
 - **Expand axis ranges** to accommodate the full slider range (e.g., max scalar=3 on vector (2,1) → tip reaches (6,3) → use range ≥ 7)
 - **Show a ghost** — static dimmer copy of the original alongside the animated one
 - **Common ranges**: scalars `[-3,3]`, angles `[0,6.28]`, components `[-5,5]`
-- **Matrix sliders**: always add an `info` overlay showing the live matrix with `{slider_id}` placeholders
+- **Matrix sliders**: always add an `info` overlay showing the live matrix with `{{slider_id}}` placeholders
 
 ---
 
@@ -518,7 +518,7 @@ Info overlays are floating LaTeX panels on the canvas that update live as slider
     {"id":"b","label":"$b$","min":-2,"max":2,"step":0.1,"default":0.5}
   ],
   "info": [
-    {"id":"matrix","content":"$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}$$"}
+    {"id":"matrix","content":"$$M = \\begin{pmatrix}{{a}} & {{b}}\\\\ {{c}} & {{d}}\\end{pmatrix}$$"}
   ]
 }
 ```
@@ -527,19 +527,19 @@ Info overlays are floating LaTeX panels on the canvas that update live as slider
 | Field | Description |
 |-------|-------------|
 | `id` | Unique identifier — reuse to update, different ids for multiple overlays |
-| `content` | LaTeX/markdown. Use `{slider_id}` or `{expression}` for live values |
+| `content` | LaTeX/markdown. Use `{{slider_id}}` or `{{expression}}` for live values |
 | `position` | `top-left` (default), `top-right`, `top-center`, `bottom-left`, `bottom-right` |
 
 ### Live Placeholder Syntax
-Use `{expr}` to insert any **math.js expression** evaluated against current slider values:
+Use `{{expr}}` to insert any **math.js expression** evaluated against current slider values:
 
 | Placeholder | Result |
 |------------|--------|
-| `{a}` | Current value of slider `a` |
-| `{1-t+t*a}` | Interpolated value |
-| `{a*d - b*c}` | Determinant of 2×2 matrix |
-| `{toFixed(sqrt(a^2+b^2), 2)}` | Formatted magnitude, 2 decimal places |
-| `{v > 0 ? "stable" : "unstable"}` | Conditional string |
+| `{{a}}` | Current value of slider `a` |
+| `{{1-t+t*a}}` | Interpolated value |
+| `{{a*d - b*c}}` | Determinant of 2×2 matrix |
+| `{{toFixed(sqrt(a^2+b^2), 2)}}` | Formatted magnitude, 2 decimal places |
+| `{{v > 0 ? "stable" : "unstable"}}` | Conditional string |
 
 ### When to Use Info Overlays
 - **Always** when sliders define a matrix — show the live matrix so users see what they're tuning
@@ -691,7 +691,7 @@ The **scene `range`** defines the data coordinate system. The **axis `range`** i
 - [ ] If 2D: narrow Z range (`[-0.5,0.5]`) and face-on camera
 - [ ] If steps: each step has a `title` (scene tree) and `description` (narration)
 - [ ] If sliders: axis range covers full slider extent
-- [ ] If sliders define a matrix/formula: add `"info"` overlay with live `{slider_id}` content
+- [ ] If sliders define a matrix/formula: add `"info"` overlay with live `{{slider_id}}` content
 - [ ] If morph animation: `t` slider with `default: 1`, `animate: true`
 - [ ] Element `id`s on anything that will be removed by a step
 - [ ] LaTeX backslashes double-escaped in JSON strings
@@ -712,5 +712,5 @@ The **scene `range`** defines the data coordinate system. The **axis `range`** i
 | Slider max=4 on vector `[2,1]`, range only to 5 | Range needs to reach `[8,4]` → use 9+ |
 | Writing scene JSON as raw text in chat | Always use `add_scene` tool call |
 | `navigate_to` after `add_scene` | `add_scene` auto-navigates |
-| `\{a\}` in overlay content | `{a}` (no backslash) |
+| `{a}` in overlay content | `{{a}}` |
 | Camera position outside data range | Keep position in same scale as range |

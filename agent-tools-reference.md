@@ -54,16 +54,16 @@ add_scene(
 ### `set_info_overlay` — Live LaTeX panel on the canvas
 
 ```
-set_info_overlay(id="matrix", content="$$M = \\begin{pmatrix}{a} & {b}\\\\ {c} & {d}\\end{pmatrix}$$")
-set_info_overlay(id="det", content="$\\det(M) = {a*d - b*c}$", position="top-right")
-set_info_overlay(id="mag", content="$\\|\\vec{v}\\| = {toFixed(sqrt(vx^2+vy^2+vz^2), 2)}$")
-set_info_overlay(id="omega", content="$\\omega = {toFixed(2*pi*rpm/60, 3)}\\text{ rad/s}$")
-set_info_overlay(id="status", content="Status: {v > 0 ? \"stable\" : \"unstable\"}")
+set_info_overlay(id="matrix", content="$$M = \\begin{pmatrix}{{a}} & {{b}}\\\\ {{c}} & {{d}}\\end{pmatrix}$$")
+set_info_overlay(id="det", content="$\\det(M) = {{a*d - b*c}}$", position="top-right")
+set_info_overlay(id="mag", content="$\\|\\vec{v}\\| = {{toFixed(sqrt(vx^2+vy^2+vz^2), 2)}}$")
+set_info_overlay(id="omega", content="$\\omega = {{toFixed(2*pi*rpm/60, 3)}}\\text{ rad/s}$")
+set_info_overlay(id="status", content="Status: {{v > 0 ? \"stable\" : \"unstable\"}}")
 set_info_overlay(clear=True)   // remove all overlays
 ```
 
-`{expr}` placeholders use math.js syntax and update live as sliders move.
-Write `{a}` — never `\{a\}` (backslash-escaping breaks the placeholder).
+`{{expr}}` placeholders use math.js syntax and update live as sliders move.
+Write `{{a}}`. Do not use single-brace `{a}` placeholders.
 Always add a matrix overlay when sliders define a matrix.
 
 ---
@@ -144,7 +144,7 @@ Call **once** per response, after your main action. Keep each prompt under 60 ch
 
 ### math.js Expression Reference
 
-Used in animated element fields, `parametric_curve`, and `{expr}` overlay placeholders.
+Used in animated element fields, `parametric_curve`, and `{{expr}}` overlay placeholders.
 
 | Category | Functions |
 |----------|-----------|

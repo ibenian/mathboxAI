@@ -1252,6 +1252,15 @@ function updateMemoryStatus() {
         .then(mem => {
             if (!mem) return;
             memorySnapshot = mem;
+            // Expose raw memory values globally so info overlays can evaluate
+            // {{expr}} bindings against agent memory keys (c1, c2, ...).
+            window.agentMemoryValues = Object.fromEntries(
+                Object.entries(mem).map(([k, v]) => [k, v && Object.prototype.hasOwnProperty.call(v, 'value') ? v.value : undefined])
+            );
+            // Overlays may have been added before memory arrived; re-evaluate now.
+            if (typeof updateInfoOverlays === 'function') {
+                try { updateInfoOverlays(); } catch (_e) {}
+            }
             const keys = Object.keys(mem);
             const pill = document.getElementById('memory-status');
             const countEl = pill && pill.querySelector('.memory-status-count');

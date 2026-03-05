@@ -4904,6 +4904,7 @@ function _fmtNum(val) {
 function _isKnownInfoExprIdentifier(name) {
     if (!name) return false;
     if (Object.prototype.hasOwnProperty.call(sceneSliders, name)) return true;
+    if (window.agentMemoryValues && Object.prototype.hasOwnProperty.call(window.agentMemoryValues, name)) return true;
     if (name === 't' || name === 'u' || name === 'v') return true;
     if (name === 'pi' || name === 'e' || name === 'PI' || name === 'E') return true;
     if (name === 'true' || name === 'false' || name === 'Infinity' || name === 'NaN') return true;
@@ -4927,16 +4928,21 @@ function _evalInfoExpr(expr) {
     if (_exprHasUnknownIdentifiers(trimmed)) {
         return null;
     }
+    const memScope = (window.agentMemoryValues && typeof window.agentMemoryValues === 'object')
+        ? window.agentMemoryValues
+        : null;
     try {
-        return _fmtNum(evalExpr(compileExpr(trimmed), 0));
+        return _fmtNum(evalExpr(compileExpr(trimmed), 0, { extraScope: memScope }));
     } catch {
         // math.js failed (e.g. JS-only helpers/method calls)
         if (_sceneJsTrustState === 'trusted') {
             try {
                 const ids = getSliderIds();
-                const fn = Function('t', ...ids, ..._MATH_NAMES, 'return (' + trimmed + ')');
+                const memNames = memScope ? Object.keys(memScope) : [];
+                const fn = Function('t', ...ids, ...memNames, ..._MATH_NAMES, 'return (' + trimmed + ')');
                 const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
-                return _fmtNum(fn(0, ...vals, ..._MATH_VALS));
+                const memVals = memNames.map(k => memScope[k]);
+                return _fmtNum(fn(0, ...vals, ...memVals, ..._MATH_VALS));
             } catch { /* fall through */ }
         }
         return '?';

@@ -236,7 +236,7 @@ SET_PRESET_PROMPTS_TOOL_DECL = types.FunctionDeclaration(
 
 SET_INFO_OVERLAY_TOOL_DECL = types.FunctionDeclaration(
     name="set_info_overlay",
-    description="Add, update, or remove a floating info overlay on the 3D canvas. Overlays render LaTeX and live math that updates automatically when sliders change. Use {slider_id} placeholders for live values. Call with clear=true to remove all overlays. Use proactively to show matrix representations, formulas, or key values while users explore a scene.",
+    description="Add, update, or remove a floating info overlay on the 3D canvas. Overlays render LaTeX and live math that updates automatically when sliders change. Use {{slider_id}} / {{expression}} placeholders for live values. Call with clear=true to remove all overlays. Use proactively to show matrix representations, formulas, or key values while users explore a scene.",
     parameters=types.Schema(
         type="OBJECT",
         properties={
@@ -246,7 +246,7 @@ SET_INFO_OVERLAY_TOOL_DECL = types.FunctionDeclaration(
             ),
             "content": types.Schema(
                 type="STRING",
-                description="Content to display — same rendering as step captions: $...$ inline math, $$...$$ display math, plain text, \\n for line breaks. Use {slider_id} for live slider values, e.g. '$$\\\\begin{pmatrix} {a} & {b} \\\\\\\\ {c} & {d} \\\\end{pmatrix}$$'. CRITICAL: placeholders must be plain {id} — NEVER \\{id\\}. Backslash-escaping breaks the placeholder so it shows literally instead of the value. Omit when clear=true.",
+                description="Content to display — same rendering as step captions: $...$ inline math, $$...$$ display math, plain text, \\n for line breaks. Use {{slider_id}} / {{expression}} for live values, e.g. '$$\\\\begin{pmatrix} {{a}} & {{b}} \\\\\\\\ {{c}} & {{d}} \\\\end{pmatrix}$$'. CRITICAL: only double-brace placeholders are evaluated; single-brace {id} is not evaluated. Omit when clear=true.",
             ),
             "position": types.Schema(
                 type="STRING",
@@ -399,14 +399,14 @@ def build_system_prompt(context, agent_memory=None):
 - **Unclear or vague questions**: If the user's request is ambiguous (e.g. "show me something", "explain it", "make it nicer"), do NOT guess — ask one clarifying question. Keep the question brief: "Which part would you like explained?" or "Do you mean [X] or [Y]?"
 - Do not write scene JSON as text in chat — make tool calls so things actually render.
 - **CRITICAL**: Always call `set_preset_prompts` as a function tool call. NEVER write the prompts as JSON text in your response.
-- **CRITICAL**: NEVER use `{expr}` placeholders in your chat response text. Placeholders like `{theta}` or `{v.toFixed(1)}` only work inside `set_info_overlay` content, not in chat messages. In chat, write computed values directly or describe them in words.
+- **CRITICAL**: NEVER use `{{expr}}` placeholders in your chat response text. Placeholders like `{{theta}}` or `{{toFixed(v,1)}}` only work inside `set_info_overlay` content, not in chat messages. In chat, write computed values directly or describe them in words.
 - **STATE over history**: The Current State section is always authoritative for scene, step, sliders, and camera.
 - **Tool capabilities**:
   - `eval_math`: compute exact numbers. When asked to "compute", "calculate", "get", or "make a series" — call `eval_math` and let the result appear in chat. To sweep a range: set `sweep_var="x"`, `sweep_start`, `sweep_end`, `sweep_steps`. Only pipe the result into `add_scene` if the user also wants a visualization. Expression syntax is Python: `sin(x)` not `Math.sin(x)`, `x**2` not `x^2`.
   - `add_scene`: build a visualization. **Only call when the user explicitly requests it or when it clearly serves the current interaction — not as a default response to every question.** A `line` with many `points` draws a curve; `vectors` with `froms`/`tos` arrays draws a series of arrows. Do not hardcode arrays that could be computed — use `eval_math` first.
   - `set_sliders`: animate sliders to show how parameters change the visualization.
   - `set_preset_prompts`: call this **once** per response to surface 2–4 follow-up chips. Always a function call — never inline JSON. Never call it more than once per turn.
-  - `set_info_overlay`: show a live LaTeX panel on the canvas. Use `{expr}` placeholders (math.js syntax) so values update automatically. Examples: `{a}` (slider value), `{a*d-b*c}` (determinant), `{toFixed(sqrt(a^2+b^2), 2)}` (formatted magnitude), `{toFixed(2*pi*rpm/60, 3)}` (angular velocity), `{v > 0 ? "stable" : "unstable"}` (conditional string). Write `{a}` not `\\{a\\}` — backslash-escaping breaks the placeholder. Always add a matrix overlay when sliders define a matrix. Call with `clear: true` to remove all overlays.
+  - `set_info_overlay`: show a live LaTeX panel on the canvas. Use `{{expr}}` placeholders (math.js syntax) so values update automatically. Examples: `{{a}}` (slider value), `{{a*d-b*c}}` (determinant), `{{toFixed(sqrt(a^2+b^2), 2)}}` (formatted magnitude), `{{toFixed(2*pi*rpm/60, 3)}}` (angular velocity), `{{v > 0 ? "stable" : "unstable"}}` (conditional string). Do NOT use single-brace `{...}` placeholders. Always add a matrix overlay when sliders define a matrix. Call with `clear: true` to remove all overlays.
   - `parametric_curve`: continuous smooth curve using math.js expressions — use `sin(t)` not `Math.sin(t)`, `pi` not `Math.PI`, `pow(x,n)` or `x^n` not `x**n`. Use only when a slider drives the shape live and exact point values are not needed.
   - **math.js expression syntax** (used in all animated elements, parametric_curve, and info overlay placeholders): trig `sin cos tan asin acos atan atan2` · power `pow(x,n)` or `x^n` · roots `sqrt cbrt` · exp/log `exp log log2 log10` · rounding `floor ceil round fix` · misc `abs sign min max hypot` · constants `pi e` · ternary `cond ? a : b` · formatting `toFixed(val, n)`. Do NOT use `Math.sin`, `Math.PI`, `x.toFixed()`, or JS keywords (`let`, `return`, `=>`).
 """)
