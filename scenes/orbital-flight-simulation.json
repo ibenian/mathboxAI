@@ -1,5 +1,6 @@
 {
   "title": "Orbital Flight Simulation",
+  "unsafe_explanation": "This lesson uses scene-level reusable functions with native JavaScript expressions (for loops/closures) to compute trajectory extrema like apogee and perigee from live simulation state. Allow only if you trust this scene source.",
   "scenes": [
     {
       "title": "Orbit Basics: Speed vs Height",
@@ -889,6 +890,58 @@
           ]
         }
       ],
+      "functions": [
+        {
+          "name": "orbitExtremumT",
+          "args": ["mode", "isApo"],
+          "expr": "(() => { let n = 720; let tBest = 0; let rBest = orbitR(0, mode); for (let i = 1; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) break; let rr = orbitR(tt, mode); if ((isApo > 0.5 && rr > rBest) || (isApo <= 0.5 && rr < rBest)) { rBest = rr; tBest = tt; } } return tBest; })()"
+        },
+        {
+          "name": "orbitPeriT",
+          "args": ["mode"],
+          "expr": "orbitExtremumT(mode, 0)"
+        },
+        {
+          "name": "orbitApoT",
+          "args": ["mode"],
+          "expr": "orbitExtremumT(mode, 1)"
+        },
+        {
+          "name": "orbitPeriX",
+          "args": ["mode"],
+          "expr": "orbitX(orbitPeriT(mode), mode)"
+        },
+        {
+          "name": "orbitPeriY",
+          "args": ["mode"],
+          "expr": "orbitY(orbitPeriT(mode), mode)"
+        },
+        {
+          "name": "orbitApoX",
+          "args": ["mode"],
+          "expr": "orbitX(orbitApoT(mode), mode)"
+        },
+        {
+          "name": "orbitApoY",
+          "args": ["mode"],
+          "expr": "orbitY(orbitApoT(mode), mode)"
+        },
+        {
+          "name": "orbitImpactT",
+          "args": ["mode"],
+          "expr": "(() => { let n = 720; for (let i = 0; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) return tt; } return -1; })()"
+        },
+        {
+          "name": "orbitImpactX",
+          "args": ["mode"],
+          "expr": "orbitImpactT(mode) >= 0 ? orbitX(orbitImpactT(mode), mode) : 0"
+        },
+        {
+          "name": "orbitImpactY",
+          "args": ["mode"],
+          "expr": "orbitImpactT(mode) >= 0 ? orbitY(orbitImpactT(mode), mode) : 0"
+        }
+      ],
       "elements": [
         {
           "id": "planet_surface_3",
@@ -1044,11 +1097,53 @@
               "label": "target-height ring"
             },
             {
+              "id": "perigee_marker_powered",
+              "type": "animated_point",
+              "expr": [
+                "orbitPeriX(1)",
+                "orbitPeriY(1)",
+                "80"
+              ],
+              "color": "#59f28f",
+              "size": 12,
+              "label": "perigee"
+            },
+            {
+              "id": "apogee_marker_powered",
+              "type": "animated_point",
+              "expr": [
+                "orbitApoX(1)",
+                "orbitApoY(1)",
+                "80"
+              ],
+              "color": "#ff9a5c",
+              "size": 12,
+              "label": "apogee"
+            },
+            {
+              "id": "impact_marker_powered",
+              "type": "animated_point",
+              "expr": [
+                "orbitImpactX(1)",
+                "orbitImpactY(1)",
+                "80"
+              ],
+              "visibleExpr": "orbitImpactT(1) >= 0",
+              "color": "#ff4d4f",
+              "size": 13,
+              "label": "impact"
+            },
+            {
               "id": "trajectory_powered",
               "type": "parametric_curve",
               "x": "orbitX(t*T,1)",
               "y": "orbitY(t*T,1)",
               "z": "80",
+              "labelOffset": [
+                -600,
+                520,
+                180
+              ],
               "range": [
                 0,
                 1
@@ -1195,6 +1290,58 @@
             0,
             1
           ]
+        }
+      ],
+      "functions": [
+        {
+          "name": "orbitExtremumT",
+          "args": ["mode", "isApo"],
+          "expr": "(() => { let n = 720; let tBest = 0; let rBest = orbitR(0, mode); for (let i = 1; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) break; let rr = orbitR(tt, mode); if ((isApo > 0.5 && rr > rBest) || (isApo <= 0.5 && rr < rBest)) { rBest = rr; tBest = tt; } } return tBest; })()"
+        },
+        {
+          "name": "orbitPeriT",
+          "args": ["mode"],
+          "expr": "orbitExtremumT(mode, 0)"
+        },
+        {
+          "name": "orbitApoT",
+          "args": ["mode"],
+          "expr": "orbitExtremumT(mode, 1)"
+        },
+        {
+          "name": "orbitPeriX",
+          "args": ["mode"],
+          "expr": "orbitX(orbitPeriT(mode), mode)"
+        },
+        {
+          "name": "orbitPeriY",
+          "args": ["mode"],
+          "expr": "orbitY(orbitPeriT(mode), mode)"
+        },
+        {
+          "name": "orbitApoX",
+          "args": ["mode"],
+          "expr": "orbitX(orbitApoT(mode), mode)"
+        },
+        {
+          "name": "orbitApoY",
+          "args": ["mode"],
+          "expr": "orbitY(orbitApoT(mode), mode)"
+        },
+        {
+          "name": "orbitImpactT",
+          "args": ["mode"],
+          "expr": "(() => { let n = 720; for (let i = 0; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) return tt; } return -1; })()"
+        },
+        {
+          "name": "orbitImpactX",
+          "args": ["mode"],
+          "expr": "orbitImpactT(mode) >= 0 ? orbitX(orbitImpactT(mode), mode) : 0"
+        },
+        {
+          "name": "orbitImpactY",
+          "args": ["mode"],
+          "expr": "orbitImpactT(mode) >= 0 ? orbitY(orbitImpactT(mode), mode) : 0"
         }
       ],
       "elements": [
@@ -1417,11 +1564,53 @@
               "label": "initial direction"
             },
             {
+              "id": "perigee_marker_guided",
+              "type": "animated_point",
+              "expr": [
+                "orbitPeriX(2)",
+                "orbitPeriY(2)",
+                "80"
+              ],
+              "color": "#59f28f",
+              "size": 12,
+              "label": "perigee"
+            },
+            {
+              "id": "apogee_marker_guided",
+              "type": "animated_point",
+              "expr": [
+                "orbitApoX(2)",
+                "orbitApoY(2)",
+                "80"
+              ],
+              "color": "#ff9a5c",
+              "size": 12,
+              "label": "apogee"
+            },
+            {
+              "id": "impact_marker_guided",
+              "type": "animated_point",
+              "expr": [
+                "orbitImpactX(2)",
+                "orbitImpactY(2)",
+                "80"
+              ],
+              "visibleExpr": "orbitImpactT(2) >= 0",
+              "color": "#ff4d4f",
+              "size": 13,
+              "label": "impact"
+            },
+            {
               "id": "trajectory_guided",
               "type": "parametric_curve",
               "x": "orbitX(t*T,2)",
               "y": "orbitY(t*T,2)",
               "z": "80",
+              "labelOffset": [
+                0,
+                240,
+                90
+              ],
               "range": [
                 0,
                 1

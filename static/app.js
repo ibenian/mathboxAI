@@ -53,6 +53,9 @@ let videoRecordingExt = 'webm';
 let videoRecordingMime = 'video/webm';
 let activeVirtualTimeExpr = null;
 let activeVirtualTimeCompiled = null;
+let activeSceneExprFunctions = {}; // scene-level expression helpers defined in scene.functions
+let activeSceneFunctionDefs = [];  // compiled descriptors for scene-level functions
+let _activeExprEvalFrame = null;   // tracks current eval scope for nested scene-function calls
 
 // ----- Expression Sandbox -----
 // Sandboxed math.js instance — no browser API access from expressions
@@ -1726,6 +1729,9 @@ function renderParametricCurve(el, view) {
     const range = el.range || [0, 2 * Math.PI];
     const samples = el.samples || 128;
     const label = el.label;
+    const labelOffset = (Array.isArray(el.labelOffset) && el.labelOffset.length === 3)
+        ? [Number(el.labelOffset[0]) || 0, Number(el.labelOffset[1]) || 0, Number(el.labelOffset[2]) || 0]
+        : [0, 0.3, 0];
 
     const exprX = el.x || 'Math.cos(t)';
     const exprY = el.y || 'Math.sin(t)';
@@ -1770,7 +1776,11 @@ function renderParametricCurve(el, view) {
     let labelEl = null;
     if (label) {
         const mid = points[Math.floor(points.length / 2)];
-        labelEl = addLabel3D(label, mid, color);
+        labelEl = addLabel3D(label, [
+            mid[0] + labelOffset[0],
+            mid[1] + labelOffset[1],
+            mid[2] + labelOffset[2],
+        ], color);
     }
 
     // Register for slider reactivity — rebuild curve whenever sliders change
@@ -1788,9 +1798,9 @@ function renderParametricCurve(el, view) {
             curveData.set('data', pts);
             if (labelEl) {
                 const mid = pts[Math.floor(pts.length / 2)];
-                labelEl.dataPos[0] = mid[0];
-                labelEl.dataPos[1] = mid[1] + 0.3;
-                labelEl.dataPos[2] = mid[2];
+                labelEl.dataPos[0] = mid[0] + labelOffset[0];
+                labelEl.dataPos[1] = mid[1] + labelOffset[1];
+                labelEl.dataPos[2] = mid[2] + labelOffset[2];
             }
         },
     };
@@ -3274,6 +3284,7 @@ function loadScene(spec) {
     clearWorldStarfield();
     clearWorldSkybox();
     currentSpec = spec;
+    _setActiveSceneFunctions(spec);
     _setActiveVirtualTimeExpr(spec, -1);
     updateTitle(spec);
     updateExplanationPanel(spec);
@@ -4458,19 +4469,135 @@ function orbitOutcome(t, mode) {
     return 'Outcome: bound but not yet stabilized';
 }
 
-const _EXPR_HELPERS = { orbitX, orbitY, orbitR, orbitVr, orbitVt, orbitHit, orbitOutcome };
+const _EXPR_HELPERS = {
+    orbitX, orbitY, orbitR, orbitVr, orbitVt, orbitHit, orbitOutcome
+};
 
-// Legacy MATH_NAMES/VALS kept only for the new Function fallback path
-const _MATH_NAMES = ['sin','cos','tan','asin','acos','atan','atan2','sinh','cosh','tanh',
+// Core math/helper names for JS fallback execution.
+const _CORE_MATH_NAMES = ['sin','cos','tan','asin','acos','atan','atan2','sinh','cosh','tanh',
     'abs','sqrt','cbrt','pow','exp','log','log2','log10','floor','ceil','round','trunc',
     'min','max','sign','hypot','PI','E',
     'orbitX','orbitY','orbitR','orbitVr','orbitVt','orbitHit','orbitOutcome'];
-const _MATH_VALS = _MATH_NAMES.map(n => (Object.prototype.hasOwnProperty.call(_EXPR_HELPERS, n) ? _EXPR_HELPERS[n] : Math[n]));
+
+const _SCENE_FN_NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+function _isValidSceneFunctionName(name) {
+    return typeof name === 'string' && _SCENE_FN_NAME_RE.test(name);
+}
+
+function _getMathNamesAndValues() {
+    const names = _CORE_MATH_NAMES.slice();
+    const vals = names.map(n => (Object.prototype.hasOwnProperty.call(_EXPR_HELPERS, n) ? _EXPR_HELPERS[n] : Math[n]));
+    for (const [name, fn] of Object.entries(activeSceneExprFunctions || {})) {
+        if (!Object.prototype.hasOwnProperty.call(activeSceneExprFunctions, name)) continue;
+        if (typeof fn !== 'function') continue;
+        if (names.includes(name)) continue;
+        names.push(name);
+        vals.push(fn);
+    }
+    return { names, vals };
+}
 
 function _buildScope(extras) {
-    const scope = { ..._EXPR_HELPERS, ...extras };
+    const scope = { ..._EXPR_HELPERS, ...(activeSceneExprFunctions || {}), ...extras };
     for (const [id, s] of Object.entries(sceneSliders)) scope[id] = s ? s.value : 0;
     return scope;
+}
+
+function _setActiveSceneFunctions(scene) {
+    activeSceneExprFunctions = {};
+    activeSceneFunctionDefs = [];
+    const defs = scene && Array.isArray(scene.functions) ? scene.functions : [];
+    if (!defs.length) return;
+
+    const used = new Set();
+    const normalized = [];
+    for (const raw of defs) {
+        if (!raw || typeof raw !== 'object') continue;
+        const name = typeof raw.name === 'string' ? raw.name : raw.id;
+        if (!_isValidSceneFunctionName(name)) {
+            console.warn('scene.functions entry skipped (invalid name):', raw);
+            continue;
+        }
+        if (_CORE_MATH_NAMES.includes(name) || Object.prototype.hasOwnProperty.call(_EXPR_HELPERS, name)) {
+            console.warn('scene.functions entry skipped (reserved name):', name);
+            continue;
+        }
+        if (used.has(name)) {
+            console.warn('scene.functions entry skipped (duplicate name):', name);
+            continue;
+        }
+        const expr = typeof raw.expr === 'string' ? raw.expr : raw.expression;
+        if (typeof expr !== 'string' || !expr.trim()) {
+            console.warn('scene.functions entry skipped (missing expr):', name);
+            continue;
+        }
+        const argsRaw = Array.isArray(raw.args) ? raw.args : [];
+        const args = [];
+        let badArgs = false;
+        for (const a of argsRaw) {
+            if (!_isValidSceneFunctionName(a)) {
+                badArgs = true;
+                break;
+            }
+            if (args.includes(a)) {
+                badArgs = true;
+                break;
+            }
+            args.push(a);
+        }
+        if (badArgs) {
+            console.warn('scene.functions entry skipped (invalid args):', name);
+            continue;
+        }
+        normalized.push({ name, args, expr });
+        used.add(name);
+    }
+
+    // Reserve names first so JS fallback compilation can reference other scene functions.
+    for (const def of normalized) {
+        activeSceneExprFunctions[def.name] = () => 0;
+    }
+
+    for (const def of normalized) {
+        let compiled;
+        try {
+            compiled = compileExpr(def.expr);
+        } catch (err) {
+            console.warn('scene.functions compile error:', def.name, err);
+            compiled = _mathjs.compile('0');
+        }
+        activeSceneFunctionDefs.push({ ...def, compiled });
+    }
+
+    for (const def of activeSceneFunctionDefs) {
+        activeSceneExprFunctions[def.name] = (...callArgs) => {
+            const frame = _activeExprEvalFrame || null;
+            const scope = frame && frame.extraScope && typeof frame.extraScope === 'object'
+                ? { ...frame.extraScope }
+                : {};
+            for (let i = 0; i < def.args.length; i++) {
+                scope[def.args[i]] = i < callArgs.length ? callArgs[i] : 0;
+            }
+            if (frame && Number.isFinite(frame.t)) scope.t = frame.t;
+            if (frame && Number.isFinite(frame.u)) scope.u = frame.u;
+            if (frame && Number.isFinite(frame.v)) scope.v = frame.v;
+            const tEval = (frame && Number.isFinite(frame.t)) ? frame.t : 0;
+            return evalExpr(def.compiled, tEval, { useVirtualTime: false, extraScope: scope });
+        };
+    }
+}
+
+function _recompileActiveSceneFunctions() {
+    if (!Array.isArray(activeSceneFunctionDefs) || !activeSceneFunctionDefs.length) return;
+    for (const def of activeSceneFunctionDefs) {
+        try {
+            def.compiled = compileExpr(def.expr);
+        } catch (err) {
+            console.warn('scene.functions recompile error:', def.name, err);
+            def.compiled = _mathjs.compile('0');
+        }
+    }
 }
 
 function _normalizeVirtualTimeExpr(spec) {
@@ -4520,10 +4647,8 @@ function _resolveVirtualAnimTime(rawT) {
 function compileExpr(exprStr) {
     if (_JS_ONLY_RE.test(exprStr)) {
         if (_sceneJsTrustState === 'trusted') {
-            const ids = getSliderIds();
-            const fn = Function('t', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            const fn = Function('scope', 'with (scope) { return (' + exprStr + '); }');
             fn._isFallback = true;
-            fn._sliderIds = ids.slice();
             return fn;
         }
         // Untrusted — return no-op compiled constant
@@ -4534,10 +4659,8 @@ function compileExpr(exprStr) {
     } catch (_e) {
         // math.js parse failed (e.g. .toFixed() in content template) — JS fallback
         if (_sceneJsTrustState === 'trusted') {
-            const ids = getSliderIds();
-            const fn = Function('t', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            const fn = Function('scope', 'with (scope) { return (' + exprStr + '); }');
             fn._isFallback = true;
-            fn._sliderIds = ids.slice();
             return fn;
         }
         return _mathjs.compile('0');
@@ -4548,21 +4671,23 @@ function evalExpr(compiled, t, opts = {}) {
     const useVirtualTime = opts.useVirtualTime !== false;
     const evalT = useVirtualTime ? _resolveVirtualAnimTime(t) : t;
     const extraScope = (opts && typeof opts.extraScope === 'object' && opts.extraScope) ? opts.extraScope : null;
-    if (compiled && compiled._isFallback) {
-        const ids = Array.isArray(compiled._sliderIds) ? compiled._sliderIds : getSliderIds();
-        const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
-        return compiled(evalT, ...vals, ..._MATH_VALS);
+    const prevFrame = _activeExprEvalFrame;
+    _activeExprEvalFrame = { t: evalT, extraScope };
+    try {
+        if (compiled && compiled._isFallback) {
+            return compiled(_buildScope({ t: evalT, ...(extraScope || {}) }));
+        }
+        return compiled.evaluate(_buildScope({ t: evalT, ...(extraScope || {}) }));
+    } finally {
+        _activeExprEvalFrame = prevFrame;
     }
-    return compiled.evaluate(_buildScope({ t: evalT, ...(extraScope || {}) }));
 }
 
 function compileSurfaceExpr(exprStr) {
     if (_JS_ONLY_RE.test(exprStr)) {
         if (_sceneJsTrustState === 'trusted') {
-            const ids = getSliderIds();
-            const fn = Function('u', 'v', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            const fn = Function('scope', 'with (scope) { return (' + exprStr + '); }');
             fn._isFallback = true;
-            fn._sliderIds = ids.slice();
             return fn;
         }
         return _mathjs.compile('0');
@@ -4571,10 +4696,8 @@ function compileSurfaceExpr(exprStr) {
         return _mathjs.compile(exprStr);
     } catch (_e) {
         if (_sceneJsTrustState === 'trusted') {
-            const ids = getSliderIds();
-            const fn = Function('u', 'v', ...ids, ..._MATH_NAMES, 'return ' + exprStr);
+            const fn = Function('scope', 'with (scope) { return (' + exprStr + '); }');
             fn._isFallback = true;
-            fn._sliderIds = ids.slice();
             return fn;
         }
         return _mathjs.compile('0');
@@ -4582,12 +4705,21 @@ function compileSurfaceExpr(exprStr) {
 }
 
 function evalSurfaceExpr(compiled, u, v) {
-    if (compiled && compiled._isFallback) {
-        const ids = Array.isArray(compiled._sliderIds) ? compiled._sliderIds : getSliderIds();
-        const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
-        return compiled(u, v, ...vals, ..._MATH_VALS);
+    const prevFrame = _activeExprEvalFrame;
+    _activeExprEvalFrame = {
+        t: prevFrame && Number.isFinite(prevFrame.t) ? prevFrame.t : 0,
+        u,
+        v,
+        extraScope: prevFrame && prevFrame.extraScope ? prevFrame.extraScope : null,
+    };
+    try {
+        if (compiled && compiled._isFallback) {
+            return compiled(_buildScope({ u, v }));
+        }
+        return compiled.evaluate(_buildScope({ u, v }));
+    } finally {
+        _activeExprEvalFrame = prevFrame;
     }
-    return compiled.evaluate(_buildScope({ u, v }));
 }
 
 function buildSliderOverlay() {
@@ -4880,6 +5012,7 @@ function runAnimUpdaters(nowMs) {
 }
 
 function recompileActiveExprs() {
+    _recompileActiveSceneFunctions();
     for (const entry of activeAnimExprs) {
         if (entry.animState.stopped) continue;
         if (typeof entry._rebuildFn === 'function') {
@@ -4989,12 +5122,13 @@ function _fmtNum(val) {
 function _isKnownInfoExprIdentifier(name) {
     if (!name) return false;
     if (Object.prototype.hasOwnProperty.call(sceneSliders, name)) return true;
+    if (Object.prototype.hasOwnProperty.call(activeSceneExprFunctions, name)) return true;
     if (window.agentMemoryValues && Object.prototype.hasOwnProperty.call(window.agentMemoryValues, name)) return true;
     if (name === 't' || name === 'u' || name === 'v') return true;
     if (name === 'pi' || name === 'e' || name === 'PI' || name === 'E') return true;
     if (name === 'true' || name === 'false' || name === 'Infinity' || name === 'NaN') return true;
     if (name === 'toFixed') return true;
-    return _MATH_NAMES.includes(name);
+    return _getMathNamesAndValues().names.includes(name);
 }
 
 function _exprHasUnknownIdentifiers(expr) {
@@ -5024,10 +5158,11 @@ function _evalInfoExpr(expr) {
             try {
                 const ids = getSliderIds();
                 const memNames = memScope ? Object.keys(memScope) : [];
-                const fn = Function('t', ...ids, ...memNames, ..._MATH_NAMES, 'return (' + trimmed + ')');
-                const vals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
+                const { names, vals: mathVals } = _getMathNamesAndValues();
+                const fn = Function('t', ...ids, ...memNames, ...names, 'return (' + trimmed + ')');
+                const sliderVals = ids.map(id => { const s = sceneSliders[id]; return s ? s.value : 0; });
                 const memVals = memNames.map(k => memScope[k]);
-                return _fmtNum(fn(0, ...vals, ...memVals, ..._MATH_VALS));
+                return _fmtNum(fn(0, ...sliderVals, ...memVals, ...mathVals));
             } catch { /* fall through */ }
         }
         return '?';
@@ -5812,6 +5947,7 @@ function navigateTo(sceneIdx, stepIdx) {
             cameraUp: scene.cameraUp,
             camera: scene.camera,
             views: scene.views,
+            functions: scene.functions,
             elements: scene.elements || [],
         };
         loadScene(baseSpec);
