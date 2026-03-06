@@ -3553,20 +3553,24 @@ function activateFollowCam(viewSpec) {
     const followTargets = Array.isArray(viewSpec.follow) ? viewSpec.follow : [viewSpec.follow];
     const offset = viewSpec.offset || [0, 0, 30]; // data-space offset
 
-    // Find element spec for expressions (use first resolvable target)
-    let el = null;
-    for (const tid of followTargets) {
-        el = findElementSpecById(tid);
-        if (el) break;
-    }
-    if (!el) {
-        console.warn('follow-cam: no element found for targets:', followTargets);
-        return;
-    }
     const normalizeExprTriplet = (triplet) => {
         if (!Array.isArray(triplet) || triplet.length !== 3) return null;
         return triplet.map(v => (typeof v === 'number' ? String(v) : v));
     };
+
+    // Find element spec for expressions — skip elements with no usable expression.
+    let el = null;
+    for (const tid of followTargets) {
+        const candidate = findElementSpecById(tid);
+        if (!candidate) continue;
+        const hasExpr = normalizeExprTriplet(candidate.expr || candidate.toExpr) !== null
+            || (Array.isArray(candidate.points) && candidate.points.length > 0);
+        if (hasExpr) { el = candidate; break; }
+    }
+    if (!el) {
+        console.warn('follow-cam: no element with a valid expression found for targets:', followTargets);
+        return;
+    }
 
     // Support animated_vector/animated_point style (expr/toExpr)
     // and animated_line style (points: [[x,y,z], ...]).
@@ -3614,7 +3618,7 @@ function activateFollowCam(viewSpec) {
             : null;
     const resolvedAngleLockVectorTargets = angleLockVectorTargets || angleLockDirectionVectorTargets;
 
-    // Determine initial target position — use freshest live position across all targets
+    // Determine initial target position
     let initDataPos;
     const freshEntry = _getFreshAnimEntry(followTargets);
     if (freshEntry) {
@@ -3709,7 +3713,8 @@ function activateFollowCam(viewSpec) {
         vectorTargets: resolvedAngleLockVectorTargets,
         directionTargets: angleLockDirectionTargets,
         lastDirectionWorld: _getDirectionWorldFromVectorTargets(resolvedAngleLockVectorTargets)
-            || _getDirectionWorldFromTargets(angleLockDirectionTargets),
+            || _getDirectionWorldFromTargets(angleLockDirectionTargets)
+            || _computeDerivedDirectionWorld(followTargets),
         directionEval,
         refStartTime: (freshEntry && Number.isFinite(freshEntry.startTime)) ? freshEntry.startTime : performance.now(),
         viewKey: (viewSpec && viewSpec._viewKey) ? viewSpec._viewKey : null,
@@ -3764,6 +3769,85 @@ function _getLatestAnimEntry(targets) {
         }
     }
     return best;
+}
+
+// Compute the world-space direction of the derived segment for angle-lock tracking.
+// Uses the same FROM/TO logic as _computeDerivedTargetPos.
+// Returns a normalized THREE.Vector3, or null if unavailable/degenerate.
+function _computeDerivedDirectionWorld(targets) {
+    if (!Array.isArray(targets) || targets.length < 2) return null;
+    const first = animatedElementPos[targets[0]];
+    const last  = animatedElementPos[targets[targets.length - 1]];
+    if (!first || !last) return null;
+
+    const firstIsVec = first.from !== undefined;
+    const lastIsVec  = last.from  !== undefined;
+    let fromPos, toPos;
+
+    if (!firstIsVec && !lastIsVec) {
+        fromPos = first.pos; toPos = last.pos;
+    } else if (firstIsVec && !lastIsVec) {
+        fromPos = first.from; toPos = last.pos;
+    } else if (!firstIsVec && lastIsVec) {
+        fromPos = first.pos; toPos = last.pos;
+    } else {
+        const v1d = [first.pos[0]-first.from[0], first.pos[1]-first.from[1], first.pos[2]-first.from[2]];
+        const v2d = [last.pos[0]-last.from[0],   last.pos[1]-last.from[1],   last.pos[2]-last.from[2]];
+        fromPos = first.from;
+        toPos   = [first.from[0]+v1d[0]+v2d[0], first.from[1]+v1d[1]+v2d[1], first.from[2]+v1d[2]+v2d[2]];
+    }
+
+    const fromW = new THREE.Vector3(...dataToWorld(fromPos));
+    const toW   = new THREE.Vector3(...dataToWorld(toPos));
+    const dir = toW.sub(fromW);
+    return dir.length() > 1e-6 ? dir.normalize() : null;
+}
+
+// Compute the camera target position from a follow target spec.
+// Single target → follow .pos (point position or vector tip).
+// Two targets (first + last only, intermediates ignored):
+//   [p1, p2] → midpoint of segment p1→p2
+//   [v,  p]  → midpoint of segment v.base→p
+//   [p,  v]  → midpoint of segment p→v.tip
+//   [v1, v2] → midpoint of summed vector (v1.base → v1.base + v1.dir + v2.dir)
+// Returns null when entries are unavailable.
+function _computeDerivedTargetPos(targets) {
+    if (!Array.isArray(targets) || targets.length === 0) return null;
+    if (targets.length === 1) {
+        const e = animatedElementPos[targets[0]];
+        return e ? e.pos : null;
+    }
+    const first = animatedElementPos[targets[0]];
+    const last  = animatedElementPos[targets[targets.length - 1]];
+    if (!first && !last) return null;
+    if (!first) return last.pos;
+    if (!last)  return first.pos;
+
+    const firstIsVec = first.from !== undefined;
+    const lastIsVec  = last.from  !== undefined;
+    let fromPos, toPos;
+
+    if (!firstIsVec && !lastIsVec) {
+        // [p1, p2]: segment from p1 to p2
+        fromPos = first.pos; toPos = last.pos;
+    } else if (firstIsVec && !lastIsVec) {
+        // [v, p]: from base of v to p
+        fromPos = first.from; toPos = last.pos;
+    } else if (!firstIsVec && lastIsVec) {
+        // [p, v]: from p to tip of v
+        fromPos = first.pos; toPos = last.pos;
+    } else {
+        // [v1, v2]: summed vector — v1.base → v1.base + v1.dir + v2.dir
+        const v1d = [first.pos[0]-first.from[0], first.pos[1]-first.from[1], first.pos[2]-first.from[2]];
+        const v2d = [last.pos[0]-last.from[0],   last.pos[1]-last.from[1],   last.pos[2]-last.from[2]];
+        fromPos = first.from;
+        toPos   = [first.from[0]+v1d[0]+v2d[0], first.from[1]+v1d[1]+v2d[1], first.from[2]+v1d[2]+v2d[2]];
+    }
+    return [
+        (fromPos[0] + toPos[0]) / 2,
+        (fromPos[1] + toPos[1]) / 2,
+        (fromPos[2] + toPos[2]) / 2,
+    ];
 }
 
 function _getDirectionWorldFromTargets(targetPair) {
@@ -3851,7 +3935,8 @@ function updateFollowCam() {
         const oldDir = followCamState.lastDirectionWorld ? followCamState.lastDirectionWorld.clone() : null;
         const newDir = (followCamState.directionEval && typeof followCamState.directionEval.evalDir === 'function')
             ? followCamState.directionEval.evalDir(tSecRef)
-            : (_getDirectionWorldFromVectorTargets(followCamState.vectorTargets)
+            : (_computeDerivedDirectionWorld(followTargets)
+                || _getDirectionWorldFromVectorTargets(followCamState.vectorTargets)
                 || _getDirectionWorldFromTargets(followCamState.directionTargets));
         const prevBase = oldDir || oldTargetWorld.clone().sub(center);
         const nextBase = newDir || newTargetWorld.clone().sub(center);
@@ -5782,8 +5867,9 @@ function navigateTo(sceneIdx, stepIdx) {
         buildLegend(getAllElements(scene, stepIdx));
     }
 
-    // Animate camera if the target step has a camera override
-    if (stepIdx >= 0 && scene.steps && scene.steps[stepIdx] && scene.steps[stepIdx].camera) {
+    // Animate camera if the target step has a camera override — but only if no follow cam
+    // is currently active (follow cam is a user-chosen view mode; step overrides shouldn't kill it).
+    if (!followCamState && stepIdx >= 0 && scene.steps && scene.steps[stepIdx] && scene.steps[stepIdx].camera) {
         const cam = scene.steps[stepIdx].camera;
         const pos = dataCameraToWorld(cam.position || DEFAULT_CAMERA.position);
         const tgt = dataCameraToWorld(cam.target || DEFAULT_CAMERA.target);

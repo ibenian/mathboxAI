@@ -89,6 +89,12 @@
             0,
             1
           ]
+        },
+        {
+          "name": "Follow Spacecraft",
+          "description": "Tracks the spacecraft — useful for watching forces as altitude changes",
+          "follow": "vcirc_arrow",
+          "offset": [0, 3000, 5000]
         }
       ],
       "elements": [
@@ -173,16 +179,16 @@
           ]
         },
         {
-          "title": "Parameter 2: Launch Height h",
-          "description": "Set launch height $h$. In this model, the vehicle starts at a launch point on radius $r=R_p+h$ (post-ascent phase).",
+          "title": "Parameter 2: Orbit Altitude h",
+          "description": "Set orbit altitude $h$. The orbital radius is $r = R_p + h$. All speeds and forces in this scene are evaluated at this radius.",
           "sliders": [
             {
               "id": "h",
-              "label": "Launch height h (km)",
+              "label": "Orbit altitude h (km)",
               "min": 0,
               "max": 1200,
               "step": 5,
-              "default": 1
+              "default": 420
             }
           ],
           "add": [
@@ -257,7 +263,20 @@
         {
           "title": "Derived Targets: Orbital and Escape Speeds",
           "description": "With $R_p,h,G,M$ fixed, the green arrow gives circular speed and the red arrow gives escape speed at the same radius.",
+          "camera": {
+            "position": [0, 0, 18000],
+            "target": [0, 0, 0],
+            "up": [0, 1, 0]
+          },
           "add": [
+            {
+              "id": "spacecraft_pt",
+              "type": "animated_point",
+              "position": ["Rp+h", "0", "0"],
+              "color": "#ffee66",
+              "size": 14,
+              "label": "spacecraft"
+            },
             {
               "id": "orbit_ring",
               "type": "parametric_curve",
@@ -314,6 +333,46 @@
               "id": "speed_targets",
               "position": "top-left",
               "content": "$$v_{\\mathrm{circ}}=\\sqrt{\\mu/r}={{toFixed(sqrt((Gs*Mx*10000)/(Rp+h)),3)}}\\,\\text{km/s}\\\\ v_{\\mathrm{esc}}=\\sqrt{2\\mu/r}={{toFixed(sqrt(2*(Gs*Mx*10000)/(Rp+h)),3)}}\\,\\text{km/s}$$"
+            }
+          ]
+        },
+        {
+          "title": "Force Balance: Gravity = Centripetal",
+          "description": "The spacecraft is always **falling** toward the planet — but moving so fast sideways it keeps **missing**. At circular speed $v_{\\mathrm{circ}}=\\sqrt{\\mu/r}$, gravitational acceleration exactly equals the centripetal acceleration needed to curve the path into a circle: $g(r)=v^2/r$. Drag the altitude slider to see how both forces change together — the balance always holds.",
+          "camera": {
+            "position": [11000, 4000, 8000],
+            "target": [6500, 0, 0],
+            "up": [0, 0, 1]
+          },
+          "remove": [
+            { "id": "vesc_arrow" }
+          ],
+          "add": [
+            {
+              "id": "grav_arrow",
+              "type": "animated_vector",
+              "fromExpr": ["Rp+h", "0", "0"],
+              "expr": ["Rp+h - 210000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "color": "#ff4444",
+              "width": 2.5,
+              "label": "$g(r)$ gravity"
+            },
+            {
+              "id": "centripetal_label",
+              "type": "animated_vector",
+              "fromExpr": ["Rp+h", "0", "0"],
+              "expr": ["Rp+h - 210000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "color": "#44aaff",
+              "opacity": 0.4,
+              "width": 4,
+              "label": "$v^2/r$ centripetal"
+            }
+          ],
+          "info": [
+            {
+              "id": "force_balance",
+              "position": "top-left",
+              "content": "$g(r) = \\dfrac{\\mu}{r^2} = \\dfrac{v_{\\mathrm{circ}}^2}{r}$\n$= {{toFixed((Gs*Mx*10000)/((Rp+h)^2), 6)}}\\,\\text{km/s}^2 = {{toFixed(1000*(Gs*Mx*10000)/((Rp+h)^2), 4)}}\\,\\text{m/s}^2$"
             }
           ]
         }
@@ -889,7 +948,7 @@
               "min": 0,
               "max": 1200,
               "step": 5,
-              "default": 1
+              "default": 0
             },
             {
               "id": "h_target",
@@ -897,7 +956,7 @@
               "min": 50,
               "max": 2000,
               "step": 10,
-              "default": 300
+              "default": 420
             },
             {
               "id": "v0",
@@ -911,9 +970,9 @@
               "id": "athrust",
               "label": "Thrust accel $a_T$ (km/s$^2$)",
               "min": 0,
-              "max": 0.08,
+              "max": 0.2,
               "step": 0.001,
-              "default": 0.02
+              "default": 0.05
             },
             {
               "id": "tburn",
@@ -921,7 +980,7 @@
               "min": 0,
               "max": 800,
               "step": 5,
-              "default": 180
+              "default": 100
             },
             {
               "id": "phi",
@@ -929,7 +988,7 @@
               "min": 0,
               "max": 180,
               "step": 1,
-              "default": 8
+              "default": 45
             },
             {
               "id": "T",
