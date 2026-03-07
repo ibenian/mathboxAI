@@ -3434,9 +3434,11 @@ function loadScene(spec) {
     buildLegend(spec.elements);
 
     if (spec.camera) {
-        const up = (spec.cameraUp && Array.isArray(spec.cameraUp) && spec.cameraUp.length === 3)
-            ? spec.cameraUp
-            : [0, 1, 0];
+        const up = (spec.camera && Array.isArray(spec.camera.up) && spec.camera.up.length === 3)
+            ? spec.camera.up
+            : ((spec.cameraUp && Array.isArray(spec.cameraUp) && spec.cameraUp.length === 3)
+                ? spec.cameraUp
+                : [0, 1, 0]);
         camera.up.set(up[0], up[1], up[2]);
         const pos = dataCameraToWorld(spec.camera.position || DEFAULT_CAMERA.position);
         const tgt = dataCameraToWorld(spec.camera.target || DEFAULT_CAMERA.target);
