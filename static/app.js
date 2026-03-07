@@ -4190,14 +4190,37 @@ function _scanSpecForUnsafeJs(spec) {
     return walk(spec, null);
 }
 
-function _showTrustDialog(explanation) {
+function _showTrustDialog(explanation, imports) {
     return new Promise((resolve) => {
         const overlay = document.getElementById('trust-dialog-overlay');
         const body = document.getElementById('trust-dialog-body');
         const allowBtn = document.getElementById('trust-btn-allow');
         const denyBtn = document.getElementById('trust-btn-deny');
         if (!overlay) { resolve(false); return; }
-        body.textContent = explanation;
+
+        body.innerHTML = '';
+        const explanationEl = document.createElement('p');
+        explanationEl.textContent = explanation;
+        body.appendChild(explanationEl);
+
+        if (Array.isArray(imports) && imports.length > 0) {
+            const domainNote = document.createElement('div');
+            domainNote.className = 'trust-dialog-domains';
+            const label = document.createElement('span');
+            label.textContent = 'Built-in domain libraries loaded:';
+            domainNote.appendChild(label);
+            const pills = document.createElement('span');
+            pills.className = 'trust-dialog-domain-pills';
+            imports.forEach(name => {
+                const pill = document.createElement('span');
+                pill.className = 'trust-dialog-domain-pill';
+                pill.textContent = name;
+                pills.appendChild(pill);
+            });
+            domainNote.appendChild(pills);
+            body.appendChild(domainNote);
+        }
+
         overlay.classList.remove('hidden');
         function cleanup(result) {
             overlay.classList.add('hidden');
@@ -4249,7 +4272,8 @@ async function loadLesson(spec) {
         if (needsDialog) {
             const explanation = spec.unsafe_explanation ||
                 'This scene contains native JavaScript expressions that execute in your browser.\nAllow execution only if you trust the source of this file.';
-            const trusted = await _showTrustDialog(explanation);
+            const imports = Array.isArray(spec.import) ? spec.import : [];
+            const trusted = await _showTrustDialog(explanation, imports);
             _sceneJsTrustState = trusted ? 'trusted' : 'untrusted';
         }
     }
@@ -6666,10 +6690,104 @@ function setupSceneDescDrag() {
 }
 
 // ----- JSON Viewer -----
+
+function _computeSceneSummary(spec) {
+    if (!spec) return null;
+    const isLesson = Array.isArray(spec.scenes) && spec.scenes.length > 0;
+    const scenes = isLesson ? spec.scenes : [spec];
+
+    let totalSteps = 0, totalSliders = 0, totalAnimated = 0, totalStatic = 0,
+        totalFunctions = 0, totalExpressions = 0;
+
+    const ANIMATED_TYPES = new Set([
+        'animated_vector','animated_point','animated_line','animated_cylinder','animated_polygon'
+    ]);
+
+    function countExpressions(el) {
+        // Count individual expression strings on an element
+        let n = 0;
+        const exprFields = ['expr','fromExpr','toExpr','radiusExpr','x','y','z','fx','fy','fz'];
+        for (const f of exprFields) {
+            if (typeof el[f] === 'string') n++;
+            else if (Array.isArray(el[f])) n += el[f].filter(v => typeof v === 'string').length;
+        }
+        if (Array.isArray(el.points)) n += el.points.filter(v => typeof v === 'string').length;
+        if (Array.isArray(el.vertices)) n += el.vertices.filter(v => typeof v === 'string').length;
+        return n;
+    }
+
+    for (const scene of scenes) {
+        totalSteps += (scene.steps || []).length;
+
+        const allElements = [...(scene.elements || [])];
+        for (const step of (scene.steps || [])) {
+            allElements.push(...(step.add || []));
+            for (const sl of (step.sliders || [])) {
+                if (sl.id) totalSliders++;
+            }
+        }
+        for (const el of allElements) {
+            if (!el || !el.type) continue;
+            if (ANIMATED_TYPES.has(el.type)) {
+                totalAnimated++;
+                totalExpressions += countExpressions(el);
+            } else {
+                totalStatic++;
+            }
+        }
+        totalFunctions += Object.keys(scene.functions || {}).length;
+    }
+
+    const imports = Array.isArray(spec.import) ? spec.import.length : 0;
+
+    // Interactiveness score (0–100, asymptotic)
+    // raw = unbounded weighted sum; score = 100 × (1 − e^(−raw/80))
+    // k=80 means raw≈80 → score≈63, raw≈160 → score≈86, raw≈280 → score≈97
+    // True 100 is unreachable by design — score differentiates across the full range.
+    const raw =
+        totalSliders     * 10 +
+        totalAnimated    * 6  +
+        totalSteps       * 4  +
+        totalExpressions * 1  +
+        totalFunctions   * 6  +
+        imports          * 12;
+    const score = Math.floor(100 * (1 - Math.exp(-raw / 80)));
+
+    const scoreLabel =
+        score >= 80 ? 'Highly Interactive' :
+        score >= 60 ? 'Rich' :
+        score >= 40 ? 'Interactive' :
+        score >= 20 ? 'Basic' : 'Static';
+
+    const scoreColor =
+        score >= 80 ? '#7cfc7c' :
+        score >= 60 ? '#a0d4ff' :
+        score >= 40 ? '#ffd070' :
+        score >= 20 ? '#ff9966' : '#aaa';
+
+    return {
+        isLesson,
+        sceneCount: scenes.length,
+        description: spec.description || (isLesson ? '' : spec.title) || '',
+        totalSteps,
+        totalSliders,
+        totalAnimated,
+        totalStatic,
+        totalFunctions,
+        totalExpressions,
+        imports,
+        score,
+        scoreLabel,
+        scoreColor,
+    };
+}
+
 function setupJsonViewer() {
     const btn = document.getElementById('btn-show-json');
     const overlay = document.getElementById('json-viewer-overlay');
     const content = document.getElementById('json-viewer-content');
+    const importsBar = document.getElementById('json-viewer-imports');
+    const summaryBar = document.getElementById('json-viewer-summary');
     const closeBtn = document.getElementById('json-viewer-close');
     const copyBtn = document.getElementById('json-viewer-copy');
 
@@ -6678,13 +6796,57 @@ function setupJsonViewer() {
     btn.addEventListener('click', () => {
         let json;
         if (lessonSpec) {
-            // Show the full lesson spec — the complete in-memory JSON
             json = lessonSpec;
         } else if (typeof currentSpec !== 'undefined' && currentSpec) {
-            // Single-scene mode — show the scene spec
             json = currentSpec;
         }
         content.textContent = json ? JSON.stringify(json, null, 2) : '// No scene loaded';
+
+        // Imports section
+        const imports = json && Array.isArray(json.import) ? json.import : [];
+        if (imports.length > 0 && importsBar) {
+            importsBar.innerHTML = '<span class="imports-label">Imports</span>' +
+                imports.map(name =>
+                    `<a href="/api/domains/${encodeURIComponent(name)}" target="_blank" rel="noopener">${name} ↗</a>`
+                ).join('');
+            importsBar.classList.remove('hidden');
+        } else if (importsBar) {
+            importsBar.classList.add('hidden');
+        }
+
+        // Summary section
+        const s = _computeSceneSummary(json);
+        if (s && summaryBar) {
+            const stats = [];
+            if (s.isLesson) stats.push({ label: 'Scenes',      value: s.sceneCount,       tip: 'Number of scenes in this lesson' });
+            stats.push(      { label: 'Steps',       value: s.totalSteps,        tip: 'Total progressive reveal steps across all scenes' });
+            stats.push(      { label: 'Sliders',     value: s.totalSliders,      tip: 'Total interactive sliders defined across all steps' });
+            stats.push(      { label: 'Animated',    value: s.totalAnimated,     tip: 'Elements re-evaluated every frame — respond to sliders and animation time' });
+            stats.push(      { label: 'Static',      value: s.totalStatic,       tip: 'Elements built once at load — fixed geometry, zero per-frame cost' });
+            if (s.totalExpressions > 0) stats.push({ label: 'Expressions', value: s.totalExpressions, tip: 'Individual math expression strings driving animated elements' });
+            if (s.totalFunctions > 0)   stats.push({ label: 'Functions',   value: s.totalFunctions,   tip: 'Scene-level reusable expression helper functions (scene.functions)' });
+            if (s.imports > 0)          stats.push({ label: 'Domains',     value: s.imports,           tip: 'Built-in domain libraries imported (e.g. astrodynamics)' });
+
+            summaryBar.innerHTML =
+                `<span class="summary-score" title="Interactiveness Score (0–99)\n\nraw = Sliders × 10 + Animated × 6 + Steps × 4\n    + Expressions × 1 + Functions × 6 + Domains × 12\n\nscore = floor(100 × (1 − e^(−raw / 80)))\n\nApproaches 100 asymptotically — floor() ensures 100 is never displayed.\nraw ≈ 40 → score 39\nraw ≈ 80 → score 63\nraw ≈ 160 → score 86\nraw ≈ 280 → score 97" style="--score-color:${s.scoreColor}">` +
+                    `<span class="summary-score-value">${s.score}</span>` +
+                    `<span class="summary-score-label">${s.scoreLabel}</span>` +
+                `</span>` +
+                `<span class="summary-divider"></span>` +
+                stats.map(st =>
+                    `<span class="summary-stat" title="${st.tip}"><span class="summary-stat-value">${st.value}</span><span class="summary-stat-label">${st.label}</span></span>`
+                ).join('');
+            if (s.description) {
+                const desc = document.createElement('span');
+                desc.className = 'summary-description';
+                desc.textContent = s.description;
+                summaryBar.appendChild(desc);
+            }
+            summaryBar.classList.remove('hidden');
+        } else if (summaryBar) {
+            summaryBar.classList.add('hidden');
+        }
+
         overlay.classList.remove('hidden');
     });
 
