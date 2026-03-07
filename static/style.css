@@ -212,6 +212,11 @@ html, body {
     line-height: 1.2;
     white-space: nowrap;
 }
+.summary-score-agentic .summary-score-label::before {
+    content: '✦ ';
+    font-size: 0.75em;
+    opacity: 0.8;
+}
 .summary-divider {
     width: 1px;
     height: 32px;

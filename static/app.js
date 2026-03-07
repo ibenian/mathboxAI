@@ -6697,7 +6697,7 @@ function _computeSceneSummary(spec) {
     const scenes = isLesson ? spec.scenes : [spec];
 
     let totalSteps = 0, totalSliders = 0, totalAnimated = 0, totalStatic = 0,
-        totalFunctions = 0, totalExpressions = 0;
+        totalFunctions = 0, totalExpressions = 0, totalPrompts = 0;
 
     const ANIMATED_TYPES = new Set([
         'animated_vector','animated_point','animated_line','animated_cylinder','animated_polygon'
@@ -6717,6 +6717,7 @@ function _computeSceneSummary(spec) {
     }
 
     for (const scene of scenes) {
+        if (scene.prompt && scene.prompt.trim().length > 0) totalPrompts++;
         totalSteps += (scene.steps || []).length;
 
         const allElements = [...(scene.elements || [])];
@@ -6736,6 +6737,9 @@ function _computeSceneSummary(spec) {
             }
         }
         totalFunctions += Object.keys(scene.functions || {}).length;
+        for (const step of (scene.steps || [])) {
+            if (step.prompt && step.prompt.trim().length > 0) totalPrompts++;
+        }
     }
 
     const imports = Array.isArray(spec.import) ? spec.import.length : 0;
@@ -6775,11 +6779,88 @@ function _computeSceneSummary(spec) {
         totalStatic,
         totalFunctions,
         totalExpressions,
+        totalPrompts,
         imports,
         score,
         scoreLabel,
         scoreColor,
     };
+}
+
+function _computeAgenticScore(spec) {
+    if (!spec) return null;
+    const isLesson = Array.isArray(spec.scenes) && spec.scenes.length > 0;
+    const scenes = isLesson ? spec.scenes : [spec];
+
+    let raw = 0;
+
+    // Top-level description
+    if (spec.description && spec.description.trim().length > 0) raw += 4;
+
+    for (const scene of scenes) {
+        // Markdown explanation quality
+        if (scene.markdown && scene.markdown.trim().length > 0) {
+            raw += 12;                                              // has markdown
+            raw += Math.min(scene.markdown.length / 80, 20);       // length bonus (up to 20)
+        }
+
+        // Agent-specific prompt field
+        if (scene.prompt && scene.prompt.trim().length > 10) {
+            raw += 15;
+            raw += Math.min(scene.prompt.length / 120, 10);        // length bonus (up to 10)
+        }
+
+        // Scene description
+        if (scene.description && scene.description.trim().length > 0) raw += 3;
+
+        // Step captions and titles
+        for (const step of (scene.steps || [])) {
+            if (step.caption && step.caption.trim().length > 0) raw += 3;
+            if (step.title  && step.title.trim().length  > 0) raw += 1;
+        }
+
+        // Slider labels (descriptive label vs bare id)
+        for (const step of (scene.steps || [])) {
+            for (const sl of (step.sliders || [])) {
+                if (sl.label && sl.label.trim() !== (sl.id || '').trim()) raw += 2;
+            }
+        }
+
+        // Element ids and labels
+        const elements = [...(scene.elements || [])];
+        for (const step of (scene.steps || [])) elements.push(...(step.add || []));
+        for (const el of elements) {
+            if (!el) continue;
+            if (el.id)    raw += 1;
+            if (el.label) raw += 2;
+        }
+
+        // unsafe_explanation (explains why unsafe to user and agent)
+        if (scene.unsafe && scene.unsafe_explanation) raw += 4;
+    }
+
+    // Domain docs bonus — imported domains have machine-readable docs
+    const imports = Array.isArray(spec.import) ? spec.import : [];
+    raw += imports.length * 10;
+
+    // Top-level unsafe_explanation
+    if (spec.unsafe && spec.unsafe_explanation) raw += 4;
+
+    const score = Math.floor(100 * (1 - Math.exp(-raw / 80)));
+
+    const label =
+        score >= 80 ? 'Well Documented' :
+        score >= 60 ? 'Good' :
+        score >= 40 ? 'Moderate' :
+        score >= 20 ? 'Sparse' : 'Minimal';
+
+    const color =
+        score >= 80 ? '#ffd700' :
+        score >= 60 ? '#a0d4ff' :
+        score >= 40 ? '#ffaa55' :
+        score >= 20 ? '#ff9966' : '#aaa';
+
+    return { score, label, color };
 }
 
 function setupJsonViewer() {
@@ -6816,6 +6897,7 @@ function setupJsonViewer() {
 
         // Summary section
         const s = _computeSceneSummary(json);
+        const ag = _computeAgenticScore(json);
         if (s && summaryBar) {
             const stats = [];
             if (s.isLesson) stats.push({ label: 'Scenes',      value: s.sceneCount,       tip: 'Number of scenes in this lesson' });
@@ -6825,13 +6907,22 @@ function setupJsonViewer() {
             stats.push(      { label: 'Static',      value: s.totalStatic,       tip: 'Elements built once at load — fixed geometry, zero per-frame cost' });
             if (s.totalExpressions > 0) stats.push({ label: 'Expressions', value: s.totalExpressions, tip: 'Individual math expression strings driving animated elements' });
             if (s.totalFunctions > 0)   stats.push({ label: 'Functions',   value: s.totalFunctions,   tip: 'Scene-level reusable expression helper functions (scene.functions)' });
+            if (s.totalPrompts > 0)     stats.push({ label: 'Prompts',     value: s.totalPrompts,     tip: 'Scenes/steps with a prompt field — agent-specific teaching instructions injected into the AI system prompt' });
             if (s.imports > 0)          stats.push({ label: 'Domains',     value: s.imports,           tip: 'Built-in domain libraries imported (e.g. astrodynamics)' });
 
+            const interactTip = 'Interactiveness Score (0–99)\n\nraw = Sliders × 10 + Animated × 6 + Steps × 4\n    + Expressions × 1 + Functions × 6 + Domains × 12\n\nscore = floor(100 × (1 − e^(−raw / 80)))\n\nApproaches 100 asymptotically — floor() ensures 100 is never displayed.\nraw ≈ 40 → score 39\nraw ≈ 80 → score 63\nraw ≈ 160 → score 86\nraw ≈ 280 → score 97';
+
+            const agenticTip = 'Agentic Score (0–99) — how AI-agent-friendly this scene is\n\nMarkdown presence + length (up to 32)\nPrompt field per scene (up to 25 each)\nStep captions + titles (3 + 1 each)\nSlider labels — descriptive vs bare id (2 each)\nElement ids + labels (1 + 2 each)\nScene/lesson description (3–4)\nDomain imports with docs (10 each)\n\nscore = floor(100 × (1 − e^(−raw / 80)))';
+
             summaryBar.innerHTML =
-                `<span class="summary-score" title="Interactiveness Score (0–99)\n\nraw = Sliders × 10 + Animated × 6 + Steps × 4\n    + Expressions × 1 + Functions × 6 + Domains × 12\n\nscore = floor(100 × (1 − e^(−raw / 80)))\n\nApproaches 100 asymptotically — floor() ensures 100 is never displayed.\nraw ≈ 40 → score 39\nraw ≈ 80 → score 63\nraw ≈ 160 → score 86\nraw ≈ 280 → score 97" style="--score-color:${s.scoreColor}">` +
+                `<span class="summary-score" title="${interactTip}" style="--score-color:${s.scoreColor}">` +
                     `<span class="summary-score-value">${s.score}</span>` +
                     `<span class="summary-score-label">${s.scoreLabel}</span>` +
                 `</span>` +
+                (ag ? `<span class="summary-score summary-score-agentic" title="${agenticTip}" style="--score-color:${ag.color}">` +
+                    `<span class="summary-score-value">${ag.score}</span>` +
+                    `<span class="summary-score-label">${ag.label}</span>` +
+                `</span>` : '') +
                 `<span class="summary-divider"></span>` +
                 stats.map(st =>
                     `<span class="summary-stat" title="${st.tip}"><span class="summary-stat-value">${st.value}</span><span class="summary-stat-label">${st.label}</span></span>`
