@@ -1,5 +1,13 @@
 # Contributing to MathBoxAI
 
+## Vision
+
+My ultimate goal is to create an agentic system that can genuinely engage in the tangible learning process — fostering that explorative, experimental mindset, willing and courageous enough to ask daring questions freely, supported by an infinitely patient tutor that can meet you exactly where you are and take you wherever you want to go.
+
+Every contribution brings that vision closer to reality.
+
+---
+
 ## Project Stage
 
 MathBoxAI is in early and active development. The codebase is evolving quickly — APIs, scene format fields, and rendering behavior can change between commits. Keep this in mind if you are building on top of it.
@@ -8,7 +16,7 @@ MathBoxAI is in early and active development. The codebase is evolving quickly �
 
 **The scene library is the heart of the project.** The most valuable thing you can contribute right now is a new lesson scene.
 
-The best contributions come from people who are already working on a real math problem or teaching a real concept — not from someone looking for something to contribute. If you are using MathBoxAI to explore a topic (orbital mechanics, Fourier analysis, linear algebra, differential equations, machine learning, whatever it may be) and find yourself wanting something the tool does not yet support, that is the right moment to engage:
+My belief, at this stage of the project, is that the best contributions come from people who are already working on a real math problem or teaching a real concept — not from someone looking for something to contribute. If you are using MathBoxAI to explore a topic (orbital mechanics, Fourier analysis, linear algebra, differential equations, machine learning, whatever it may be) and find yourself wanting something the tool does not yet support, that is the right moment to engage:
 
 - **Feature request** — open an issue describing your use case and what you were trying to visualize. The context of a real problem makes the request concrete and actionable.
 - **Pull request** — if you built something that works and want to share it, submit it. A scene contributed from genuine use is almost always better than one written speculatively.
