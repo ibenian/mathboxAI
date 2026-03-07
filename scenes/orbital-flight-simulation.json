@@ -1838,7 +1838,7 @@
               ],
               "samples": 260,
               "color": "#90ee90",
-              "width": 0.5,
+              "width": 0.33,
               "opacity": 0.6,
               "label": "launch-height ring"
             },
@@ -1854,7 +1854,7 @@
               ],
               "samples": 260,
               "color": "#ff7f7f",
-              "width": 0.5,
+              "width": 0.33,
               "opacity": 0.6,
               "label": "target-height ring"
             },
