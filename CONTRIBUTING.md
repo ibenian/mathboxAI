@@ -1,11 +1,38 @@
 # Contributing to MathBoxAI
 
+## Project Stage
+
+MathBoxAI is in early and active development. The codebase is evolving quickly — APIs, scene format fields, and rendering behavior can change between commits. Keep this in mind if you are building on top of it.
+
+## Where Help Is Most Needed
+
+**The scene library is the heart of the project.** The most valuable thing you can contribute right now is a new lesson scene.
+
+The best contributions come from people who are already working on a real math problem or teaching a real concept — not from someone looking for something to contribute. If you are using MathBoxAI to explore a topic (orbital mechanics, Fourier analysis, linear algebra, differential equations, machine learning, whatever it may be) and find yourself wanting something the tool does not yet support, that is the right moment to engage:
+
+- **Feature request** — open an issue describing your use case and what you were trying to visualize. The context of a real problem makes the request concrete and actionable.
+- **Pull request** — if you built something that works and want to share it, submit it. A scene contributed from genuine use is almost always better than one written speculatively.
+
+This context-driven model keeps collaboration grounded. A contributor who says "I am teaching a course on rotating reference frames and built this scene" is far easier to collaborate with than an abstract feature request in isolation.
+
 **Most contributions don't require touching any Python or JavaScript.**
 The two most impactful things you can contribute are new scenes and new voice characters.
 
 ## Adding a Scene
 
 Scenes are plain JSON files in `scenes/`. Each one is a self-contained interactive lesson.
+
+### How to Build a Scene
+
+The recommended workflow for building a full-featured scene is to work collaboratively with a coding agent using the **`mathboxai-scene-builder`** skill for Claude Code. This skill gives the agent full knowledge of the scene format, element types, expression sandbox, slider system, animation model, and best practices — so you can describe what you want to visualize and iterate on the JSON together through conversation.
+
+Start by describing your math topic and what you want to show. The agent will propose a scene structure, you review it, and you refine it together — adjusting element placement, step flow, slider ranges, labels, and the markdown explanation until it matches your intent. This back-and-forth is how the existing built-in scenes were built.
+
+**Why not build scenes inside MathBoxAI directly?**
+
+The long-term goal is to build scenes entirely within MathBoxAI through the embedded AI chat. The AI agent can already create scenes, set sliders, and adjust the camera in real time. However, at this stage the agentic capabilities are not yet sophisticated enough to produce the level of quality and depth needed for full-featured scenes — multi-step progressive reveals, well-tuned physics simulations, clean markdown explanations, and carefully designed slider interactions. Building that quality interactively requires a tighter iteration loop and better context than the in-app agent currently supports.
+
+Until that gap closes, a coding agent with the `mathboxai-scene-builder` skill is the most productive path to a polished scene.
 
 **Minimal scene:**
 

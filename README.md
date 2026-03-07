@@ -48,6 +48,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add scenes, voice characters, 
 
 See [docs/feature-ideas.md](docs/feature-ideas.md) for a collection of technical directions and creative ideas under consideration.
 
+## Documentation
+
+- [docs/architecture.md](docs/architecture.md) — System architecture, component overview, data flow
+- [docs/sandbox-model.md](docs/sandbox-model.md) — Expression evaluation, trust model, security boundary
+- [docs/sandboxing-plan.md](docs/sandboxing-plan.md) — Implementation status and backend sandboxing roadmap
+- [docs/feature-ideas.md](docs/feature-ideas.md) — Roadmap ideas and creative directions
+
 ---
 
 ## Project Structure

@@ -1,6 +1,6 @@
 # Sandboxing Improvement Plan
 
-> **Frontend sandboxing is complete.** See [SANDBOX_MODEL.md](../SANDBOX_MODEL.md) for the
+> **Frontend sandboxing is complete.** See [sandbox-model.md](sandbox-model.md) for the
 > full implementation reference.
 
 ---

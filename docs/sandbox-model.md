@@ -1,6 +1,6 @@
 # MathBoxAI Expression Sandbox Model
 
-> See also: [docs/sandboxing-plan.md](docs/sandboxing-plan.md) — implementation status and
+> See also: [sandboxing-plan.md](sandboxing-plan.md) — implementation status and
 > backend sandboxing roadmap.
 
 ## ⚠ Security Disclaimer
