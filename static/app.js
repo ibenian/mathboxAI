@@ -1348,6 +1348,45 @@ function normalizeUpVector(up) {
     return v.normalize();
 }
 
+function resolveEffectiveStepCamera(scene, stepIdx) {
+    if (!scene) return null;
+
+    const baseUp = (scene.camera && Array.isArray(scene.camera.up) && scene.camera.up.length === 3)
+        ? scene.camera.up.slice(0, 3)
+        : (Array.isArray(scene.cameraUp) && scene.cameraUp.length === 3)
+            ? scene.cameraUp.slice(0, 3)
+            : [0, 1, 0];
+    const effective = {
+        position: (scene.camera && Array.isArray(scene.camera.position) && scene.camera.position.length === 3)
+            ? scene.camera.position.slice(0, 3)
+            : DEFAULT_CAMERA.position.slice(0, 3),
+        target: (scene.camera && Array.isArray(scene.camera.target) && scene.camera.target.length === 3)
+            ? scene.camera.target.slice(0, 3)
+            : DEFAULT_CAMERA.target.slice(0, 3),
+        up: baseUp,
+    };
+
+    if (stepIdx >= 0 && Array.isArray(scene.steps)) {
+        const last = Math.min(stepIdx, scene.steps.length - 1);
+        for (let i = 0; i <= last; i++) {
+            const step = scene.steps[i];
+            const cam = step && step.camera;
+            if (!cam) continue;
+            if (Array.isArray(cam.position) && cam.position.length === 3) {
+                effective.position = cam.position.slice(0, 3);
+            }
+            if (Array.isArray(cam.target) && cam.target.length === 3) {
+                effective.target = cam.target.slice(0, 3);
+            }
+            if (Array.isArray(cam.up) && cam.up.length === 3) {
+                effective.up = cam.up.slice(0, 3);
+            }
+        }
+    }
+
+    return effective;
+}
+
 function animateCamera(view, duration) {
     duration = (duration == null) ? 800 : duration;
     deactivateFollowCam();
@@ -4099,14 +4138,9 @@ function buildCameraButtons(spec) {
         const activeScene = (lessonSpec && currentSceneIndex >= 0 && lessonSpec.scenes)
             ? lessonSpec.scenes[currentSceneIndex]
             : currentSpec;
-        const activeStepCam = (
-            activeScene &&
-            currentStepIndex >= 0 &&
-            Array.isArray(activeScene.steps) &&
-            activeScene.steps[currentStepIndex] &&
-            activeScene.steps[currentStepIndex].camera
-        ) ? activeScene.steps[currentStepIndex].camera : null;
-        const camSpec = activeStepCam || (currentSpec && currentSpec.camera) || null;
+        const camSpec = resolveEffectiveStepCamera(activeScene, currentStepIndex)
+            || (currentSpec && currentSpec.camera)
+            || null;
         const pos = dataCameraToWorld((camSpec && camSpec.position) || DEFAULT_CAMERA.position);
         const tgt = dataCameraToWorld((camSpec && camSpec.target) || DEFAULT_CAMERA.target);
         CAMERA_VIEWS.reset = {
@@ -6084,10 +6118,11 @@ function navigateTo(sceneIdx, stepIdx) {
         buildLegend(getAllElements(scene, stepIdx));
     }
 
-    // Animate camera if the target step has a camera override — but only if no follow cam
-    // is currently active (follow cam is a user-chosen view mode; step overrides shouldn't kill it).
-    if (!followCamState && stepIdx >= 0 && scene.steps && scene.steps[stepIdx] && scene.steps[stepIdx].camera) {
-        const cam = scene.steps[stepIdx].camera;
+    // Animate camera using effective step camera (inherit nearest previous step camera
+    // when this step has no explicit camera) — but only if no follow cam is active.
+    if (!followCamState && stepIdx >= 0 && scene.steps) {
+        const cam = resolveEffectiveStepCamera(scene, stepIdx);
+        if (cam) {
         const pos = dataCameraToWorld(cam.position || DEFAULT_CAMERA.position);
         const tgt = dataCameraToWorld(cam.target || DEFAULT_CAMERA.target);
         CAMERA_VIEWS['_step'] = {
@@ -6096,6 +6131,7 @@ function navigateTo(sceneIdx, stepIdx) {
             up: Array.isArray(cam.up) ? cam.up.slice(0, 3) : [0, 1, 0],
         };
         animateCamera('_step', 600);
+        }
     }
 
     currentSceneIndex = sceneIdx;
