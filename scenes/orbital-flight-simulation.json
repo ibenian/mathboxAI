@@ -164,8 +164,8 @@
                 0
               ],
               "radiusExpr": "Rp",
-              "widthSegments": 36,
-              "heightSegments": 20,
+              "widthSegments": 96,
+              "heightSegments": 64,
               "color": "#3a6fa8",
               "opacity": 0.85,
               "shader": {
@@ -567,8 +567,8 @@
             0
           ],
           "radiusExpr": "Rp",
-          "widthSegments": 36,
-          "heightSegments": 20,
+          "widthSegments": 96,
+          "heightSegments": 64,
           "color": "#325f95",
           "opacity": 0.88,
           "shader": {
@@ -1238,8 +1238,8 @@
             0
           ],
           "radiusExpr": "Rp",
-          "widthSegments": 36,
-          "heightSegments": 20,
+          "widthSegments": 96,
+          "heightSegments": 64,
           "color": "#325f95",
           "opacity": 0.88,
           "shader": {
@@ -1666,8 +1666,8 @@
             0
           ],
           "radiusExpr": "Rp",
-          "widthSegments": 36,
-          "heightSegments": 20,
+          "widthSegments": 96,
+          "heightSegments": 64,
           "color": "#325f95",
           "opacity": 0.88,
           "shader": {
