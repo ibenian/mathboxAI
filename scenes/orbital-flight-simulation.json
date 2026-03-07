@@ -269,6 +269,10 @@
             "target": [0, 0, 0],
             "up": [0, 1, 0]
           },
+          "remove": [
+            { "id": "launch_radius" },
+            { "id": "launch_marker" }
+          ],
           "add": [
             {
               "id": "spacecraft_pt",
@@ -290,7 +294,7 @@
               ],
               "samples": 260,
               "color": "#87f5a3",
-              "width": 3,
+              "width": 0.33,
               "opacity": 0.6,
               "label": "circular orbit at h"
             },
@@ -304,10 +308,16 @@
               ],
               "expr": [
                 "Rp+h",
-                "230*sqrt((Gs*Mx*10000)/(Rp+h))",
+                "115*sqrt((Gs*Mx*10000)/(Rp+h))",
                 "0"
               ],
+              "labelOffset": [
+                260,
+                -120,
+                120
+              ],
               "color": "#8cff66",
+              "opacity": 0.8,
               "width": 4,
               "label": "$v_{circ}$"
             },
@@ -315,16 +325,22 @@
               "id": "vesc_arrow",
               "type": "animated_vector",
               "fromExpr": [
-                "Rp+h",
+                "Rp+h+220",
                 "0",
                 "0"
               ],
               "expr": [
-                "Rp+h",
-                "230*sqrt(2*(Gs*Mx*10000)/(Rp+h))",
+                "Rp+h+220",
+                "115*sqrt(2*(Gs*Mx*10000)/(Rp+h))",
                 "0"
               ],
+              "labelOffset": [
+                260,
+                120,
+                120
+              ],
               "color": "#ff6b6b",
+              "opacity": 0.8,
               "width": 4,
               "label": "$v_{esc}$"
             }
@@ -338,35 +354,48 @@
           ]
         },
         {
-          "title": "Force Balance: Gravity = Centripetal",
-          "description": "The spacecraft is always **falling** toward the planet — but moving so fast sideways it keeps **missing**. At circular speed $v_{\\mathrm{circ}}=\\sqrt{\\mu/r}$, gravitational acceleration exactly equals the centripetal acceleration needed to curve the path into a circle: $g(r)=v^2/r$. Drag the altitude slider to see how both forces change together — the balance always holds.",
+          "title": "Force Balance: Gravity vs Centrifugal",
+          "description": "In the rotating-frame view, inward gravity and outward centrifugal balance at circular speed. Drag altitude to see both vectors shrink together with radius.",
           "camera": {
             "position": [11000, 4000, 8000],
             "target": [6500, 0, 0],
             "up": [0, 0, 1]
           },
           "remove": [
-            { "id": "vesc_arrow" }
+            { "id": "vesc_arrow" },
+            { "id": "launch_radius" },
+            { "id": "launch_marker" }
           ],
           "add": [
             {
               "id": "grav_arrow",
               "type": "animated_vector",
               "fromExpr": ["Rp+h", "0", "0"],
-              "expr": ["Rp+h - 210000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "expr": ["Rp+h - 30000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "labelOffset": [
+                140,
+                90,
+                60
+              ],
               "color": "#ff4444",
+              "opacity": 0.8,
               "width": 2.5,
               "label": "$g(r)$ gravity"
             },
             {
-              "id": "centripetal_label",
+              "id": "centrifugal_label",
               "type": "animated_vector",
               "fromExpr": ["Rp+h", "0", "0"],
-              "expr": ["Rp+h - 210000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "expr": ["Rp+h + 30000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "labelOffset": [
+                -180,
+                -90,
+                -60
+              ],
               "color": "#44aaff",
-              "opacity": 0.4,
-              "width": 4,
-              "label": "$v^2/r$ centripetal"
+              "opacity": 0.8,
+              "width": 3,
+              "label": "$v^2/r$ centrifugal (rotating frame)"
             }
           ],
           "info": [

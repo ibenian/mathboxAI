@@ -1421,6 +1421,8 @@ function renderAxis(el, view) {
     const range = el.range || [-5, 5];
     const color = parseColor(el.color || (axis === 'x' ? '#ff4444' : axis === 'y' ? '#44ff44' : '#4488ff'));
     const width = el.width || 2;
+    const opacity = (el.opacity !== undefined) ? Number(el.opacity) : 1;
+    const baseOpacity = Math.max(0, Math.min(1, Number.isFinite(opacity) ? opacity : 1));
     const label = el.label || axis;
     const showTicks = el.showTicks !== false;
     const span = Math.abs((range[1] || 0) - (range[0] || 0));
@@ -1442,13 +1444,14 @@ function renderAxis(el, view) {
     const axisEntry = {
         node: null,
         baseWidth: width,
+        baseOpacity,
         widthParam: 'axisWidth',
         anchorDataPos: axisMid,
     };
     const axisW = resolveLineWidth(axisEntry);
     const axisLine = view
         .array({ channels: 3, width: 2, data: [start, end] })
-        .line({ color: new THREE.Color(...color), width: axisW });
+        .line({ color: new THREE.Color(...color), width: axisW, opacity: baseOpacity * (displayParams.axisOpacity || 1) });
     axisEntry.node = axisLine;
     axisLineNodes.push(axisEntry);
 
@@ -1507,7 +1510,7 @@ function renderGrid(el, view) {
 }
 
 // Helper: create arrow (cylinder shaft + cone arrowhead) in world space
-function makeArrowMesh(from, to, color, sizeScale, shaftBaseScale) {
+function makeArrowMesh(from, to, color, sizeScale, shaftBaseScale, baseOpacity = 1) {
     sizeScale = resolveArrowSizeScale(sizeScale);
     shaftBaseScale = shaftBaseScale || 1;
 
@@ -1533,7 +1536,13 @@ function makeArrowMesh(from, to, color, sizeScale, shaftBaseScale) {
 
     // Cylinder shaft: fromWorld → cone base
     const shaftGeom = new THREE.CylinderGeometry(shaftRadius, shaftRadius, shaftLen, 16);
-    const shaftMat = new THREE.MeshPhongMaterial({ color: new THREE.Color(...color), shininess: 60 });
+    const shaftOpacity = Math.max(0, Math.min(1, Number.isFinite(baseOpacity) ? baseOpacity : 1));
+    const shaftMat = new THREE.MeshPhongMaterial({
+        color: new THREE.Color(...color),
+        shininess: 60,
+        transparent: shaftOpacity < 0.999,
+        opacity: shaftOpacity,
+    });
     const shaft = new THREE.Mesh(shaftGeom, shaftMat);
     shaft.position.set(
         fromWorld[0] + dir.x * shaftLen / 2,
@@ -1557,11 +1566,18 @@ function makeArrowMesh(from, to, color, sizeScale, shaftBaseScale) {
         dynamic: false,
     };
     shaft.userData.arrowPair = arrowPair;
+    shaft.userData.baseOpacity = shaftOpacity;
     arrowMeshes.push({ mesh: shaft, tipWorld: new THREE.Vector3(fromWorld[0] + dir.x*shaftLen, fromWorld[1] + dir.y*shaftLen, fromWorld[2] + dir.z*shaftLen), dir: dir.clone(), wLen: shaftLen, isShaft: true });
 
     // Cone arrowhead: tip exactly at tipWorld
     const coneGeom = new THREE.ConeGeometry(wHeadRadius, wHeadLen, 16);
-    const coneMat = new THREE.MeshPhongMaterial({ color: new THREE.Color(...color), shininess: 60 });
+    const coneOpacity = Math.max(0, Math.min(1, Number.isFinite(baseOpacity) ? baseOpacity : 1));
+    const coneMat = new THREE.MeshPhongMaterial({
+        color: new THREE.Color(...color),
+        shininess: 60,
+        transparent: coneOpacity < 0.999,
+        opacity: coneOpacity,
+    });
     const cone = new THREE.Mesh(coneGeom, coneMat);
     cone.position.set(
         tipWorld[0] - dir.x * wHeadLen / 2,
@@ -1570,6 +1586,7 @@ function makeArrowMesh(from, to, color, sizeScale, shaftBaseScale) {
     );
     cone.setRotationFromQuaternion(quat);
     cone.userData.arrowPair = arrowPair;
+    cone.userData.baseOpacity = coneOpacity;
     arrowPair.shaft = shaft;
     arrowPair.cone = cone;
     three.scene.add(cone);
@@ -1581,10 +1598,13 @@ function renderVector(el, view) {
     const to = el.to || [1, 0, 0];
     const color = parseColor(el.color || '#ff6644');
     const label = el.label;
+    const elementOpacity = (typeof el.opacity === 'number' && isFinite(el.opacity))
+        ? Math.max(0, Math.min(1, el.opacity))
+        : 1;
     const shaftBaseScale = 1; // ignore per-element width for vectors; use global settings only
 
     // Cylinder shaft + cone arrowhead (both in world space)
-    makeArrowMesh(from, to, color, displayParams.arrowScale, shaftBaseScale);
+    makeArrowMesh(from, to, color, displayParams.arrowScale, shaftBaseScale, elementOpacity);
 
     // Label
     if (label) {
@@ -1611,13 +1631,16 @@ function renderVectors(el, view) {
     const froms = el.froms || tos.map(() => [0, 0, 0]);
     const color = parseColor(el.color || '#ff8800');
     const shaftBaseScale = 1; // ignore per-element width for vectors; use global settings only
+    const elementOpacity = (typeof el.opacity === 'number' && isFinite(el.opacity))
+        ? Math.max(0, Math.min(1, el.opacity))
+        : 1;
 
     for (let i = 0; i < tos.length; i++) {
         const from = froms[i] || [0, 0, 0];
         const to   = tos[i];
         if (!to) continue;
 
-        makeArrowMesh(from, to, color, displayParams.arrowScale, shaftBaseScale);
+        makeArrowMesh(from, to, color, displayParams.arrowScale, shaftBaseScale, elementOpacity);
     }
 
     return { type: 'vectors', color };
@@ -1650,19 +1673,22 @@ function renderLine(el, view) {
         || [[0,0,0],[1,1,1]];
     const color = parseColor(el.color || '#88aaff');
     const width = el.width || 3;
+    const opacity = (el.opacity !== undefined) ? Number(el.opacity) : 1;
+    const baseOpacity = Math.max(0, Math.min(1, Number.isFinite(opacity) ? opacity : 1));
     const label = el.label;
 
     const mid = points[Math.floor(points.length / 2)] || [0, 0, 0];
     const lineEntry = {
         node: null,
         baseWidth: width,
+        baseOpacity,
         widthParam: 'lineWidth',
         anchorDataPos: mid,
     };
     const lineW = resolveLineWidth(lineEntry);
     const lineNode = view
         .array({ channels: 3, width: points.length, data: points })
-        .line({ color: new THREE.Color(...color), width: lineW, zBias: 1 });
+        .line({ color: new THREE.Color(...color), width: lineW, zBias: 1, opacity: baseOpacity * (displayParams.lineOpacity || 1) });
     lineEntry.node = lineNode;
     lineNodes.push(lineEntry);
 
@@ -1728,6 +1754,8 @@ function renderParametricCurve(el, view) {
     const width = el.width || 3;
     const range = el.range || [0, 2 * Math.PI];
     const samples = el.samples || 128;
+    const opacity = (el.opacity !== undefined) ? Number(el.opacity) : 1;
+    const baseOpacity = Math.max(0, Math.min(1, Number.isFinite(opacity) ? opacity : 1));
     const label = el.label;
     const labelOffset = (Array.isArray(el.labelOffset) && el.labelOffset.length === 3)
         ? [Number(el.labelOffset[0]) || 0, Number(el.labelOffset[1]) || 0, Number(el.labelOffset[2]) || 0]
@@ -1763,13 +1791,14 @@ function renderParametricCurve(el, view) {
     const curveEntry = {
         node: null,
         baseWidth: width,
+        baseOpacity,
         widthParam: 'lineWidth',
         anchorDataPos: curveMid,
     };
     const lineW = resolveLineWidth(curveEntry);
     const curveData = view
         .array({ channels: 3, width: points.length, data: points, live: true });
-    const curveNode = curveData.line({ color: new THREE.Color(...color), width: lineW });
+    const curveNode = curveData.line({ color: new THREE.Color(...color), width: lineW, opacity: baseOpacity * (displayParams.lineOpacity || 1) });
     curveEntry.node = curveNode;
     lineNodes.push(curveEntry);
 
@@ -2213,6 +2242,12 @@ function renderText(el, view) {
 function renderAnimatedVector(el, view) {
     const color = parseColor(el.color || '#ff8844');
     const label = el.label;
+    const elementOpacity = (typeof el.opacity === 'number' && isFinite(el.opacity))
+        ? Math.max(0, Math.min(1, el.opacity))
+        : 1;
+    const labelOffset = (Array.isArray(el.labelOffset) && el.labelOffset.length === 3)
+        ? [Number(el.labelOffset[0]) || 0, Number(el.labelOffset[1]) || 0, Number(el.labelOffset[2]) || 0]
+        : [0, 0.3, 0];
     const keyframes = el.keyframes || [];
     const duration = el.duration || 2000;
     const loop = el.loop !== false;
@@ -2311,8 +2346,14 @@ function renderAnimatedVector(el, view) {
         // Unit geometry for dynamic vectors:
         // We transform via scale every frame from current params, never by mutating geometry.
         const geom = new THREE.ConeGeometry(1, 1, 16);
-        const mat = new THREE.MeshPhongMaterial({ color: new THREE.Color(...color), shininess: 60 });
+        const mat = new THREE.MeshPhongMaterial({
+            color: new THREE.Color(...color),
+            shininess: 60,
+            transparent: elementOpacity < 0.999,
+            opacity: elementOpacity,
+        });
         const cone = new THREE.Mesh(geom, mat);
+        cone.userData.baseOpacity = elementOpacity;
         cone.userData.dynamicVector = true;
         cone.scale.set(wHeadRadius, wHeadLen, wHeadRadius);
 
@@ -2337,8 +2378,14 @@ function renderAnimatedVector(el, view) {
         // Unit geometry for dynamic vectors:
         // This avoids geometry rebuild races and stale length/scale carry-over.
         const geom = new THREE.CylinderGeometry(1, 1, 1, 16);
-        const mat = new THREE.MeshPhongMaterial({ color: new THREE.Color(...color), shininess: 60 });
+        const mat = new THREE.MeshPhongMaterial({
+            color: new THREE.Color(...color),
+            shininess: 60,
+            transparent: elementOpacity < 0.999,
+            opacity: elementOpacity,
+        });
         const shaft = new THREE.Mesh(geom, mat);
+        shaft.userData.baseOpacity = elementOpacity;
         shaft.userData.dynamicVector = true;
 
         shaft.position.set(
@@ -2428,9 +2475,12 @@ function renderAnimatedVector(el, view) {
     const trailMaxLen = (trailOpts && trailOpts.length) || 200;
     if (trailOpts) {
         const trailColor = parseColor(trailOpts.color || el.color || '#ff8844');
+        const trailOpacityRaw = (trailOpts && trailOpts.opacity !== undefined) ? Number(trailOpts.opacity) : 1;
+        const trailBaseOpacity = Math.max(0, Math.min(1, Number.isFinite(trailOpacityRaw) ? trailOpacityRaw : 1));
         const trailEntry = {
             node: null,
             baseWidth: trailOpts.width || 1,
+            baseOpacity: trailBaseOpacity,
             widthParam: 'lineWidth',
             anchorDataPosFn: () => currentTo,
         };
@@ -2439,7 +2489,12 @@ function renderAnimatedVector(el, view) {
         trailBuffer = [initTo.slice(), initTo.slice()];
         trailData = view
             .array({ channels: 3, width: 2, data: trailBuffer, live: true });
-        trailLine = trailData.line({ color: new THREE.Color(...trailColor), width: trailWidth, zBias: 1 });
+        trailLine = trailData.line({
+            color: new THREE.Color(...trailColor),
+            width: trailWidth,
+            zBias: 1,
+            opacity: trailBaseOpacity * (displayParams.lineOpacity || 1),
+        });
         trailEntry.node = trailLine;
         lineNodes.push(trailEntry);
     }
@@ -2448,9 +2503,9 @@ function renderAnimatedVector(el, view) {
     let labelEl = null;
     if (label) {
         const labelPos = el.labelPosition || [
-            (initFrom[0] + initTo[0]) / 2,
-            (initFrom[1] + initTo[1]) / 2 + 0.3,
-            (initFrom[2] + initTo[2]) / 2
+            (initFrom[0] + initTo[0]) / 2 + labelOffset[0],
+            (initFrom[1] + initTo[1]) / 2 + labelOffset[1],
+            (initFrom[2] + initTo[2]) / 2 + labelOffset[2]
         ];
         labelEl = addLabel3D(label, labelPos, color);
     }
@@ -2580,9 +2635,9 @@ function renderAnimatedVector(el, view) {
 
             // Update label position to follow the vector
             if (labelEl) {
-                labelEl.dataPos[0] = (cf[0] + ct[0]) / 2;
-                labelEl.dataPos[1] = (cf[1] + ct[1]) / 2 + 0.3;
-                labelEl.dataPos[2] = (cf[2] + ct[2]) / 2;
+                labelEl.dataPos[0] = (cf[0] + ct[0]) / 2 + labelOffset[0];
+                labelEl.dataPos[1] = (cf[1] + ct[1]) / 2 + labelOffset[1];
+                labelEl.dataPos[2] = (cf[2] + ct[2]) / 2 + labelOffset[2];
                 labelEl.forceHidden = false;
                 if (labelShowAltitude) {
                     const rr = Math.sqrt(cf[0] * cf[0] + cf[1] * cf[1] + cf[2] * cf[2]);
@@ -2678,6 +2733,7 @@ function renderPolygon(el, view) {
     }
     const mat = new matType(matOpts);
     const mesh = new THREE.Mesh(geom, mat);
+    mesh.userData.targetOpacity = opacity;
     mesh.userData.baseHalf = baseHalf;
     mesh.userData.wVerts = wVerts;
     mesh.userData.normal = normal.clone();
@@ -2701,6 +2757,8 @@ function renderPolygon(el, view) {
 function renderAnimatedLine(el, view) {
     const color = parseColor(el.color || '#88aaff');
     const width = (el.width || 3) * getAbstractWidthScale(el);
+    const opacity = (el.opacity !== undefined) ? Number(el.opacity) : 1;
+    const baseOpacity = Math.max(0, Math.min(1, Number.isFinite(opacity) ? opacity : 1));
     const label = el.label;
     const pointExprs = el.points; // array of [exprX, exprY, exprZ] per point
 
@@ -2725,13 +2783,14 @@ function renderAnimatedLine(el, view) {
     const lineEntry = {
         node: null,
         baseWidth: width,
+        baseOpacity,
         widthParam: 'lineWidth',
         anchorDataPosFn: () => (currentPoints[Math.floor(currentPoints.length / 2)] || [0, 0, 0]),
     };
     const lineW = resolveLineWidth(lineEntry);
     const lineData = view
         .array({ channels: 3, width: currentPoints.length, data: currentPoints, live: true });
-    const lineNode = lineData.line({ color: new THREE.Color(...color), width: lineW, zBias: 1 });
+    const lineNode = lineData.line({ color: new THREE.Color(...color), width: lineW, zBias: 1, opacity: baseOpacity * (displayParams.lineOpacity || 1) });
     lineEntry.node = lineNode;
     lineNodes.push(lineEntry);
 
@@ -5818,7 +5877,11 @@ function fadeInTracker(tracker, duration) {
         const ease = t * t * (3 - 2 * t); // smoothstep
 
         for (const entry of tracker.arrowMeshes) {
-            entry.mesh.material.opacity = ease * displayParams.arrowOpacity;
+            const baseOp = (entry.mesh && entry.mesh.userData && typeof entry.mesh.userData.baseOpacity === 'number')
+                ? entry.mesh.userData.baseOpacity
+                : 1;
+            const globalOp = entry.isShaft ? displayParams.vectorOpacity : displayParams.arrowOpacity;
+            entry.mesh.material.opacity = ease * Math.max(0, Math.min(1, baseOp * globalOp));
         }
         for (const m of tracker.planeMeshes) {
             const targetOp = m.userData.targetOpacity !== undefined ? m.userData.targetOpacity : displayParams.planeOpacity;
@@ -5828,10 +5891,12 @@ function fadeInTracker(tracker, duration) {
             lbl.el.style.opacity = String(ease * displayParams.labelOpacity);
         }
         for (const entry of tracker.lineNodes) {
-            try { entry.node.set('opacity', ease * displayParams.lineOpacity); } catch(e) {}
+            const baseOp = (entry && typeof entry.baseOpacity === 'number') ? entry.baseOpacity : 1;
+            try { entry.node.set('opacity', ease * baseOp * displayParams.lineOpacity); } catch(e) {}
         }
         for (const entry of tracker.vectorLineNodes) {
-            try { entry.node.set('opacity', ease * displayParams.vectorOpacity); } catch(e) {}
+            const baseOp = (entry && typeof entry.baseOpacity === 'number') ? entry.baseOpacity : 1;
+            try { entry.node.set('opacity', ease * baseOp * displayParams.vectorOpacity); } catch(e) {}
         }
         for (const entry of (tracker.pointNodes || [])) {
             try { entry.node.set('opacity', ease); } catch(e) {}
@@ -6429,8 +6494,12 @@ function setupSettingsPanel() {
             } else if (param === 'arrowOpacity') {
                 for (const entry of arrowMeshes) {
                     if (entry.isShaft) continue;
-                    entry.mesh.material.opacity = val;
-                    entry.mesh.material.transparent = val < 1.0;
+                    const baseOp = (entry.mesh && entry.mesh.userData && typeof entry.mesh.userData.baseOpacity === 'number')
+                        ? entry.mesh.userData.baseOpacity
+                        : 1;
+                    const targetOp = Math.max(0, Math.min(1, baseOp * val));
+                    entry.mesh.material.opacity = targetOp;
+                    entry.mesh.material.transparent = targetOp < 1.0;
                 }
             } else if (param === 'axisWidth') {
                 for (const entry of axisLineNodes) {
@@ -6438,7 +6507,8 @@ function setupSettingsPanel() {
                 }
             } else if (param === 'axisOpacity') {
                 for (const entry of axisLineNodes) {
-                    entry.node.set('opacity', val);
+                    const baseOp = (entry && typeof entry.baseOpacity === 'number') ? entry.baseOpacity : 1;
+                    entry.node.set('opacity', baseOp * val);
                 }
             } else if (param === 'vectorWidth') {
                 for (const entry of arrowMeshes) {
@@ -6454,8 +6524,12 @@ function setupSettingsPanel() {
             } else if (param === 'vectorOpacity') {
                 for (const entry of arrowMeshes) {
                     if (!isShaftEntry(entry)) continue;
-                    entry.mesh.material.opacity = val;
-                    entry.mesh.material.transparent = val < 1.0;
+                    const baseOp = (entry.mesh && entry.mesh.userData && typeof entry.mesh.userData.baseOpacity === 'number')
+                        ? entry.mesh.userData.baseOpacity
+                        : 1;
+                    const targetOp = Math.max(0, Math.min(1, baseOp * val));
+                    entry.mesh.material.opacity = targetOp;
+                    entry.mesh.material.transparent = targetOp < 1.0;
                 }
             } else if (param === 'lineWidth') {
                 for (const entry of lineNodes) {
@@ -6463,7 +6537,8 @@ function setupSettingsPanel() {
                 }
             } else if (param === 'lineOpacity') {
                 for (const entry of lineNodes) {
-                    entry.node.set('opacity', val);
+                    const baseOp = (entry && typeof entry.baseOpacity === 'number') ? entry.baseOpacity : 1;
+                    entry.node.set('opacity', baseOp * val);
                 }
             } else if (param === 'planeScale') {
                 for (const m of planeMeshes) {
@@ -6476,12 +6551,16 @@ function setupSettingsPanel() {
                 }
             } else if (param === 'planeOpacity') {
                 for (const m of planeMeshes) {
-                    const isVisible = val > 0.001;
+                    const baseOp = (m.userData && typeof m.userData.targetOpacity === 'number')
+                        ? m.userData.targetOpacity
+                        : 1;
+                    const targetOp = Math.max(0, Math.min(1, baseOp * val));
+                    const isVisible = targetOp > 0.001;
                     m.visible = isVisible;
-                    m.material.opacity = val;
-                    m.material.transparent = val < 1;
+                    m.material.opacity = targetOp;
+                    m.material.transparent = targetOp < 1;
                     // Prevent "ghost darkening" from depth writes when nearly/fully transparent.
-                    m.material.depthWrite = val >= 0.999;
+                    m.material.depthWrite = targetOp >= 0.999;
                     m.material.needsUpdate = true;
                 }
             } else if (param === 'captionScale') {
