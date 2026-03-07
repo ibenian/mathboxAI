@@ -701,27 +701,35 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
 }
 .trust-dialog-domains {
     display: flex;
+    width: fit-content;
+    margin: 0 auto;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 8px 10px;
+    gap: 8px;
+    padding: 7px 12px;
     background: rgba(30, 50, 30, 0.5);
     border: 1px solid rgba(80, 180, 80, 0.3);
     border-radius: 6px;
     font-size: 11px;
     color: rgba(160, 220, 160, 0.85);
 }
+.trust-dialog-domains > span:first-child {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
 .trust-dialog-domain-pills {
     display: flex;
+    align-items: center;
     gap: 5px;
     flex-wrap: wrap;
 }
 .trust-dialog-domain-pill {
-    padding: 1px 8px;
+    padding: 2px 9px;
     background: rgba(40, 120, 40, 0.3);
     border: 1px solid rgba(80, 180, 80, 0.4);
     border-radius: 4px;
     font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    line-height: 1.4;
     color: rgba(160, 230, 160, 0.9);
 }
 #trust-dialog-body {
@@ -734,7 +742,7 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
 #trust-dialog-buttons {
     display: flex;
     gap: 12px;
-    justify-content: flex-end;
+    justify-content: center;
 }
 .trust-btn {
     padding: 7px 18px;
