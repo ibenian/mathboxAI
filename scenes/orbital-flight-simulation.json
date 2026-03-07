@@ -643,16 +643,16 @@
             {
               "id": "grav_arrow_scene2",
               "type": "animated_vector",
-              "visibleExpr": "orbitHit(t,0) < 0.5",
+              "visibleExpr": "orbitHit(0,0) < 0.5",
               "fromExpr": [
-                "orbitX(t,0)",
-                "orbitY(t,0)",
-                "80"
+                "Rp+h",
+                "0",
+                "0"
               ],
               "expr": [
-                "orbitX(t,0) - (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitX(t,0)/orbitR(t,0))",
-                "orbitY(t,0) - (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitY(t,0)/orbitR(t,0))",
-                "80"
+                "Rp+h - 12000*(Gs*Mx*10000)/((Rp+h)^2)",
+                "0",
+                "0"
               ],
               "labelOffset": [
                 40,
@@ -667,16 +667,16 @@
             {
               "id": "centrifugal_arrow_scene2",
               "type": "animated_vector",
-              "visibleExpr": "orbitHit(t,0) < 0.5",
+              "visibleExpr": "orbitHit(0,0) < 0.5",
               "fromExpr": [
-                "orbitX(t,0)",
-                "orbitY(t,0)",
-                "80"
+                "Rp+h",
+                "0",
+                "0"
               ],
               "expr": [
-                "orbitX(t,0) + (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitX(t,0)/orbitR(t,0))",
-                "orbitY(t,0) + (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitY(t,0)/orbitR(t,0))",
-                "80"
+                "Rp+h + 12000*(Gs*Mx*10000)/((Rp+h)^2)",
+                "0",
+                "0"
               ],
               "labelOffset": [
                 40,
@@ -1030,6 +1030,15 @@
           "remove": [
             {
               "id": "launch_marker2"
+            },
+            {
+              "id": "weight_vector"
+            },
+            {
+              "id": "grav_arrow_scene2"
+            },
+            {
+              "id": "centrifugal_arrow_scene2"
             }
           ],
           "sliders": [
@@ -1090,6 +1099,54 @@
               "labelShowAltitude": true,
               "labelAltitudePrecision": 1,
               "label": "rocket"
+            },
+            {
+              "id": "grav_arrow_scene2",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,0) < 0.5",
+              "fromExpr": [
+                "orbitX(t,0)",
+                "orbitY(t,0)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,0) - (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitX(t,0)/orbitR(t,0))",
+                "orbitY(t,0) - (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitY(t,0)/orbitR(t,0))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                25,
+                0
+              ],
+              "color": "#ff4444",
+              "opacity": 0.8,
+              "width": 2.5,
+              "label": "$g(r)$ gravity"
+            },
+            {
+              "id": "centrifugal_arrow_scene2",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,0) < 0.5",
+              "fromExpr": [
+                "orbitX(t,0)",
+                "orbitY(t,0)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,0) + (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitX(t,0)/orbitR(t,0))",
+                "orbitY(t,0) + (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitY(t,0)/orbitR(t,0))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                -25,
+                0
+              ],
+              "color": "#44aaff",
+              "opacity": 0.8,
+              "width": 3,
+              "label": "$v^2/r$ centrifugal (rotating frame)"
             }
           ],
           "info": [
