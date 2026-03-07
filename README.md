@@ -6,7 +6,7 @@ Interactive 3D math visualizer built on [MathBox](https://github.com/unconed/mat
 mathboxAI eigenvalues.json
 ```
 
-![MathBoxAI screenshot placeholder]
+![MathBoxAI screenshot](docs/orbital-flight-simulation-scene2-root.png)
 
 ---
 
