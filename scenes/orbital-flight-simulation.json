@@ -487,19 +487,14 @@
       ],
       "camera": {
         "position": [
-          5175,
-          -30,
-          17580
+          17000,
+          9500,
+          9200
         ],
         "target": [
-          5865,
-          1545,
-          -1830
-        ],
-        "up": [
-          0.125,
-          0.988,
-          0.085
+          0,
+          0,
+          0
         ]
       },
       "cameraUp": [
@@ -644,6 +639,54 @@
               "color": "#ffd166",
               "size": 11,
               "label": "launch point"
+            },
+            {
+              "id": "grav_arrow_scene2",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,0) < 0.5",
+              "fromExpr": [
+                "orbitX(t,0)",
+                "orbitY(t,0)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,0) - (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitX(t,0)/orbitR(t,0))",
+                "orbitY(t,0) - (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitY(t,0)/orbitR(t,0))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                25,
+                0
+              ],
+              "color": "#ff4444",
+              "opacity": 0.8,
+              "width": 2.5,
+              "label": "$g(r)$ gravity"
+            },
+            {
+              "id": "centrifugal_arrow_scene2",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,0) < 0.5",
+              "fromExpr": [
+                "orbitX(t,0)",
+                "orbitY(t,0)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,0) + (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitX(t,0)/orbitR(t,0))",
+                "orbitY(t,0) + (12000*(Gs*Mx*10000)/(orbitR(t,0)^2))*(orbitY(t,0)/orbitR(t,0))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                -25,
+                0
+              ],
+              "color": "#44aaff",
+              "opacity": 0.8,
+              "width": 3,
+              "label": "$v^2/r$ centrifugal (rotating frame)"
             }
           ],
           "info": [
@@ -667,6 +710,11 @@
               6330,
               -480,
               0
+            ],
+            "up": [
+              0.125,
+              0.988,
+              0.085
             ]
           },
           "sliders": [
@@ -1085,19 +1133,14 @@
       ],
       "camera": {
         "position": [
-          7785,
-          -330,
-          1560
+          17000,
+          9500,
+          9200
         ],
         "target": [
-          4920,
-          2325,
-          -885
-        ],
-        "up": [
-          0.938,
-          0.28,
-          0.204
+          0,
+          0,
+          0
         ]
       },
       "cameraUp": [
@@ -1460,6 +1503,54 @@
               "labelShowAltitude": true,
               "labelAltitudePrecision": 1,
               "label": "powered rocket"
+            },
+            {
+              "id": "grav_arrow_scene3",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,1) < 0.5",
+              "fromExpr": [
+                "orbitX(t,1)",
+                "orbitY(t,1)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,1) - (12000*(Gs*Mx*10000)/(orbitR(t,1)^2))*(orbitX(t,1)/orbitR(t,1))",
+                "orbitY(t,1) - (12000*(Gs*Mx*10000)/(orbitR(t,1)^2))*(orbitY(t,1)/orbitR(t,1))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                25,
+                0
+              ],
+              "color": "#ff4444",
+              "opacity": 0.8,
+              "width": 2.5,
+              "label": "$g(r)$ gravity"
+            },
+            {
+              "id": "centrifugal_arrow_scene3",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,1) < 0.5",
+              "fromExpr": [
+                "orbitX(t,1)",
+                "orbitY(t,1)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,1) + (12000*(Gs*Mx*10000)/(orbitR(t,1)^2))*(orbitX(t,1)/orbitR(t,1))",
+                "orbitY(t,1) + (12000*(Gs*Mx*10000)/(orbitR(t,1)^2))*(orbitY(t,1)/orbitR(t,1))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                -25,
+                0
+              ],
+              "color": "#44aaff",
+              "opacity": 0.8,
+              "width": 3,
+              "label": "$v^2/r$ centrifugal (rotating frame)"
             }
           ],
           "info": [
@@ -1488,7 +1579,24 @@
               "position": "top-right",
               "content": "$$\\tau={{toFixed(tau,3)}},\\quad t_{\\mathrm{actual}}={{toFixed(t,1)}}\\,\\text{s}$$"
             }
-          ]
+          ],
+          "camera": {
+            "position": [
+              7785,
+              -330,
+              1560
+            ],
+            "target": [
+              4920,
+              2325,
+              -885
+            ],
+            "up": [
+              0.938,
+              0.28,
+              0.204
+            ]
+          }
         }
       ]
     },
@@ -1513,19 +1621,14 @@
       ],
       "camera": {
         "position": [
-          7350,
-          -1470,
-          2160
+          17000,
+          9500,
+          9200
         ],
         "target": [
-          4785,
-          2370,
-          -660
-        ],
-        "up": [
-          0.776,
-          0.616,
-          0.136
+          0,
+          0,
+          0
         ]
       },
       "cameraUp": [
@@ -1953,6 +2056,54 @@
               "labelShowAltitude": true,
               "labelAltitudePrecision": 1,
               "label": "guided rocket"
+            },
+            {
+              "id": "grav_arrow_scene4",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,2) < 0.5",
+              "fromExpr": [
+                "orbitX(t,2)",
+                "orbitY(t,2)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,2) - (12000*(Gs*Mx*10000)/(orbitR(t,2)^2))*(orbitX(t,2)/orbitR(t,2))",
+                "orbitY(t,2) - (12000*(Gs*Mx*10000)/(orbitR(t,2)^2))*(orbitY(t,2)/orbitR(t,2))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                25,
+                0
+              ],
+              "color": "#ff4444",
+              "opacity": 0.8,
+              "width": 2.5,
+              "label": "$g(r)$ gravity"
+            },
+            {
+              "id": "centrifugal_arrow_scene4",
+              "type": "animated_vector",
+              "visibleExpr": "orbitHit(t,2) < 0.5",
+              "fromExpr": [
+                "orbitX(t,2)",
+                "orbitY(t,2)",
+                "80"
+              ],
+              "expr": [
+                "orbitX(t,2) + (12000*(Gs*Mx*10000)/(orbitR(t,2)^2))*(orbitX(t,2)/orbitR(t,2))",
+                "orbitY(t,2) + (12000*(Gs*Mx*10000)/(orbitR(t,2)^2))*(orbitY(t,2)/orbitR(t,2))",
+                "80"
+              ],
+              "labelOffset": [
+                40,
+                -25,
+                0
+              ],
+              "color": "#44aaff",
+              "opacity": 0.8,
+              "width": 3,
+              "label": "$v^2/r$ centrifugal (rotating frame)"
             }
           ],
           "info": [
@@ -1986,7 +2137,24 @@
               "position": "top-right",
               "content": "$$v={{toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2)),3)}}\\,\\text{km/s}\\\\M_{\\mathrm{SL}}\\approx\\frac{v}{0.343}={{toFixed(sqrt(pow(orbitVr(t,2),2)+pow(orbitVt(t,2),2))/0.343,2)}}$$"
             }
-          ]
+          ],
+          "camera": {
+            "position": [
+              7350,
+              -1470,
+              2160
+            ],
+            "target": [
+              4785,
+              2370,
+              -660
+            ],
+            "up": [
+              0.776,
+              0.616,
+              0.136
+            ]
+          }
         }
       ]
     }
