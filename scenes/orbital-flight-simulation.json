@@ -1,5 +1,6 @@
 {
   "title": "Orbital Flight Simulation",
+  "import": ["astrodynamics"],
   "unsafe_explanation": "This lesson uses scene-level reusable functions with native JavaScript expressions (for loops/closures) to compute trajectory extrema like apogee and perigee from live simulation state. Allow only if you trust this scene source.",
   "scenes": [
     {

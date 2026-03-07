@@ -644,6 +644,109 @@ Set `"unsafe": true` and provide a clear `"unsafe_explanation"` when scenes requ
 }
 ```
 
+## Domain Libraries
+
+Domain libraries extend the expression sandbox with pre-built simulation functions for specific science or engineering domains. They are the right tool when a simulation requires persistent state, iterative integration, or shared caches that cannot be expressed as a closed-form math.js expression.
+
+### Discovering Available Domains
+
+Before building a scene that might use domain functions, **query the API** to see what is available:
+
+```
+GET /api/domains
+```
+
+Returns a list of all installed domains with their name, description, and function names:
+
+```json
+[
+  {
+    "name": "astrodynamics",
+    "description": "Orbital mechanics simulation engine...",
+    "functions": ["orbitX", "orbitY", "orbitR", "orbitVr", "orbitVt", "orbitHit", "orbitOutcome"]
+  }
+]
+```
+
+### Getting Full Docs for a Domain
+
+```
+GET /api/domains/<name>
+```
+
+Returns the full documentation object for that domain, including:
+- **`sliderContracts`** — every slider ID the domain reads, with description, default value, and which modes use it
+- **`functions`** — every function: signature, param descriptions, return type, which sliders it depends on, and a usage example
+- **`modes`** — named modes and what they mean
+
+**Always read the domain docs before writing expressions or sliders.** The slider IDs listed in `sliderContracts` are the implicit API — the domain reads these by name from scene slider state. If a required slider is missing or misnamed, the function silently falls back to its default.
+
+### Using a Domain in a Scene
+
+Add the `"import"` field at the top level of the scene JSON:
+
+```json
+{
+  "title": "My Orbital Scene",
+  "import": ["astrodynamics"],
+  ...
+}
+```
+
+For a lesson (multi-scene format), `"import"` goes at the lesson root level (outside `"scenes"`):
+
+```json
+{
+  "title": "Orbital Flight Simulation",
+  "import": ["astrodynamics"],
+  "scenes": [...]
+}
+```
+
+The named functions become available in the expression sandbox for all animated elements in the scene. They use **math.js call syntax** — no `Math.` prefix needed.
+
+### Slider Naming Contract
+
+Domain functions pull slider values by hardcoded ID. You **must** name your sliders to match the domain's `sliderContracts`. Example — to use `orbitX(t, 0)`, the scene must define sliders named `Rp`, `Gs`, `Mx`, `h`, `T`, `phi`, and `vlaunch` (for coast mode).
+
+If a slider is not present, the domain uses the documented default — the simulation still runs, but that parameter is no longer interactive.
+
+### Example — Astrodynamics
+
+```json
+{
+  "title": "Coast Trajectory",
+  "import": ["astrodynamics"],
+  "range": [[-15000,15000],[-15000,15000],[-15000,15000]],
+  "elements": [
+    {"type":"sphere","id":"planet","radius":6371,"color":"#3a7bd5"},
+    {
+      "type": "animated_point",
+      "id": "spacecraft",
+      "expr": ["orbitX(t,0)", "orbitY(t,0)", "0"],
+      "color": "#ffcc00",
+      "size": 8
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Adjust launch speed and angle.",
+      "sliders": [
+        {"id":"vlaunch","label":"Launch speed (km/s)","min":0,"max":12,"value":7.8,"step":0.1},
+        {"id":"phi","label":"Launch angle (deg)","min":-90,"max":90,"value":0,"step":1},
+        {"id":"T","label":"Duration (s)","min":60,"max":7200,"value":3600,"step":60}
+      ]
+    }
+  ]
+}
+```
+
+### Safety Note
+
+Domain libraries are built-in, server-shipped code — they are **not** user-authored expressions. Importing a domain does **not** require `"unsafe": true`. The trust dialog is only for scenes that contain native JS expressions written directly in the scene JSON (e.g. in `scene.functions` or animated element expressions using `let`, `for`, `=>`, etc.).
+
+---
+
 ## LaTeX in Labels
 
 Element `label` fields support LaTeX via KaTeX. Always double-escape backslashes in JSON:

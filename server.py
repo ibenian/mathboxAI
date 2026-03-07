@@ -886,6 +886,56 @@ def serve_and_open(initial_scene_path=None, port=DEFAULT_PORT, json_output=False
                     self.end_headers()
                     self.wfile.write(json.dumps({"error": str(e)}).encode('utf-8'))
 
+            elif path == '/api/domains':
+                domains_dir = static_dir / 'domains'
+                result = []
+                if domains_dir.is_dir():
+                    for d in sorted(domains_dir.iterdir()):
+                        if d.is_dir():
+                            docs_path = d / 'docs.json'
+                            entry = {'name': d.name}
+                            if docs_path.exists():
+                                try:
+                                    with open(docs_path, 'r') as f:
+                                        docs = json.load(f)
+                                    entry['description'] = docs.get('description', '')
+                                    entry['functions'] = list(docs.get('functions', {}).keys())
+                                except Exception:
+                                    pass
+                            result.append(entry)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(result).encode('utf-8'))
+
+            elif path.startswith('/api/domains/'):
+                name = path[len('/api/domains/'):]
+                docs_path = static_dir / 'domains' / name / 'docs.json'
+                if docs_path.exists():
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    with open(docs_path, 'rb') as f:
+                        self.wfile.write(f.read())
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+                    self.wfile.write(b'Domain not found')
+
+            elif path.startswith('/domains/'):
+                rel = path[len('/domains/'):]
+                domain_path = static_dir / 'domains' / rel
+                if domain_path.exists() and domain_path.is_file():
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/javascript')
+                    self.end_headers()
+                    with open(domain_path, 'rb') as f:
+                        self.wfile.write(f.read())
+                else:
+                    self.send_response(404)
+                    self.end_headers()
+                    self.wfile.write(b'Domain not found')
+
             elif path.startswith('/scenes/'):
                 name = path[8:]
                 scene = load_builtin_scene(name)
