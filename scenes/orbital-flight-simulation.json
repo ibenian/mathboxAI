@@ -594,6 +594,18 @@
         {
           "title": "Parameters 2-3: Dry Mass and Fuel Mass",
           "description": "Now set vehicle mass. Total mass is $m_0=m_d+m_f$, and weight magnitude scales with $m_0g$.",
+          "camera": {
+            "position": [
+              6330,
+              -480,
+              2265
+            ],
+            "target": [
+              6330,
+              -480,
+              0
+            ]
+          },
           "sliders": [
             {
               "id": "mdry",

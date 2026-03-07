@@ -165,7 +165,16 @@
         </span>
         <span id="cam-status">
             <span class="cam-status-icon">📷</span>
-            <div class="cam-status-popup" id="cam-popup-content"></div>
+            <div class="cam-status-popup" id="cam-popup-content">
+                <div class="cam-popup-header">
+                    <span>Camera</span>
+                    <div class="cam-popup-actions">
+                        <button id="cam-popup-copy" title="Copy camera state">Copy</button>
+                        <button id="cam-popup-close" title="Close">&times;</button>
+                    </div>
+                </div>
+                <div id="cam-popup-text"></div>
+            </div>
         </span>
         <span id="debug-status-text"></span>
     </div>

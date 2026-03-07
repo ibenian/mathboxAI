@@ -93,6 +93,7 @@ let arcballInertiaQ    = null;  // EMA of world-space rotation delta (velocity e
 let arcballLastMoveTime = 0;    // performance.now() of last mousemove during drag
 let currentSceneSourceLabel = '';
 let currentSceneSourcePath = '';
+let camPopupPinned = false;
 
 // Shared SVG icons
 const AI_SPARKLE_SVG = '<svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M8 1c0 4-3 6.5-7 7 4 .5 7 3 7 7 0-4 3-6.5 7-7-4-.5-7-3-7-7z"/></svg>';
@@ -4091,13 +4092,24 @@ function buildCameraButtons(spec) {
     resetBtn.textContent = 'Reset';
     resetBtn.addEventListener('click', (e) => {
         deactivateFollowCam();
-        const pos = dataCameraToWorld((currentSpec && currentSpec.camera && currentSpec.camera.position) || DEFAULT_CAMERA.position);
-        const tgt = dataCameraToWorld((currentSpec && currentSpec.camera && currentSpec.camera.target) || DEFAULT_CAMERA.target);
+        const activeScene = (lessonSpec && currentSceneIndex >= 0 && lessonSpec.scenes)
+            ? lessonSpec.scenes[currentSceneIndex]
+            : currentSpec;
+        const activeStepCam = (
+            activeScene &&
+            currentStepIndex >= 0 &&
+            Array.isArray(activeScene.steps) &&
+            activeScene.steps[currentStepIndex] &&
+            activeScene.steps[currentStepIndex].camera
+        ) ? activeScene.steps[currentStepIndex].camera : null;
+        const camSpec = activeStepCam || (currentSpec && currentSpec.camera) || null;
+        const pos = dataCameraToWorld((camSpec && camSpec.position) || DEFAULT_CAMERA.position);
+        const tgt = dataCameraToWorld((camSpec && camSpec.target) || DEFAULT_CAMERA.target);
         CAMERA_VIEWS.reset = {
             position: pos,
             target: tgt,
-            up: (currentSpec && currentSpec.camera && Array.isArray(currentSpec.camera.up))
-                ? currentSpec.camera.up.slice(0, 3)
+            up: (camSpec && Array.isArray(camSpec.up))
+                ? camSpec.up.slice(0, 3)
                 : sceneUp.slice(0, 3),
         };
         if (e.shiftKey) animateCamera('reset', 0);
@@ -6141,6 +6153,7 @@ function updateStatusBar() {
 
     // --- Camera popup content ---
     const camPopup = document.getElementById('cam-popup-content');
+    const camPopupText = document.getElementById('cam-popup-text');
     if (camPopup && camera && controls) {
         const p = camera.position;
         const t = controls.target;
@@ -6155,7 +6168,8 @@ function updateStatusBar() {
              + `tgt  x: ${fmt(t.x)}  y: ${fmt(t.y)}  z: ${fmt(t.z)}\n`
              + `dist ${dist.toFixed(3)}`;
         if (fov != null) txt += `\nfov  ${Math.round(fov)}°`;
-        camPopup.textContent = txt;
+        if (camPopupText) camPopupText.textContent = txt;
+        else camPopup.textContent = txt;
     }
 
     // --- Scene/step text ---
@@ -6167,6 +6181,60 @@ function updateStatusBar() {
         const scene = (typeof lessonSpec !== 'undefined' && lessonSpec && lessonSpec.scenes) ? lessonSpec.scenes[currentSceneIndex] : null;
         const totalSteps = scene && scene.steps ? scene.steps.length : 0;
         debugText.textContent = `scene ${sceneNum}/${totalScenes}  step ${stepNum}/${totalSteps}`;
+    }
+}
+
+function setCamPopupPinned(pinned, suppressHover = false) {
+    const camStatus = document.getElementById('cam-status');
+    if (!camStatus) return;
+    camPopupPinned = !!pinned;
+    camStatus.classList.toggle('pinned', camPopupPinned);
+    if (camPopupPinned) {
+        camStatus.classList.remove('suppress-hover');
+    } else if (suppressHover) {
+        camStatus.classList.add('suppress-hover');
+    }
+}
+
+function setupCamStatusPopup() {
+    const camStatus = document.getElementById('cam-status');
+    const closeBtn = document.getElementById('cam-popup-close');
+    const copyBtn = document.getElementById('cam-popup-copy');
+    const popupText = document.getElementById('cam-popup-text');
+    if (!camStatus) return;
+
+    camStatus.addEventListener('click', (e) => {
+        if (e.target && e.target.closest('#cam-popup-close')) return;
+        if (e.target && e.target.closest('#cam-popup-copy')) return;
+        if (e.target && e.target.closest('.cam-status-popup')) return;
+        setCamPopupPinned(!camPopupPinned, camPopupPinned);
+    });
+
+    camStatus.addEventListener('mouseleave', () => {
+        camStatus.classList.remove('suppress-hover');
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setCamPopupPinned(false, true);
+        });
+    }
+
+    if (copyBtn && popupText) {
+        copyBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const txt = popupText.textContent || '';
+            if (!txt) return;
+            try {
+                await navigator.clipboard.writeText(txt);
+                const prev = copyBtn.textContent;
+                copyBtn.textContent = 'Copied';
+                setTimeout(() => { copyBtn.textContent = prev; }, 900);
+            } catch (_err) {
+                // Silently ignore clipboard failures (e.g., permissions policy).
+            }
+        });
     }
 }
 
@@ -6927,6 +6995,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupSceneDescDrag();
     setupJsonViewer();
     setupVideoExport();
+    setupCamStatusPopup();
     loadBuiltinScenesList();
     await loadInitialSceneFromQuery();
 });

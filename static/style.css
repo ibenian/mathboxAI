@@ -411,7 +411,7 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
     display: inline-flex;
     align-items: center;
     position: relative;
-    cursor: default;
+    cursor: pointer;
     padding: 1px 5px;
     border-radius: 10px;
     background: rgba(100, 180, 255, 0.10);
@@ -435,10 +435,55 @@ body.rotating, body.rotating * { cursor: grabbing !important; }
     color: rgba(220, 230, 255, 0.95);
     box-shadow: 0 6px 24px rgba(0,0,0,0.6);
     z-index: 9999;
+    white-space: normal;
+    user-select: text;
+    cursor: auto;
+}
+#cam-status.pinned .cam-status-popup { display: block; }
+#cam-status:hover .cam-status-popup { display: block; }
+#cam-status.suppress-hover:hover .cam-status-popup { display: none; }
+.cam-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    white-space: normal;
+    font-weight: 600;
+}
+.cam-popup-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+#cam-popup-copy {
+    border: 1px solid rgba(120, 170, 255, 0.35);
+    background: rgba(40, 80, 150, 0.35);
+    color: rgba(220, 235, 255, 0.95);
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-size: 10px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+#cam-popup-copy:hover {
+    border-color: rgba(150, 195, 255, 0.7);
+    background: rgba(60, 110, 190, 0.5);
+}
+#cam-popup-close {
+    border: none;
+    background: transparent;
+    color: rgba(180, 205, 255, 0.9);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+}
+#cam-popup-close:hover { color: #fff; }
+#cam-popup-text {
     white-space: pre;
     font-family: 'SF Mono', 'Fira Code', monospace;
+    user-select: text;
 }
-#cam-status:hover .cam-status-popup { display: block; }
 #debug-status-text { margin-left: auto; opacity: 0.8; }
 
 /* Slider Status Pill */
