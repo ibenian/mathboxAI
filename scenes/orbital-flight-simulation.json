@@ -555,6 +555,22 @@
           ],
           "add": [
             {
+              "id": "launch_ring2",
+              "type": "parametric_curve",
+              "x": "(Rp+h)*cos(t)",
+              "y": "(Rp+h)*sin(t)",
+              "z": "0",
+              "range": [
+                0,
+                6.283185307179586
+              ],
+              "samples": 260,
+              "color": "#90ee90",
+              "width": 0.33,
+              "opacity": 0.6,
+              "label": "launch-height ring"
+            },
+            {
               "id": "launch_marker2",
               "type": "animated_point",
               "expr": [
@@ -606,12 +622,12 @@
                 "0"
               ],
               "expr": [
-                "Rp+h-1400*(mdry+mfuel)/300",
+                "Rp+h-220*(mdry+mfuel)/300",
                 "0",
                 "0"
               ],
               "color": "#ff7f7f",
-              "width": 4,
+              "width": 0.33,
               "label": "weight"
             }
           ],
@@ -630,15 +646,125 @@
         },
         {
           "title": "Parameter 4: Engine Efficiency (Isp)",
-          "description": "Introduce specific impulse $I_{sp}$ to estimate ideal available mission $\\Delta v$ with the rocket equation.",
+          "description": "Side-by-side comparison: your selected-$I_{sp}$ vector first, with reference rocket baselines immediately next to it.",
           "sliders": [
             {
               "id": "Isp",
               "label": "Specific impulse $I_{sp}$ (s)",
-              "min": 240,
-              "max": 470,
+              "min": 150,
+              "max": 520,
               "step": 1,
               "default": 350
+            }
+          ],
+          "add": [
+            {
+              "id": "dv_now_vec",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h",
+                "52*(Isp*9.81*log((mdry+mfuel)/mdry)/1000)",
+                "0"
+              ],
+              "color": "#fcbf49",
+              "width": 0.33,
+              "opacity": 0.9,
+              "label": "our vector (selected $I_{sp}$)"
+            },
+            {
+              "id": "dv_v2_vec",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h+250",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h+250",
+                "52*(210*9.81*log((mdry+mfuel)/mdry)/1000)",
+                "0"
+              ],
+              "color": "#7f8c8d",
+              "width": 0.33,
+              "opacity": 0.9,
+              "label": "V-2 class (210 s)"
+            },
+            {
+              "id": "dv_f1_vec",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h+500",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h+500",
+                "52*(263*9.81*log((mdry+mfuel)/mdry)/1000)",
+                "0"
+              ],
+              "color": "#9aa6b2",
+              "width": 0.33,
+              "opacity": 0.9,
+              "label": "Apollo F-1 sea level (263 s)"
+            },
+            {
+              "id": "dv_falcon_vec",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h+750",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h+750",
+                "52*(311*9.81*log((mdry+mfuel)/mdry)/1000)",
+                "0"
+              ],
+              "color": "#aab7c4",
+              "width": 0.33,
+              "opacity": 0.9,
+              "label": "Falcon 9 class (311 s)"
+            },
+            {
+              "id": "dv_starship_vec",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h+1000",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h+1000",
+                "52*(380*9.81*log((mdry+mfuel)/mdry)/1000)",
+                "0"
+              ],
+              "color": "#6ec5ff",
+              "width": 0.33,
+              "opacity": 0.9,
+              "label": "Starship class (380 s)"
+            },
+            {
+              "id": "dv_rl10_vec",
+              "type": "animated_vector",
+              "fromExpr": [
+                "Rp+h+1250",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h+1250",
+                "52*(450*9.81*log((mdry+mfuel)/mdry)/1000)",
+                "0"
+              ],
+              "color": "#4db6ac",
+              "width": 0.2,
+              "opacity": 0.9,
+              "label": "RL10 class (450 s)"
             }
           ],
           "info": [
@@ -646,6 +772,16 @@
               "id": "mass_info",
               "position": "top-left",
               "content": "$$m_0=m_d+m_f={{mdry+mfuel}}\\,\\text{t}\\\\ \\Delta v_{max}=I_{sp}g_0\\ln\\left(\\frac{m_0}{m_d}\\right)={{toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}$$"
+            },
+            {
+              "id": "isp_sensitivity",
+              "position": "top-right",
+              "content": "$$\\frac{\\partial \\Delta v}{\\partial I_{sp}}=\\frac{g_0\\ln(m_0/m_d)}{1000}={{toFixed(9.81*log((mdry+mfuel)/mdry)/1000,4)}}\\,\\text{km/s per s}\\\\ +10\\,\\text{s in }I_{sp}\\Rightarrow {{toFixed(10*9.81*log((mdry+mfuel)/mdry),1)}}\\,\\text{m/s more }\\Delta v$$"
+            },
+            {
+              "id": "isp_baseline_note",
+              "position": "bottom-right",
+              "content": "$$\\text{V-2 }(210\\,\\text{s}):\\;{{toFixed(210*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}\\\\ \\text{F-1 }(263\\,\\text{s}):\\;{{toFixed(263*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}\\\\ \\text{Falcon 9 }(311\\,\\text{s}):\\;{{toFixed(311*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}\\\\ \\text{Starship }(380\\,\\text{s}):\\;{{toFixed(380*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}\\\\ \\text{RL10 class }(450\\,\\text{s}):\\;{{toFixed(450*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}\\\\ \\text{Your }I_{sp}={{toFixed(Isp,0)}}\\,\\text{s}:\\;{{toFixed(Isp*9.81*log((mdry+mfuel)/mdry)/1000,3)}}\\,\\text{km/s}$$"
             }
           ]
         },
@@ -708,7 +844,7 @@
               ],
               "samples": 260,
               "color": "#90ee90",
-              "width": 1,
+              "width": 0.33,
               "opacity": 0.6,
               "label": "launch-height ring"
             },
