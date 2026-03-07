@@ -6197,6 +6197,7 @@ function updateStatusBar() {
     if (camPopup && camera && controls) {
         const p = camera.position;
         const t = controls.target;
+        const u = camera.up;
         const dist = p.distanceTo(t);
         const fov = camera.isPerspectiveCamera ? camera.fov : null;
         const fmt = v => v.toFixed(3);
@@ -6206,6 +6207,7 @@ function updateStatusBar() {
         if (viewName) txt += `view ${viewName}\n`;
         txt += `pos  x: ${fmt(p.x)}  y: ${fmt(p.y)}  z: ${fmt(p.z)}\n`
              + `tgt  x: ${fmt(t.x)}  y: ${fmt(t.y)}  z: ${fmt(t.z)}\n`
+             + `up   x: ${fmt(u.x)}  y: ${fmt(u.y)}  z: ${fmt(u.z)}\n`
              + `dist ${dist.toFixed(3)}`;
         if (fov != null) txt += `\nfov  ${Math.round(fov)}°`;
         if (camPopupText) camPopupText.textContent = txt;
