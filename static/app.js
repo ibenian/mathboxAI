@@ -1359,23 +1359,27 @@ function animateCamera(view, duration) {
     const startTarget = controls.target.clone();
     const endTarget = new THREE.Vector3(...targetView.target);
 
-    // For top-down views, nudge the destination off the pole singularity.
-    // OrbitControls uses spherical coords; when the offset is exactly parallel
-    // to the scene's up axis (phi=0), atan2(0,0) is degenerate and causes a
-    // 180° flip.  VIEW_EPSILON keeps it just off the pole — visually invisible.
-    if (/\btop\b/i.test(view)) {
-        const up = new THREE.Vector3(...sceneUp).normalize();
-        const offset = endPos.clone().sub(endTarget);
-        const perp = offset.clone().sub(up.clone().multiplyScalar(offset.dot(up)));
-        if (perp.length() < VIEW_EPSILON) {
-            const helper = Math.abs(up.dot(new THREE.Vector3(0, 0, 1))) < 0.9
-                ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(1, 0, 0);
-            const nudge = new THREE.Vector3().crossVectors(up, helper).normalize();
-            endPos.addScaledVector(nudge, VIEW_EPSILON);
-        }
-    }
     const startUp = camera.up.clone();
-    const endUp = normalizeUpVector(targetView.up);
+    let endUp = normalizeUpVector(targetView.up);
+    // Nudge any pole-aligned destination off the OrbitControls singularity.
+    // If (position-target) is parallel to up, spherical azimuth becomes unstable
+    // and a 180° roll/flip can occur after controls.update().
+    const offset = endPos.clone().sub(endTarget);
+    const perp = offset.clone().sub(endUp.clone().multiplyScalar(offset.dot(endUp)));
+    if (perp.length() < VIEW_EPSILON) {
+        const helper = Math.abs(endUp.dot(new THREE.Vector3(0, 0, 1))) < 0.9
+            ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(1, 0, 0);
+        const nudge = new THREE.Vector3().crossVectors(endUp, helper).normalize();
+        const nudgeMag = Math.min(VIEW_EPSILON, Math.max(0.0005, offset.length() * 0.01));
+        endPos.addScaledVector(nudge, nudgeMag);
+    }
+    // Final safety: ensure camera up is not parallel to view direction.
+    const viewDir = endTarget.clone().sub(endPos).normalize();
+    if (Math.abs(viewDir.dot(endUp)) > 0.995) {
+        const helper = Math.abs(viewDir.dot(new THREE.Vector3(0, 1, 0))) < 0.9
+            ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+        endUp = helper.clone().sub(viewDir.clone().multiplyScalar(helper.dot(viewDir))).normalize();
+    }
     const startTime = performance.now();
 
     document.querySelectorAll('.cam-btn').forEach(b => b.classList.remove('active'));
@@ -4110,7 +4114,7 @@ function buildCameraButtons(spec) {
             target: tgt,
             up: (camSpec && Array.isArray(camSpec.up))
                 ? camSpec.up.slice(0, 3)
-                : sceneUp.slice(0, 3),
+                : [0, 1, 0],
         };
         if (e.shiftKey) animateCamera('reset', 0);
         else if (e.altKey) animateCamera('reset', 200);
