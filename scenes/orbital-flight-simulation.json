@@ -93,9 +93,13 @@
         },
         {
           "name": "Follow Spacecraft",
-          "description": "Tracks the spacecraft — useful for watching forces as altitude changes",
+          "description": "Tracks the spacecraft \u2014 useful for watching forces as altitude changes",
           "follow": "vcirc_arrow",
-          "offset": [0, 3000, 5000]
+          "offset": [
+            0,
+            3000,
+            5000
+          ]
         }
       ],
       "elements": [
@@ -265,19 +269,39 @@
           "title": "Derived Targets: Orbital and Escape Speeds",
           "description": "With $R_p,h,G,M$ fixed, the green arrow gives circular speed and the red arrow gives escape speed at the same radius.",
           "camera": {
-            "position": [0, 0, 18000],
-            "target": [0, 0, 0],
-            "up": [0, 1, 0]
+            "position": [
+              5865,
+              480,
+              6135
+            ],
+            "target": [
+              5865,
+              480,
+              0
+            ],
+            "up": [
+              0,
+              1,
+              0
+            ]
           },
           "remove": [
-            { "id": "launch_radius" },
-            { "id": "launch_marker" }
+            {
+              "id": "launch_radius"
+            },
+            {
+              "id": "launch_marker"
+            }
           ],
           "add": [
             {
               "id": "spacecraft_pt",
               "type": "animated_point",
-              "position": ["Rp+h", "0", "0"],
+              "position": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
               "color": "#ffee66",
               "size": 14,
               "label": "spacecraft"
@@ -357,21 +381,47 @@
           "title": "Force Balance: Gravity vs Centrifugal",
           "description": "In the rotating-frame view, inward gravity and outward centrifugal balance at circular speed. Drag altitude to see both vectors shrink together with radius.",
           "camera": {
-            "position": [11000, 4000, 8000],
-            "target": [6500, 0, 0],
-            "up": [0, 0, 1]
+            "position": [
+              11000,
+              4000,
+              8000
+            ],
+            "target": [
+              6500,
+              0,
+              0
+            ],
+            "up": [
+              0,
+              0,
+              1
+            ]
           },
           "remove": [
-            { "id": "vesc_arrow" },
-            { "id": "launch_radius" },
-            { "id": "launch_marker" }
+            {
+              "id": "vesc_arrow"
+            },
+            {
+              "id": "launch_radius"
+            },
+            {
+              "id": "launch_marker"
+            }
           ],
           "add": [
             {
               "id": "grav_arrow",
               "type": "animated_vector",
-              "fromExpr": ["Rp+h", "0", "0"],
-              "expr": ["Rp+h - 30000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h - 30000*(Gs*Mx*10000)/((Rp+h)^2)",
+                "0",
+                "0"
+              ],
               "labelOffset": [
                 140,
                 90,
@@ -385,8 +435,16 @@
             {
               "id": "centrifugal_label",
               "type": "animated_vector",
-              "fromExpr": ["Rp+h", "0", "0"],
-              "expr": ["Rp+h + 30000*(Gs*Mx*10000)/((Rp+h)^2)", "0", "0"],
+              "fromExpr": [
+                "Rp+h",
+                "0",
+                "0"
+              ],
+              "expr": [
+                "Rp+h + 30000*(Gs*Mx*10000)/((Rp+h)^2)",
+                "0",
+                "0"
+              ],
               "labelOffset": [
                 -180,
                 -90,
@@ -429,14 +487,19 @@
       ],
       "camera": {
         "position": [
-          17000,
-          9500,
-          9200
+          5175,
+          -30,
+          17580
         ],
         "target": [
-          0,
-          0,
-          0
+          5865,
+          1545,
+          -1830
+        ],
+        "up": [
+          0.125,
+          0.988,
+          0.085
         ]
       },
       "cameraUp": [
@@ -463,19 +526,19 @@
           "name": "Plane",
           "description": "Orbital plane view",
           "position": [
-            0,
-            0,
-            19500
+            5175,
+            -30,
+            17580
           ],
           "target": [
-            0,
-            0,
-            0
+            5865,
+            1545,
+            -1830
           ],
           "up": [
-            0,
-            1,
-            0
+            0.125,
+            0.988,
+            0.085
           ]
         },
         {
@@ -1095,52 +1158,73 @@
       "functions": [
         {
           "name": "orbitExtremumT",
-          "args": ["mode", "isApo"],
+          "args": [
+            "mode",
+            "isApo"
+          ],
           "expr": "(() => { let n = 720; let tBest = 0; let rBest = orbitR(0, mode); for (let i = 1; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) break; let rr = orbitR(tt, mode); if ((isApo > 0.5 && rr > rBest) || (isApo <= 0.5 && rr < rBest)) { rBest = rr; tBest = tt; } } return tBest; })()"
         },
         {
           "name": "orbitPeriT",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitExtremumT(mode, 0)"
         },
         {
           "name": "orbitApoT",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitExtremumT(mode, 1)"
         },
         {
           "name": "orbitPeriX",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitX(orbitPeriT(mode), mode)"
         },
         {
           "name": "orbitPeriY",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitY(orbitPeriT(mode), mode)"
         },
         {
           "name": "orbitApoX",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitX(orbitApoT(mode), mode)"
         },
         {
           "name": "orbitApoY",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitY(orbitApoT(mode), mode)"
         },
         {
           "name": "orbitImpactT",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "(() => { let n = 720; for (let i = 0; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) return tt; } return -1; })()"
         },
         {
           "name": "orbitImpactX",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitImpactT(mode) >= 0 ? orbitX(orbitImpactT(mode), mode) : 0"
         },
         {
           "name": "orbitImpactY",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitImpactT(mode) >= 0 ? orbitY(orbitImpactT(mode), mode) : 0"
         }
       ],
@@ -1429,14 +1513,19 @@
       ],
       "camera": {
         "position": [
-          17000,
-          9500,
-          9200
+          7350,
+          -1470,
+          2160
         ],
         "target": [
-          0,
-          0,
-          0
+          4785,
+          2370,
+          -660
+        ],
+        "up": [
+          0.776,
+          0.616,
+          0.136
         ]
       },
       "cameraUp": [
@@ -1463,19 +1552,19 @@
           "name": "Plane",
           "description": "Orbital plane view",
           "position": [
-            0,
-            0,
-            19500
+            7350,
+            -1470,
+            2160
           ],
           "target": [
-            0,
-            0,
-            0
+            4785,
+            2370,
+            -660
           ],
           "up": [
-            0,
-            1,
-            0
+            0.776,
+            0.616,
+            0.136
           ]
         },
         {
@@ -1497,52 +1586,73 @@
       "functions": [
         {
           "name": "orbitExtremumT",
-          "args": ["mode", "isApo"],
+          "args": [
+            "mode",
+            "isApo"
+          ],
           "expr": "(() => { let n = 720; let tBest = 0; let rBest = orbitR(0, mode); for (let i = 1; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) break; let rr = orbitR(tt, mode); if ((isApo > 0.5 && rr > rBest) || (isApo <= 0.5 && rr < rBest)) { rBest = rr; tBest = tt; } } return tBest; })()"
         },
         {
           "name": "orbitPeriT",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitExtremumT(mode, 0)"
         },
         {
           "name": "orbitApoT",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitExtremumT(mode, 1)"
         },
         {
           "name": "orbitPeriX",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitX(orbitPeriT(mode), mode)"
         },
         {
           "name": "orbitPeriY",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitY(orbitPeriT(mode), mode)"
         },
         {
           "name": "orbitApoX",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitX(orbitApoT(mode), mode)"
         },
         {
           "name": "orbitApoY",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitY(orbitApoT(mode), mode)"
         },
         {
           "name": "orbitImpactT",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "(() => { let n = 720; for (let i = 0; i <= n; i++) { let tt = i*T/n; if (orbitHit(tt, mode) > 0.5) return tt; } return -1; })()"
         },
         {
           "name": "orbitImpactX",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitImpactT(mode) >= 0 ? orbitX(orbitImpactT(mode), mode) : 0"
         },
         {
           "name": "orbitImpactY",
-          "args": ["mode"],
+          "args": [
+            "mode"
+          ],
           "expr": "orbitImpactT(mode) >= 0 ? orbitY(orbitImpactT(mode), mode) : 0"
         }
       ],
