@@ -148,20 +148,37 @@ loadScene(json)
 
 Each element in `scene.elements` and `step.add` is dispatched by `type`:
 
+**Static elements** — built once, zero per-frame cost:
+
 | Type | Description |
 |---|---|
 | `axis` | Coordinate axis line |
-| `sphere` | 3D sphere mesh |
-| `plane` | Infinite plane (semi-transparent) |
-| `vector` | Static arrow |
-| `animated_vector` | Arrow driven by live expressions |
-| `animated_point` | Point driven by live expressions |
-| `animated_line` | Line segment driven by live expressions |
-| `parametric_curve` | Continuous curve: `x(t)`, `y(t)`, `z(t)` |
-| `parametric_surface` | 3D surface: `x(u,v)`, `y(u,v)`, `z(u,v)` |
-| `point_cloud` | Static or data-driven point set |
+| `grid` | Reference grid on xy, xz, or yz plane |
+| `vector` | Static arrow from `from` to `to` |
+| `vectors` | Batch of static arrows from `froms`/`tos` arrays |
+| `vector_field` | Dense arrow field driven by `fx`, `fy`, `fz` expressions over a grid |
+| `point` | One or more static points |
 | `line` | Polyline through a list of points |
-| `text` | 3D text label |
+| `plane` | Finite plane defined by normal and point |
+| `polygon` | Flat filled polygon from a vertex list |
+| `cylinder` | Static cylinder between two endpoints |
+| `sphere` | 3D sphere mesh |
+| `ellipsoid` | Ellipsoid with per-axis radii (supports `centerExpr`/`radiiExpr` for slider-driven shape) |
+| `surface` | Height surface `z = f(x, y)` over a 2D range |
+| `parametric_curve` | Continuous curve: `x(t)`, `y(t)`, `z(t)` expressions over a range |
+| `parametric_surface` | 3D surface: `x(u,v)`, `y(u,v)`, `z(u,v)` expressions |
+| `text` | 3D text label at a fixed position |
+| `skybox` | Background style — solid color, starfield, or gradient |
+
+**Animated elements** — update every frame via expression evaluation:
+
+| Type | Description |
+|---|---|
+| `animated_vector` | Arrow driven by `expr`/`fromExpr` (and optionally `visibleExpr`, `trail`, keyframes) |
+| `animated_point` | Point driven by `expr` position expressions |
+| `animated_line` | Polyline with per-vertex `points` expression arrays |
+| `animated_cylinder` | Cylinder with `fromExpr`/`toExpr`/`radiusExpr` |
+| `animated_polygon` | Filled polygon with per-vertex `vertices` expression arrays |
 
 #### Expression Evaluation
 
@@ -265,7 +282,7 @@ User sees a **Trust Dialog** and must explicitly choose:
 
 ### Extended Sandbox Functions
 
-Beyond standard math.js, `app.js` injects domain-specific helpers:
+Beyond standard math.js, `app.js` injects domain-specific helpers available in all scenes:
 
 | Function | Description |
 |---|---|
@@ -277,6 +294,22 @@ Beyond standard math.js, `app.js` injects domain-specific helpers:
 | `orbitHit(t, mode)` | 1 if trajectory has hit the planet, else 0 |
 | `orbitOutcome(t, mode)` | Human-readable orbit outcome string |
 | `toFixed(val, n)` | Format number to n decimal places |
+
+### Scene-Level Functions (`scene.functions`)
+
+Scenes can define their own reusable expression helpers in a top-level `functions` array. These are compiled once and made available as named functions in all expressions within that scene — just like built-in helpers.
+
+```json
+"functions": [
+  {
+    "name": "orbitPeriX",
+    "args": ["mode"],
+    "expr": "orbitX(orbitPeriT(mode), mode)"
+  }
+]
+```
+
+This is how the orbital scene implements apogee/perigee markers — the core `orbitX/orbitR` helpers are built into `app.js`, but the higher-level `orbitPeriX`, `orbitApoX` etc. are defined as scene functions in the JSON itself. Scene functions can call other scene functions and all built-in helpers, and can use IIFE expressions for loops or complex logic (which marks the scene as `unsafe`).
 
 ---
 

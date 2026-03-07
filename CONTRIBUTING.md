@@ -69,14 +69,83 @@ Until that gap closes, a coding agent with the `mathboxai-scene-builder` skill i
 | `elements` | array | Objects to display (vectors, planes, points, etc.) |
 | `steps` | array | Progressive reveal steps for narrated walkthroughs |
 
-**Element types:**
+**Choosing between static and animated elements**
 
-```json
-{ "type": "vector", "id": "v1", "from": [0,0,0], "to": [1,2,0], "color": "#ff4444", "label": "v₁" }
-{ "type": "point",  "id": "p1", "position": [1,1,0], "color": "#44ff44", "label": "A" }
-{ "type": "plane",  "id": "pl", "normal": [0,0,1], "point": [0,0,0], "color": "#4488ff" }
-{ "type": "line",   "id": "l1", "from": [-3,0,0], "to": [3,0,0], "color": "#ffffff" }
+Every element type comes in two flavors — static and animated. Picking the right one matters both for correctness and performance.
+
+A **static** element is built once when the scene loads. Its position, size, and shape are fixed — they do not respond to slider changes or animation time. Use static elements for anything that does not need to move or update: a reference axis, a fixed plane, a sphere representing a planet, a background grid.
+
+An **animated** element is re-evaluated on every frame. Its geometry is driven by **expression strings** — small math formulas that reference slider values (by their `id`) and the animation clock (`t`). Whenever a slider moves, the expressions are re-evaluated and the element updates in real time. Use animated elements whenever the shape or position should change live.
+
 ```
+// Static — position is hardcoded, never changes
+{ "type": "vector", "from": [0,0,0], "to": [1,0,0] }
+
+// Animated — tip tracks slider values a, b, c in real time
+{ "type": "animated_vector", "fromExpr": ["0","0","0"], "expr": ["a","b","c"] }
+```
+
+If a position could be hardcoded, use the static type. If it needs to respond to sliders or time, use the animated type. Unnecessary animated elements add per-frame evaluation cost that accumulates across a scene.
+
+**Static element types** — built once, zero per-frame cost:
+
+| Type | Description |
+|---|---|
+| `axis` | Coordinate axis line |
+| `grid` | Reference grid on xy, xz, or yz plane |
+| `vector` | Arrow from `from` to `to` |
+| `vectors` | Batch of arrows from `froms`/`tos` arrays |
+| `vector_field` | Dense arrow field from `fx`, `fy`, `fz` expressions |
+| `point` | One or more points |
+| `line` | Polyline through a list of points |
+| `plane` | Finite plane by normal and point |
+| `polygon` | Flat filled polygon from vertices |
+| `cylinder` | Cylinder between two endpoints |
+| `sphere` | Sphere mesh |
+| `ellipsoid` | Ellipsoid with per-axis radii |
+| `surface` | Height surface `z = f(x, y)` |
+| `parametric_curve` | Curve from `x(t)`, `y(t)`, `z(t)` expressions |
+| `parametric_surface` | Surface from `x(u,v)`, `y(u,v)`, `z(u,v)` expressions |
+| `text` | 3D text label |
+| `skybox` | Background — solid color, starfield, or gradient |
+
+**Animated element types** — re-evaluated every frame, driven by slider values and time `t`:
+
+| Type | Description |
+|---|---|
+| `animated_vector` | Arrow driven by `expr`/`fromExpr` expressions |
+| `animated_point` | Point driven by `expr` position expressions |
+| `animated_line` | Polyline with per-vertex `points` expression arrays |
+| `animated_cylinder` | Cylinder driven by `fromExpr`/`toExpr`/`radiusExpr` |
+| `animated_polygon` | Filled polygon with per-vertex `vertices` expression arrays |
+
+**How a scene is built from root to steps**
+
+Understanding this model is essential for designing scenes correctly.
+
+When a scene loads, the renderer first builds the **root layer** — all elements defined in the top-level `elements` array. This is the permanent base of the scene: axes, the planet sphere, a reference grid, background elements that should always be visible.
+
+Steps are then applied **incrementally on top**. Each step has two operations that happen in order:
+1. **`remove`** — hide elements from previous layers that are no longer needed
+2. **`add`** — render new elements for this step, register new sliders
+
+This means elements accumulate by default. An element added in step 1 is still visible in step 2, step 3, and beyond — unless explicitly removed. The scene at any step is the result of the root layer plus every step applied so far.
+
+```
+Root elements:   [axis, sphere, grid]
+After step 1:    [axis, sphere, grid] + [vector_a, vector_b]
+After step 2:    [axis, sphere, grid] + [vector_a, vector_b] + [plane]     ← remove: nothing
+After step 3:    [axis, sphere] + [result_vector]                          ← remove: grid, vector_a, vector_b, plane
+```
+
+Navigating **forward** applies the next step's removes and adds on top of the current state.
+Navigating **backward** automatically undoes the last step — its added elements are hidden and its removes are restored. This makes the scene fully reversible without any extra authoring work.
+
+**Practical implications:**
+- Put permanent context (axes, reference objects, background) in the root `elements` — never in steps
+- Only add to steps what is specific to that conceptual moment
+- Be explicit about removes — if an element has served its purpose, remove it before the next idea
+- Don't rely on elements disappearing automatically — they persist until removed
 
 **Steps (progressive reveal):**
 
@@ -98,6 +167,29 @@ Until that gap closes, a coding agent with the `mathboxai-scene-builder` skill i
   ]
 }
 ```
+
+**Using `remove` to keep steps focused**
+
+Each step can remove elements that are no longer relevant before introducing new ones. This is important — a cluttered canvas confuses the viewer. Every element on screen competes for attention, so a good scene only shows what is needed for the current idea.
+
+`remove` is an array of targets. Each target is matched by `id`, by `type`, or with a wildcard:
+
+```json
+{ "remove": [
+    { "id": "intro_vector" },        // hide a specific element
+    { "type": "animated_line" },     // hide all elements of a type
+    { "type": "slider" },            // hide all sliders
+    { "id": "*" }                    // hide everything (clean slate)
+] }
+```
+
+Removes are automatically undone when the user navigates backward, so the scene stays consistent in both directions.
+
+**Scene hygiene principles:**
+- Each step should show only the elements relevant to the concept being introduced at that moment
+- Remove helper elements (construction lines, intermediate annotations) once they have served their purpose
+- A clean canvas at the start of a new idea is almost always better than carrying everything forward
+- Use `{"id": "*"}` at the start of a step when you want a full reset before introducing a new concept
 
 Use the built-in scenes in `scenes/` as reference — `eigenvalues.json` and `matrix-transformations.json` show sliders and animated elements.
 
